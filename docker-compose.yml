@@ -3,13 +3,23 @@ services:
     container_name: front-line
     image: nginx:latest
     ports:
-      - "8180:80"
+      - "8080:80"
     restart: always
     volumes:
       - ./frontend/build:/var/www/html
       - ./nginx/conf.d:/etc/nginx/conf.d
     env_file:
       - .env
+    networks:
+      - line_bot_ci_cd_net
+  frontend:
+    container_name: frontend-dev
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+    ports:
+      - "3000:3000"
     networks:
       - line_bot_ci_cd_net
   app:
@@ -23,7 +33,7 @@ services:
     links:
       - database
     ports:
-      - "8181:8181"
+      - "8081:8081"
     networks:
       - line_bot_ci_cd_net
     environment:

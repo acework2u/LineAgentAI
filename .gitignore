@@ -2,3 +2,6 @@
 .idea
 .DS_Store
 conf/*.yaml
+tmp
+frontend/node_modules
+node_modules
