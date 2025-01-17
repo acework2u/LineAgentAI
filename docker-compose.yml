@@ -18,6 +18,11 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       target: development
+    volumes:
+      - ./frontend/src:/app/src
+      - /app/node_modules
+    environment:
+      - WATCHPACK_POLLING=true
     ports:
       - "3000:3000"
     networks:
