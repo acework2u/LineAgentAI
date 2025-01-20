@@ -5,6 +5,7 @@ import News from "./components/News";
 import Attend from "./components/Attend";
 import Calendar from "./components/Calendar";
 import Contact from "./components/Contact";
+import Home from "./components/Home";
 function App() {
     const [currentPage, setCurrentPage] = useState('home'); // State for tracking the current page
 
@@ -22,7 +23,7 @@ function App() {
             case 'contact':
                 return <Contact />;
             case 'home':
-                return <div className="container mt-5"><h1>Welcome</h1></div>
+                return <Home />;
             default:
                 return <div className="container mt-5"><h1>404 - Page Not Found</h1></div>
         }

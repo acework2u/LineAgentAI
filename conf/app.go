@@ -20,10 +20,15 @@ type Db struct {
 	Port   string `json:"port" yaml:"port"`
 	Uri    string `json:"uri" yaml:"uri"`
 }
+type LineApp struct {
+	ChannelSecret string `json:"channelSecret" yaml:"channelSecret"`
+	ChannelToken  string `json:"channelToken" yaml:"channelToken"`
+}
 
 type AppConfig struct {
-	App App
-	Db  Db
+	App     App
+	Db      Db
+	LineApp LineApp
 }
 
 func NewAppConfig() (*AppConfig, error) {

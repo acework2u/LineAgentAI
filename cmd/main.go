@@ -7,6 +7,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 	"linechat/conf"
+	"linechat/handler"
+	"linechat/router"
+	"linechat/services"
 	"log"
 	"time"
 )
@@ -20,6 +23,11 @@ var (
 	client    *mongo.Client
 	ctx       context.Context
 	appConfig *conf.AppConfig
+
+	// LineApp
+	LineHandler    *handler.LineWebhookHandler
+	LineRouter     *router.LineRouter
+	lineBotService services.LineBotService
 )
 
 func init() {
@@ -30,6 +38,11 @@ func init() {
 	}
 	//client = conf.ConnectionDB()
 	//ctx = context.Background()
+
+	lineBotService = services.NewLineBotService()
+	LineHandler = handler.NewLineWebhookHandler(lineBotService)
+	LineRouter = router.NewLineRouter(LineHandler)
+
 	server = gin.Default()
 }
 
@@ -50,13 +63,17 @@ func StartServer() {
 	server.NoRoute(func(c *gin.Context) {
 		c.JSON(404, gin.H{"message": "Not Found"})
 	})
+
+	// router
+	routers := server.Group("/api/v1")
+	LineRouter.LineHookRouter(routers)
+
 	//server.Run(appConfig.App.Port)
 	log.Fatal(server.Run(":" + appConfig.App.Port + ""))
 
 }
 
 func main() {
-	fmt.Println("hello")
 	StartServer()
 
 }
