@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"linechat/conf"
 	"linechat/handler"
+	"linechat/repository"
 	"linechat/router"
 	"linechat/services"
 	"log"
@@ -15,7 +16,7 @@ import (
 )
 
 const (
-	customerCollection = "customers"
+	MemberCollectionName = "members"
 )
 
 var (
@@ -24,22 +25,29 @@ var (
 	ctx       context.Context
 	appConfig *conf.AppConfig
 
+	// Member Collection
+	memberCollection *mongo.Collection
 	// LineApp
 	LineHandler    *handler.LineWebhookHandler
 	LineRouter     *router.LineRouter
 	lineBotService services.LineBotService
+	memberRepo     repository.MemberRepository
 )
 
 func init() {
 	var err error
 	appConfig, err = conf.NewAppConfig()
+	ctx = context.TODO()
 	if err != nil {
 		fmt.Println(err)
 	}
-	//client = conf.ConnectionDB()
-	//ctx = context.Background()
+	// DB Connection
+	client = conf.ConnectionDB()
+	memberCollection = conf.GetCollection(client, MemberCollectionName)
+	// Service
 
-	lineBotService = services.NewLineBotService()
+	memberRepo = repository.NewMemberRepository(ctx, memberCollection)
+	lineBotService = services.NewLineBotService(memberRepo)
 	LineHandler = handler.NewLineWebhookHandler(lineBotService)
 	LineRouter = router.NewLineRouter(LineHandler)
 
@@ -62,6 +70,13 @@ func StartServer() {
 	// default page not found
 	server.NoRoute(func(c *gin.Context) {
 		c.JSON(404, gin.H{"message": "Not Found"})
+	})
+
+	//static page
+	server.LoadHTMLGlob("views/*.html")
+	server.Static("/static", "./static")
+	server.GET("/register", func(c *gin.Context) {
+		c.HTML(200, "register.html", nil)
 	})
 
 	// router

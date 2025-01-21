@@ -57,6 +57,7 @@ func ConnectionDB() *mongo.Client {
 	if err != nil {
 		log.Println(err)
 	}
+	log.Println(cfg.Db.Uri)
 	// client connected to db
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(cfg.Db.Uri))
 	if err != nil {
@@ -66,7 +67,8 @@ func ConnectionDB() *mongo.Client {
 	defer cancel()
 	err = client.Ping(ctx, nil)
 	if err != nil {
-		log.Println(err)
+		//log.Println(err)
+		log.Fatal(err)
 	}
 
 	log.Println("Connected to MongoDB!")
@@ -80,6 +82,8 @@ func GetCollection(client *mongo.Client, collectionName string) *mongo.Collectio
 	if err != nil {
 		log.Println(err)
 	}
+	log.Println(cfg.Db.Uri)
+	log.Println(cfg.Db.DbName)
 
 	return client.Database(cfg.Db.DbName).Collection(collectionName)
 }

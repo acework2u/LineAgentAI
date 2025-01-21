@@ -7,6 +7,7 @@ import (
 	"github.com/line/line-bot-sdk-go/v8/linebot/webhook"
 	"linechat/conf"
 	"linechat/services"
+	"linechat/utils"
 	"log"
 	"net/http"
 )
@@ -68,4 +69,80 @@ func (h *LineWebhookHandler) LineHookHandle(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{"message": "OK"})
+}
+func (h *LineWebhookHandler) LineCallback(c *gin.Context) {
+	cb, err := webhook.ParseRequest(h.cfg.LineApp.ChannelSecret, c.Request)
+	if err != nil {
+		if err == webhook.ErrInvalidSignature {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid signature"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
+		}
+		return
+	}
+	for _, event := range cb.Events {
+		log.Printf("Event: %v", event)
+	}
+
+	c.JSON(200, gin.H{"message": "OK"})
+}
+func (h *LineWebhookHandler) LineRegister(c *gin.Context) {
+	member := &services.Member{}
+	err := c.ShouldBindJSON(member)
+	cusErr := utils.NewCustomErrorHandler(c)
+
+	if err != nil {
+
+		cusErr.ValidateError(err)
+		//c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	err = h.lineService.RegisterMember(member)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	//c.JSON(200, gin.H{"member register a message": member})
+	c.JSON(200, gin.H{"message": "Member registration successful"})
+}
+func (h *LineWebhookHandler) LineLogin(c *gin.Context) {
+	c.JSON(200, gin.H{"member login a message": "OK"})
+}
+func (h *LineWebhookHandler) LineLogout(c *gin.Context) {
+	c.JSON(200, gin.H{"member logout a message": "OK"})
+}
+func (h *LineWebhookHandler) LineChat(c *gin.Context) {
+	c.JSON(200, gin.H{"member chat a message": "OK"})
+}
+func (h *LineWebhookHandler) GetLineProfile(c *gin.Context) {
+
+	userId := c.Query("userId")
+	if userId == "" {
+		c.JSON(400, gin.H{"error": "userId is required"})
+		return
+	}
+	userInfo, err := h.lineService.GetLineProfile(userId)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"userInfo": userInfo})
+
+}
+func (h *LineWebhookHandler) PutLineProfile(c *gin.Context) {
+	member := &services.Member{}
+	err := c.ShouldBindJSON(member)
+
+	cusErr := utils.NewCustomErrorHandler(c)
+	if err != nil {
+		cusErr.ValidateError(err)
+		return
+	}
+	err = h.lineService.UpdateMemberProfile(member.LineId, member)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+	}
+	c.JSON(200, gin.H{"message": "Member profile updated"})
 }

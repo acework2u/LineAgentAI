@@ -70,9 +70,9 @@ services:
       - line_bot_ci_cd_net
     volumes:
       - ./init.sh:/docker-entrypoint-initdb.d/init.sh:ro
-      - mongodb_data_smartapp:/data/db
+      - medical_volunteer_data:/data/db
 volumes:
-  mongodb_data_smartapp:
+  medical_volunteer_data:
 
 networks:
   line_bot_ci_cd_net:
