@@ -6,6 +6,7 @@ type LineBotService interface {
 	RegisterMember(member *Member) error
 	GetLineProfile(userId string) (*UserInfo, error)
 	UpdateMemberProfile(userId string, member *Member) error
+	CheckMemberRegister(userId string) (bool, error)
 }
 type SourceHook struct {
 	Type   string `json:"type"`
@@ -56,7 +57,7 @@ type LineEventResponse struct {
 type Member struct {
 	Name         string `json:"name" binding:"required" validate:"required,min=3,max=20"`
 	LastName     string `json:"lastName" binding:"required" validate:"required,min=3,max=20"`
-	PinCode      int    `json:"pinCode" binding:"required" validate:"required,min=5,max=9"`
+	PinCode      int    `json:"pinCode"`
 	Email        string `json:"email" binding:"required" validate:"required,email"`
 	Phone        string `json:"phone" binding:"required" validate:"required,numeric,min=10,max=10"`
 	BirthDate    int64  `json:"birthDate" `
@@ -82,4 +83,8 @@ type UserInfo struct {
 	LineID     string `json:"lineId"`
 	Status     bool   `json:"status"`
 	Member     Member `json:"member"`
+}
+
+type UserMinInfo struct {
+	UserID string `json:"userId"`
 }

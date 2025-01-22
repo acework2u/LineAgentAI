@@ -146,3 +146,33 @@ func (h *LineWebhookHandler) PutLineProfile(c *gin.Context) {
 	}
 	c.JSON(200, gin.H{"message": "Member profile updated"})
 }
+func (h *LineWebhookHandler) CheckMemberRegister(c *gin.Context) {
+	//userId := c.Query("userId")
+	var userId string
+	userMiniInfo := services.UserMinInfo{}
+	err := c.ShouldBindJSON(&userMiniInfo)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	userId = userMiniInfo.UserID
+
+	if userId == "" {
+		c.JSON(400, gin.H{"error": "userId is required"})
+		return
+	}
+	isRegister, err := h.lineService.CheckMemberRegister(userId)
+	if err != nil {
+
+		if err.Error() == "mongo: no documents in result" {
+			c.JSON(200, gin.H{"isRegistered": false})
+			return
+		}
+
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"isRegistered": isRegister})
+
+}

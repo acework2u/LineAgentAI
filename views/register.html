@@ -45,6 +45,22 @@
     <div class="head-register">
         <h2>Member Profile</h2>
     </div>
+    <div class="row row-cols-1 row-cols-md-2 g-4 mb-3 member-profile">
+
+        <img class="img-fluid" id="user-picture" alt="User Picture" height="50" width="100" style="border-radius: 50%;">
+        <p id="user-name"></p>
+        <p id="user-id"></p>
+        <p id="user-email"></p>
+        <p id="user-phone"></p>
+        <p id="user-med"></p>
+        <p id="user-organization"></p>
+        <p id="user-position"></p>
+        <p id="user-course"></p>
+        <p id="user-foodAllergy"></p>
+        <p id="user-religion"></p>
+    </div>
+
+
     <div id="register-form" class="hidden">
         <img id="user-picture" alt="User Picture" width="100" style="border-radius: 50%;">
         <p id="user-name"></p>
@@ -52,10 +68,17 @@
         <form id="registration-form">
             <input type="text" id="full-name" placeholder="Enter your full name" required>
             <input type="email" id="email" placeholder="Enter your email" required>
+            <input type="text" class ="form-input" id="name" placeholder="Enter your name">
+            <input type="text" class="form-input" id="lastname" placeholder="Enter your lastname">
+            <input type="hidden" class="form-input" id="line-id">
             <input type="text" class="form-input" id="phone" placeholder="Enter your phone number">
-            <input type="text" class="form-input" id="role" placeholder="Enter your MED">
+            <input type="text" class="form-input" id="med" placeholder="Enter your MED">
             <input type="text" class="form-input" id="organization" placeholder="Enter your organization">
             <input type="text" class="form-input" id="position" placeholder="Enter your position">
+            <input type="text" class="form-input" id="course" placeholder="Enter your course">
+            <input type="text" class="form-input" id="foodAllergy" placeholder="Enter your food allergy">
+            <input type="text" class="form-input" id="religion" placeholder="Enter your religion">
+            <input type="text" class="form-input" id="line-name" placeholder="Enter your line name">
 
             <button type="button" id="register-btn">Register</button>
         </form>
@@ -64,9 +87,11 @@
 <script>
     // Replace with your LIFF ID
     const LIFF_ID = "2006793268-7rZrb1Kw";
-
-    // API endpoint for registration
-    const API_URL = "https://dca3a8ac633b.ngrok.app/api/v1/register"; // Replace with your actual endpoint
+    const baseUrl = " https://dca3a8ac633b.ngrok.app";
+    // API endpoints
+    const CHECK_REGISTRATION_API = `${baseUrl}/api/v1/check-registration`; // Replace with actual API endpoint
+    const GET_PROFILE_API = `${baseUrl}/api/v1/profile`; // Replace with actual API endpoint
+    const REGISTER_API = `${baseUrl}/api/v1/register`; // Replace with actual API endpoint
 
     // Initialize LIFF
     async function initLIFF() {
@@ -74,7 +99,7 @@
             await liff.init({ liffId: LIFF_ID });
             document.getElementById('status').innerText = "LIFF initialized";
             if (liff.isLoggedIn()) {
-                displayUserProfile();
+                handleUserLogin();
             } else {
                 liff.login();
             }
@@ -83,81 +108,151 @@
         }
     }
 
-    // Display User Profile
-    async function displayUserProfile() {
+    // Handle User Login
+    async function handleUserLogin() {
         try {
             const profile = await liff.getProfile();
-            document.getElementById('register-form').classList.remove('hidden');
-            document.getElementById('status').classList.add('hidden');
-            document.getElementById('user-picture').src = profile.pictureUrl;
-            document.getElementById('user-name').innerText = "Name: " + profile.displayName;
-            document.getElementById('user-id').innerText = "UserID: " + profile.userId;
+            const userId = profile.userId;
+
+            // Check registration status
+            const response = await fetch(CHECK_REGISTRATION_API, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log(data);
+                if (data.isRegistered) {
+                    // User is registered, fetch their profile
+                    fetchUserProfile(userId);
+                } else {
+                    // User is not registered, show the registration form
+                    displayRegistrationForm(profile);
+                }
+            } else {
+                throw new Error("Failed to check registration status");
+            }
         } catch (error) {
-            document.getElementById('status').innerText = "Error getting profile: " + error;
+            document.getElementById('status').innerText = "Error: " + error.message;
         }
     }
 
-    // Validate Email
-    function isValidEmail(email) {
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailPattern.test(email);
+    // Fetch User Profile
+    async function fetchUserProfile(userId) {
+        try {
+            const response = await fetch(`${GET_PROFILE_API}?userId=${userId}`);
+            if (response.ok) {
+                const userData = await response.json();
+                const dataUserInfo = userData.userInfo;
+                console.log(dataUserInfo);
+                displayUserProfile(dataUserInfo);
+            } else {
+                throw new Error("Failed to fetch user profile");
+            }
+        } catch (error) {
+            document.getElementById('status').innerText = "Error fetching profile: " + error.message;
+        }
+    }
+
+    // Display User Profile
+    function displayUserProfile(userData) {
+        document.getElementById('status').innerText = "Welcome, " + userData.name;
+        document.getElementById('register-form').classList.add('hidden');
+        document.getElementById('user-name').innerText = "Name: " + userData.name + " " + userData.lastName;
+        document.getElementById('user-id').innerText = "UserID: " + userData.userId;
+        document.getElementById('user-picture').src = userData.pictureUrl || '' || userData.pictureUrl;
+        document.getElementById('user-email').innerText = "Email: " + userData.member.email;
+        document.getElementById('user-phone').innerText = "Phone: " + userData.member.phone;
+        document.getElementById('user-med').innerText = "MED: " + userData.member.med;
+        document.getElementById('user-organization').innerText = "Organization: " + userData.member.organization;
+        document.getElementById('user-position').innerText = "Position: " + userData.member.position;
+        document.getElementById('user-course').innerText = "Course: " + userData.member.course;
+        document.getElementById('user-foodAllergy').innerText = "Food Allergy: " + userData.member.foodAllergy;
+        document.getElementById('user-religion').innerText = "Religion: " + userData.member.religion;
+        document.getElementById('line-id').value = userData.userId;
+        document.getElementById('line-name').value = userData.name + " " + userData.lastname;
+    }
+
+    // Display Registration Form
+    function displayRegistrationForm(profile) {
+        document.getElementById('status').classList.add('hidden');
+        document.getElementById('register-form').classList.remove('hidden');
+        document.getElementById('user-picture').src = profile.pictureUrl;
+        document.getElementById('user-name').innerText = "Name: " + profile.displayName;
+        document.getElementById('user-id').innerText = "UserID: " + profile.userId;
+        document.getElementById('line-id').value = profile.userId;
+        document.getElementById('line-name').value = profile.displayName;
     }
 
     // Handle Registration
     document.getElementById('register-btn').addEventListener('click', async () => {
         const fullName = document.getElementById('full-name').value.trim();
+        const name = document.getElementById('name').value.trim();
+        const lastname = document.getElementById('lastname').value.trim();
+        const med = document.getElementById('med').value.trim();
         const email = document.getElementById('email').value.trim();
         const phone = document.getElementById('phone').value.trim();
-        const role = document.getElementById('role').value.trim();
         const organization = document.getElementById('organization').value.trim();
         const position = document.getElementById('position').value.trim();
+        const course = document.getElementById('course').value.trim();
+        const foodAllergy = document.getElementById('foodAllergy').value.trim();
+        const religion = document.getElementById('religion').value.trim();
+        const lineId = document.getElementById('line-id').value.trim();
 
-        if (!fullName || !email || !phone || !role || !organization || !position) {
-            alert("All fields are required. Please fill out the form completely.");
-            return;
+
+        let isValid = true;
+
+        // Validate fields
+        if (!fullName || !email || !phone || !organization || !position) {
+            isValid = false;
+            alert("All fields are required.");
         }
 
-        if (!isValidEmail(email)) {
-            alert("Please enter a valid email address.");
-            return;
-        }
+        if (isValid) {
+            try {
+                const profile = await liff.getProfile();
+                const data = {
+                    userId: profile.userId,
+                    fullName,
+                    name,
+                    lastname,
+                    course,
+                    foodAllergy,
+                    religion,
+                    lineId,
+                    email,
+                    phone,
+                    med,
+                    organization,
+                    position
+                };
 
-        try {
-            const profile = await liff.getProfile();
-            const data = {
-                userId: profile.userId,
-                fullName,
-                email,
-                phone,
-                role,
-                organization,
-                position
-            };
+                // Send registration data to API
+                const response = await fetch(REGISTER_API, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
 
-            // Send data to API
-            const response = await fetch(API_URL, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data)
-            });
-
-            if (response.ok) {
-                alert("Registration Successful!");
-            } else {
-                const errorData = await response.json();
-                alert("Registration failed: " + errorData.message);
+                if (response.ok) {
+                    alert("Registration Successful!");
+                    location.reload();
+                } else {
+                    console.log(response);
+                    console.log(await response.json());
+                    throw new Error("Failed to register user");
+                }
+            } catch (error) {
+                alert("Error during registration: " + error.message);
             }
-        } catch (error) {
-            alert("Error during registration: " + error.message);
         }
     });
 
     // Initialize LIFF on page load
     initLIFF();
 </script>
-
 <!--
 <script>
     // Replace with your LIFF ID

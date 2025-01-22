@@ -168,6 +168,19 @@ func (s *lineBotService) UpdateMemberProfile(userId string, member *Member) erro
 	return nil
 
 }
+func (s *lineBotService) CheckMemberRegister(userId string) (bool, error) {
+	if userId == "" {
+		return false, errors.New("userId is required")
+	}
+	rs, err := s.memberRepo.GetMemberByLineId(userId)
+	if err != nil {
+		return false, err
+	}
+	if rs.Status == true {
+		return true, nil
+	}
+	return false, nil
+}
 func validation(member *Member) error {
 	if member.Name == "" {
 		return errors.New("name is required")

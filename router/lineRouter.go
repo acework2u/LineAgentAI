@@ -23,5 +23,6 @@ func (r *LineRouter) LineHookRouter(rg *gin.RouterGroup) {
 	rg.POST("/chat", r.lineHandler.LineChat)
 	rg.GET("/profile", r.lineHandler.GetLineProfile)
 	rg.PUT("/profile", r.lineHandler.PutLineProfile)
+	rg.POST("/check-registration", r.lineHandler.CheckMemberRegister)
 
 }
