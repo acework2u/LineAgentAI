@@ -127,6 +127,300 @@ func (s lineBotService) SendImageMessage(replyToken string, imageURL string) err
 	return nil
 
 }
+func (s *lineBotService) SendFlexCarouselMessage(replyToken string) error {
+
+	carouselMsg := messaging_api.FlexMessage{}
+	carouselMsg.AltText = "this is a flex message"
+	carouselMsg.Contents = messaging_api.FlexCarousel{
+		Contents: []messaging_api.FlexBubble{
+			{
+				Body: &messaging_api.FlexBox{
+					Layout: messaging_api.FlexBoxLAYOUT_VERTICAL,
+					Contents: []messaging_api.FlexComponentInterface{
+						&messaging_api.FlexText{
+							Text: "Hello",
+						},
+						&messaging_api.FlexText{
+							Text: "World",
+						},
+						&messaging_api.FlexText{
+							Text: "Medical Volunteer",
+						},
+						&messaging_api.FlexImage{
+							Url:         "https://www.linefriends.com/img/img_sec.jpg",
+							Size:        "full",
+							AspectRatio: "1.9:1",
+						},
+					},
+				},
+			},
+		},
+	}
+	_, err := s.bot.ReplyMessage(&messaging_api.ReplyMessageRequest{
+		ReplyToken: replyToken,
+		Messages:   []messaging_api.MessageInterface{&carouselMsg},
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func (s *lineBotService) SendFlexJsonMessage(replyToken string, json string) error {
+	//if json == "" {
+	//	return errors.New("json is required")
+	//}
+	jsonString := `{
+  "type": "bubble",
+  "hero": {
+    "type": "image",
+    "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/01_1_cafe.png",
+    "size": "full",
+    "aspectRatio": "20:13",
+    "aspectMode": "cover",
+    "action": {
+      "type": "uri",
+      "uri": "http://linecorp.com/"
+    }
+  },
+  "body": {
+    "type": "box",
+    "layout": "vertical",
+    "contents": [
+      {
+        "type": "text",
+        "text": "Brown Cafe",
+        "weight": "bold",
+        "size": "xl"
+      },
+      {
+        "type": "box",
+        "layout": "baseline",
+        "margin": "md",
+        "contents": [
+          {
+            "type": "icon",
+            "size": "sm",
+            "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"
+          },
+          {
+            "type": "icon",
+            "size": "sm",
+            "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"
+          },
+          {
+            "type": "icon",
+            "size": "sm",
+            "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"
+          },
+          {
+            "type": "icon",
+            "size": "sm",
+            "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"
+          },
+          {
+            "type": "icon",
+            "size": "sm",
+            "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gray_star_28.png"
+          },
+          {
+            "type": "text",
+            "text": "4.0",
+            "size": "sm",
+            "color": "#999999",
+            "margin": "md",
+            "flex": 0
+          }
+        ]
+      },
+      {
+        "type": "box",
+        "layout": "vertical",
+        "margin": "lg",
+        "spacing": "sm",
+        "contents": [
+          {
+            "type": "box",
+            "layout": "baseline",
+            "spacing": "sm",
+            "contents": [
+              {
+                "type": "text",
+                "text": "Place",
+                "color": "#aaaaaa",
+                "size": "sm",
+                "flex": 1
+              },
+              {
+                "type": "text",
+                "text": "Miraina Tower, 4-1-6 Shinjuku, Tokyo",
+                "wrap": true,
+                "color": "#666666",
+                "size": "sm",
+                "flex": 5
+              }
+            ]
+          },
+          {
+            "type": "box",
+            "layout": "baseline",
+            "spacing": "sm",
+            "contents": [
+              {
+                "type": "text",
+                "text": "Time",
+                "color": "#aaaaaa",
+                "size": "sm",
+                "flex": 1
+              },
+              {
+                "type": "text",
+                "text": "10:00 - 23:00",
+                "wrap": true,
+                "color": "#666666",
+                "size": "sm",
+                "flex": 5
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "footer": {
+    "type": "box",
+    "layout": "vertical",
+    "spacing": "sm",
+    "contents": [
+      {
+        "type": "button",
+        "style": "link",
+        "height": "sm",
+        "action": {
+          "type": "uri",
+          "label": "CALL",
+          "uri": "https://linecorp.com"
+        }
+      },
+      {
+        "type": "button",
+        "style": "link",
+        "height": "sm",
+        "action": {
+          "type": "uri",
+          "label": "WEBSITE",
+          "uri": "https://linecorp.com",
+          "altUri": {
+            "desktop": "https://line.me/ja/download"
+          }
+        }
+      },
+      {
+        "type": "spacer",
+        "size": "sm"
+      }
+    ],
+    "flex": 0
+  }
+}`
+	contents, err := messaging_api.UnmarshalFlexContainer([]byte(jsonString))
+	if err != nil {
+		return err
+	}
+	//flexMessage := messaging_api.FlexMessage{
+	//	AltText:  "this is a flex message",
+	//	Contents: contents,
+	//}
+	//_, err = s.bot.ReplyMessage(&messaging_api.ReplyMessageRequest{
+	//	ReplyToken: replyToken,
+	//	Messages:   []messaging_api.MessageInterface{&flexMessage},
+	//})
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//return nil
+
+	_, err = s.bot.ReplyMessage(&messaging_api.ReplyMessageRequest{
+		ReplyToken: replyToken,
+		Messages: []messaging_api.MessageInterface{
+			&messaging_api.FlexMessage{
+				AltText:  "this is a flex message",
+				Contents: contents,
+			},
+		},
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+
+}
+func (s *lineBotService) SendQuickReplyMessage(replyToken string) error {
+	quickReplyMessage := messaging_api.TextMessage{
+		Text: "Hello, world",
+		QuickReply: &messaging_api.QuickReply{
+			Items: []messaging_api.QuickReplyItem{
+				{
+					ImageUrl: "https://scdn.line-apps.com/n/channel_devcenter/img/fx/01_1_cafe.png",
+					Action: messaging_api.UriAction{
+						Label: "View detail",
+						Uri:   "https://dca3a8ac633b.ngrok.app/register",
+					},
+				},
+				{
+					Action: messaging_api.PostbackAction{
+
+						Label: "Say hello",
+						Data:  "action=buy&itemid=123",
+					},
+				},
+			},
+		},
+	}
+	_, err := s.bot.ReplyMessage(&messaging_api.ReplyMessageRequest{
+		ReplyToken: replyToken,
+		Messages:   []messaging_api.MessageInterface{&quickReplyMessage},
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+func (s *lineBotService) SendDateTimePickerMessage(replyToken string) error {
+	dateTimePickerMessage := messaging_api.TemplateMessage{
+		AltText: "Datetime Picker",
+		Template: &messaging_api.ButtonsTemplate{
+			Text: "When do you want to order?",
+			Actions: []messaging_api.ActionInterface{
+				&messaging_api.DatetimePickerAction{
+					Label: "Date",
+					Mode:  messaging_api.DatetimePickerActionMODE_DATE,
+					Data:  "DATE",
+				},
+				&messaging_api.DatetimePickerAction{
+					Label: "Time",
+					Mode:  messaging_api.DatetimePickerActionMODE_TIME,
+					Data:  "TIME",
+				},
+				&messaging_api.DatetimePickerAction{
+					Label: "Date & Time",
+					Mode:  messaging_api.DatetimePickerActionMODE_DATETIME,
+					Data:  "DATETIME",
+				},
+			},
+		},
+	}
+
+	_, err := s.bot.ReplyMessage(&messaging_api.ReplyMessageRequest{
+		ReplyToken: replyToken,
+		Messages:   []messaging_api.MessageInterface{&dateTimePickerMessage},
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
 func (s *lineBotService) RegisterMember(member *Member) error {
 
 	if err := validation(member); err != nil {

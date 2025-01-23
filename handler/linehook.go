@@ -10,6 +10,7 @@ import (
 	"linechat/utils"
 	"log"
 	"net/http"
+	"net/url"
 )
 
 type LineWebhookHandler struct {
@@ -81,6 +82,15 @@ func (h *LineWebhookHandler) LineHookHandle(c *gin.Context) {
 					//imgUrl := "https://drive.google.com/file/d/1Zz0q8lf6fvNCQoNzZKkDw8OMaND95-Yp/view?usp=sharing"
 					imgUrl := "https://www.linefriends.com/img/img_sec.jpg"
 					h.lineService.SendImageMessage(e.ReplyToken, imgUrl)
+				case "calendar":
+				case "ปฏิทินงาน":
+					h.lineService.SendDateTimePickerMessage(e.ReplyToken)
+					//h.lineService.SendFlexCarouselMessage(e.ReplyToken)
+					//h.lineService.SendFlexJsonMessage(e.ReplyToken, "")
+				case "contact us":
+				case "ติดต่อเรา":
+					//h.lineService.SendFlexJsonMessage(e.ReplyToken, "")
+					h.lineService.SendQuickReplyMessage(e.ReplyToken)
 
 				default:
 					// no action
@@ -94,8 +104,59 @@ func (h *LineWebhookHandler) LineHookHandle(c *gin.Context) {
 		case webhook.TextMessageContent:
 			log.Printf("TextMessageContent: %v", e.Text)
 			// Do something
+		case webhook.PostbackEvent:
+			postbackData := e.Postback.Data
+			log.Printf("Postback Data: %s", postbackData)
 
-		}
+			if postbackData == "DATE" || postbackData == "TIME" || postbackData == "DATETIME" {
+				// Check if there are parameters (e.g., datetime picker)
+				if e.Postback.Params != nil {
+					log.Printf("Postback Params: %v", e.Postback.Params)
+					data := e.Postback.Params
+					date := data["date"]
+					time := data["time"]
+					datetime := data["datetime"]
+					if date != "" {
+						log.Printf("Selected Date: %s", date)
+					}
+					if time != "" {
+						log.Printf("Selected Time: %s", time)
+					}
+					if datetime != "" {
+						log.Printf("Selected DateTime: %s", datetime)
+					}
+
+					//if e.Postback.Params.Date != "" {
+					//	log.Printf("Selected Date: %s", e.Postback.Params.Date)
+					//}
+					//if e.Postback.Params.Time != "" {
+					//	log.Printf("Selected Time: %s", e.Postback.Params.Time)
+					//}
+					//if e.Postback.Params.Datetime != "" {
+					//	log.Printf("Selected DateTime: %s", e.Postback.Params.Datetime)
+					//}
+				}
+
+			}
+
+			// Parse the query string
+			values, err := url.ParseQuery(postbackData)
+			if err != nil {
+				log.Printf("Error parsing postback data: %v", err)
+				return
+			}
+			// Extract individual values
+			action := values.Get("action")
+			itemID := values.Get("itemid")
+
+			log.Printf("Action: %s, ItemID: %s", action, itemID)
+
+			// Reply to the user based on extracted values
+			replyMessage := "Action: " + action + ", Item ID: " + itemID
+			h.lineService.ReplyMessage(e.ReplyToken, replyMessage)
+
+		} // end of switch
+
 	}
 
 	c.JSON(200, gin.H{"message": "OK"})

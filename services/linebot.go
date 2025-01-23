@@ -5,6 +5,10 @@ type LineBotService interface {
 	ReplyMessage(replyToken string, text string) error
 	SendFlexMessage(replyToken string) error
 	SendImageMessage(replyToken string, imageUrl string) error
+	SendFlexCarouselMessage(replyToken string) error
+	SendFlexJsonMessage(replyToken string, json string) error
+	SendQuickReplyMessage(replyToken string) error
+	SendDateTimePickerMessage(replyToken string) error
 	RegisterMember(member *Member) error
 	GetLineProfile(userId string) (*UserInfo, error)
 	UpdateMemberProfile(userId string, member *Member) error
