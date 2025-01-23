@@ -3,6 +3,8 @@ package services
 type LineBotService interface {
 	SendTextMessage(text string) error
 	ReplyMessage(replyToken string, text string) error
+	SendFlexMessage(replyToken string) error
+	SendImageMessage(replyToken string, imageUrl string) error
 	RegisterMember(member *Member) error
 	GetLineProfile(userId string) (*UserInfo, error)
 	UpdateMemberProfile(userId string, member *Member) error
@@ -14,45 +16,6 @@ type SourceHook struct {
 		Type   string `json:"type"`
 		UserID string `json:"userId"`
 	} `json:"source"`
-}
-type LineEventResponse struct {
-	Destination string `json:"destination"`
-	Events      []struct {
-		ReplyToken string `json:"replyToken"`
-		Type       string `json:"type"`
-		Mode       string `json:"mode"`
-		Timestamp  int64  `json:"timestamp"`
-		Source     struct {
-			Type    string `json:"type"`
-			GroupID string `json:"groupId"`
-			UserID  string `json:"userId"`
-		} `json:"source"`
-		WebhookEventID  string `json:"webhookEventId"`
-		DeliveryContext struct {
-			IsRedelivery bool `json:"isRedelivery"`
-		} `json:"deliveryContext"`
-		Message struct {
-			ID         string `json:"id"`
-			Type       string `json:"type"`
-			QuoteToken string `json:"quoteToken"`
-			Text       string `json:"text"`
-			Emojis     []struct {
-				Index     int    `json:"index"`
-				Length    int    `json:"length"`
-				ProductID string `json:"productId"`
-				EmojiID   string `json:"emojiId"`
-			} `json:"emojis"`
-			Mention struct {
-				Mentionees []struct {
-					Index  int    `json:"index"`
-					Length int    `json:"length"`
-					Type   string `json:"type"`
-					UserID string `json:"userId,omitempty"`
-					IsSelf bool   `json:"isSelf,omitempty"`
-				} `json:"mentionees"`
-			} `json:"mention"`
-		} `json:"message"`
-	} `json:"events"`
 }
 type Member struct {
 	Name         string `json:"name" binding:"required" validate:"required,min=3,max=20"`
@@ -87,4 +50,46 @@ type UserInfo struct {
 
 type UserMinInfo struct {
 	UserID string `json:"userId"`
+}
+
+type FlexMessageTemplate struct {
+	Type     string       `json:"type"`
+	AltText  string       `json:"altText"`
+	Contents FlexContents `json:"contents"`
+}
+type FlexContents struct {
+	Type string       `json:"type"`
+	Body LineFlexBody `json:"body"`
+}
+
+type LineFlexBody struct {
+	Type     string                `json:"type"`
+	Layout   string                `json:"layout"`
+	Contents []LineFlexBodyContent `json:"contents"`
+}
+type LineFlexBodyContent struct {
+	Type string `json:"type,omitempty"`
+	Text string `json:"text,omitempty"`
+}
+type FlexMessageResponse struct {
+	Status  int    `json:"status"`
+	Message string `json:"message"`
+}
+type FlexMessageRequest struct {
+	To       string                `json:"to"`
+	Messages []FlexMessageTemplate `json:"messages"`
+}
+type ImageMessageTemplate struct {
+	Type        string `json:"type"`
+	URL         string `json:"url"`
+	Size        string `json:"size"`
+	AspectRatio string `json:"aspectRatio"`
+}
+type ReplyMessage struct {
+	ReplyToken string `json:"replyToken"`
+	Messages   []Text `json:"messages"`
+}
+type Text struct {
+	Type string `json:"type"`
+	Text string `json:"text"`
 }

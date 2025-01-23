@@ -47,6 +47,86 @@ func (s *lineBotService) ReplyMessage(replyToken string, receiveMessage string) 
 	}
 	return nil
 }
+func (s *lineBotService) SendFlexMessage(replyToken string) error {
+
+	// Create a Flex Message container using a Bubble layout
+	flexMessage := messaging_api.FlexMessage{
+		AltText: "this is a flex message",
+		Contents: messaging_api.FlexBubble{
+			Body: &messaging_api.FlexBox{
+				Layout: messaging_api.FlexBoxLAYOUT_HORIZONTAL,
+				Contents: []messaging_api.FlexComponentInterface{
+					&messaging_api.FlexText{
+						Text: "Hello",
+					},
+					&messaging_api.FlexText{
+						Text: "World",
+					},
+				},
+			},
+		},
+	}
+
+	_, err := s.bot.ReplyMessage(&messaging_api.ReplyMessageRequest{
+		ReplyToken: replyToken,
+		Messages:   []messaging_api.MessageInterface{&flexMessage},
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+func (s lineBotService) SendImageMessage(replyToken string, imageURL string) error {
+
+	if imageURL == "" {
+		return errors.New("imageURL is required")
+	}
+	imageMessage := messaging_api.TemplateMessage{
+		AltText: "Image carousel alt text",
+		Template: &messaging_api.ImageCarouselTemplate{
+			Columns: []messaging_api.ImageCarouselColumn{
+				{
+					ImageUrl: imageURL,
+					Action: messaging_api.UriAction{
+						Label: "View detail",
+						Uri:   "https://dca3a8ac633b.ngrok.app/register",
+					},
+				}, {
+					ImageUrl: imageURL,
+					Action: messaging_api.PostbackAction{
+						Label: "Say hello",
+						Data:  "action=buy&itemid=123",
+					},
+				}, {
+					ImageUrl: imageURL,
+					Action: messaging_api.MessageAction{
+						Label: "Say hello",
+						Text:  "hello",
+					},
+				}, {
+					ImageUrl: imageURL,
+					Action: messaging_api.DatetimePickerAction{
+						Label: "Say hello",
+						Mode:  "datetime",
+						Data:  "action=buy&itemid=123",
+					},
+				},
+			},
+		},
+	}
+	_, err := s.bot.ReplyMessage(&messaging_api.ReplyMessageRequest{
+		ReplyToken: replyToken,
+		Messages:   []messaging_api.MessageInterface{&imageMessage},
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+
+}
 func (s *lineBotService) RegisterMember(member *Member) error {
 
 	if err := validation(member); err != nil {

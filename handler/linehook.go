@@ -49,22 +49,52 @@ func (h *LineWebhookHandler) LineHookHandle(c *gin.Context) {
 		switch e := event.(type) {
 		case webhook.MessageEvent:
 			// Do Something...
+			eSource := e.Source.(webhook.UserSource)
+			log.Printf("SourceMsg: %v", eSource.UserId)
 
-			data, _ := json.Marshal(e.Source)
-			eventSource := make(map[string]interface{})
-			_ = json.Unmarshal(data, &eventSource)
-			userId := eventSource["userId"].(string)
+			//data, _ := json.Marshal(e.Source)
+			//eventSource := make(map[string]interface{})
+			//_ = json.Unmarshal(data, &eventSource)
+			//userId := eventSource["userId"].(string)
 
 			log.Printf("MessageEv: %v", e.Message)
+			msg2 := e.Message.(webhook.TextMessageContent)
+			log.Printf("MessageWebHook: %v", msg2.Text)
 
-			h.lineService.ReplyMessage(e.ReplyToken, "Hello Doctor"+" "+userId)
-			// 	roles, ok := jwtClaims["payload"].(map[string]interface{})["acl"].([]interface{})
+			rawMsg, _ := json.Marshal(e.Message)
+			msg := make(map[string]interface{})
+			_ = json.Unmarshal(rawMsg, &msg)
+			if msg["type"].(string) == "text" {
+				switch msg["text"].(string) {
+				case "medical volunteer":
+				case "ร่วมงานแพทย์อาสา":
 
-			log.Printf("MessageEvent: %v", eventSource["userId"])
+					err := h.lineService.SendFlexMessage(e.ReplyToken)
+					if err != nil {
+						log.Println(err)
+					}
+
+					//HelloTxt := fmt.Sprintf("Hi %v", eSource.UserId)
+					//h.lineService.ReplyMessage(e.ReplyToken, HelloTxt)
+				case "news":
+				case "ประชาสัมพันธ์":
+					//imgUrl := "https://drive.google.com/file/d/1Zz0q8lf6fvNCQoNzZKkDw8OMaND95-Yp/view?usp=sharing"
+					imgUrl := "https://www.linefriends.com/img/img_sec.jpg"
+					h.lineService.SendImageMessage(e.ReplyToken, imgUrl)
+
+				default:
+					// no action
+				}
+			}
+
 			//replyToken := e.ReplyToken
 
 		case webhook.StickerMessageContent:
 			// Do Something...
+		case webhook.TextMessageContent:
+			log.Printf("TextMessageContent: %v", e.Text)
+			// Do something
+
 		}
 	}
 
