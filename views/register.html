@@ -125,39 +125,63 @@
         </div>
     </div>
 
+    <div class="row row-cols-1 row-cols-md-2 g-4 mb-3">
+        <div class="col" id="mini-profile">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <img class="img-fluid profile-img  mb-3" id="user-mini-picture" alt="User Picture">
+                    <h5 id="user-line-display" class="card-title"></h5>
+                    <p id="short-intro-context" class="card-text"></p>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
     <div id="register-form" class="hidden">
-<!--        <img id="user-picture" alt="User Picture" width="100" style="border-radius: 50%;">-->
-<!--        <p id="user-name"></p>-->
-<!--        <p id="user-id"></p>-->
-        <h2 id="form-title" class="color gray">Register</h2>
+
+        <h3 id="form-title" class="color gray">Member Register</h3>
+
         <form id="registration-form" class="p-4 bg-light-custom rounded-3 shadow-sm">
             <div class="mb-3">
 <!--                <label for="full-name" class="form-label">Full Name</label>-->
-                <input type="text" id="full-name" class="form-input" placeholder="Enter your full name" required>
+                <input type="hidden" id="full-name" class="form-input" placeholder="Enter your full name">
             </div>
 <!--            <input type="text" id="full-name" placeholder="Enter your full name" required>-->
-            <input type="email" id="email" class="form-input" placeholder="Enter your email" required>
-            <input type="text" class ="form-input" id="name" placeholder="Enter your name">
-            <input type="text" class="form-input" id="lastname" placeholder="Enter your lastname">
 
-            <input type="text" class="form-input" id="phone" placeholder="Enter your phone number">
+            <input type="text" class ="form-input" id="name" placeholder="ระบุชื่อ" required>
+            <input type="text" class="form-input" id="lastname" placeholder="นามสกุล" required>
+            <input type="email" id="email" class="form-input" placeholder="ระบุ email" required>
+            <input type="text" class="form-input" id="phone" placeholder="เบอร์โทรศัพท์" required>
 
-            <input type="radio" class="form-input form-row" id="med-yes" value="Med" name="med" onChange="handleMedChange(event)" checked/>
-            <label for="med-yes">MED</label>
-            <input type="radio" class="form-input form-row" id="med-no" value="No-Med" name="med" onChange="handleMedChange(event)" />
-            <label for="med-no">Non MED</label>
-<!--            <input type="text" class="form-input" id="med" placeholder="Enter your MED">-->
-            <input type="text" class="form-input" id="organization" placeholder="Enter your organization">
-            <input type="text" class="form-input" id="position" placeholder="Enter your position">
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="med" id="med-yes" value="med" onChange="handleMedChange(event)" checked>
+                <label class="form-check-label" for="med-yes">MED</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="med" id="med-no" value="no-med" onChange="handleMedChange(event)">
+                <label class="form-check-label" for="med-no">NO-MED</label>
+            </div>
+            <div id="extra-fields" class="form-group hidden">
+                <label for="extra-info">Extra Info (for MED Yes):</label>
+                <input name="med-extra-info" type="text" id="extra-info" class="form-control" placeholder="Enter your Med info">
+            </div>
 
-            <select class="form-select" id="course" aria-label="Default select example">
-                <option selected>Open this select menu</option>
+            <input type="text" class="form-input" id="organization" placeholder="หน่วยงานที่สังกัด">
+            <input type="text" class="form-input" id="position" placeholder="ตำแหน่ง">
+
+            <select class="form-select" id="course" aria-label="รุ่น">
+                <option selected>เลือก-เพื่อระบุรุ่น</option>
             </select>
 
             <input type="text" class="form-input" id="foodAllergy" placeholder="Enter your food allergy">
-            <select class="form-select" id="religion" aria-label="ศาสนาของท่านคือ"></select>
+            <select class="form-select" id="religion" aria-label="ศาสนาของท่านคือ">
+                <option selected>ระบุศาสนาของท่าน</option>
+            </select>
             <input type="text" class="form-input" id="line-name" placeholder="Enter your line name" readonly>
-            <input type="text" class="form-input" id="line-id" placeholder="Enter your line id" readonly>
+            <input type="hidden" class="form-input" id="line-id" placeholder="Enter your line id" readonly>
 
             <button type="button" id="register-btn">Register</button>
         </form>
@@ -355,6 +379,7 @@
         console.log(isUpdate);
         document.getElementById('status').innerText = "Welcome, " + userData.name;
         document.getElementById('user-profile').classList.remove('hidden');
+        document.getElementById("mini-profile").classList.add('hidden');
         document.getElementById('register-form').classList.add('hidden');
         document.getElementById('user-fullName').innerText = userData.name + " " + userData.lastName;
         // document.getElementById('user-id').innerText = "UserID: " + userData.userId;
@@ -390,6 +415,9 @@
         document.getElementById('register-form').classList.remove('hidden');
         document.getElementById('line-id').value = profile.userId;
         document.getElementById('line-name').value = profile.displayName;
+        document.getElementById('user-mini-picture').src = profile.pictureUrl || '';
+        document.getElementById("user-line-display").innerText = profile.displayName;
+        document.getElementById("short-intro-context").innerText = "Hi, " + profile.displayName+". Please fill in your information below.";
 
 
         //
@@ -537,9 +565,12 @@
 
     // Handle Registration
     document.getElementById('register-btn').addEventListener('click', async () => {
-        const fullName = document.getElementById('full-name').value.trim();
+
         const name = document.getElementById('name').value.trim();
         const lastname = document.getElementById('lastname').value.trim();
+        document.getElementById('full-name').value = name + " " + lastname;
+        const fullName = document.getElementById('full-name').value.trim();
+
         // const med = document.getElementById('med').value.trim();
         const med = document.querySelector('input[name="med"]:checked').value;
         const email = document.getElementById('email').value.trim();
