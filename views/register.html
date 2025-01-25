@@ -71,7 +71,7 @@
 
     </style>
 </head>
-<body onload="getCourse(),getReligion()">
+<body onload="getCourse(),getReligion(),getMyCourses(),populateCoursesDropdown()">
 <div class="container">
 
     <div class="row row-cols-1 row-cols-md-2 g-4 mb-3">
@@ -142,26 +142,28 @@
 
             <input type="text" class="form-input" id="phone" placeholder="Enter your phone number">
 
-            <input type="radio" class="form-input form-row" id="med-yes" value="Med" name="med" onChange="handleMedChange(event)"/>
+            <input type="radio" class="form-input form-row" id="med-yes" value="Med" name="med" onChange="handleMedChange(event)" checked/>
             <label for="med-yes">MED</label>
             <input type="radio" class="form-input form-row" id="med-no" value="No-Med" name="med" onChange="handleMedChange(event)" />
             <label for="med-no">Non MED</label>
 <!--            <input type="text" class="form-input" id="med" placeholder="Enter your MED">-->
             <input type="text" class="form-input" id="organization" placeholder="Enter your organization">
             <input type="text" class="form-input" id="position" placeholder="Enter your position">
+
             <select class="form-select" id="course" aria-label="Default select example">
                 <option selected>Open this select menu</option>
             </select>
-            <!--            <input type="text" class="form-input" id="course" placeholder="Enter your course">-->
+
             <input type="text" class="form-input" id="foodAllergy" placeholder="Enter your food allergy">
-<!--            <input type="text" class="form-input" id="religion" placeholder="Enter your religion">-->
-            <select class="form-select" id="religion" aria-label="Default select example"></select>
-            <input type="text" class="form-input" id="line-name" placeholder="Enter your line name">
-            <input type="text" class="form-input" id="line-id" placeholder="Enter your line id">
+            <select class="form-select" id="religion" aria-label="ศาสนาของท่านคือ"></select>
+            <input type="text" class="form-input" id="line-name" placeholder="Enter your line name" readonly>
+            <input type="text" class="form-input" id="line-id" placeholder="Enter your line id" readonly>
 
             <button type="button" id="register-btn">Register</button>
         </form>
     </div>
+
+
     <div id="update-form" class="hidden">
         <!--        <img id="user-picture" alt="User Picture" width="100" style="border-radius: 50%;">-->
         <!--        <p id="user-name"></p>-->
@@ -335,12 +337,7 @@
                 const userData = await response.json();
                 const dataUserInfo = userData.userInfo;
                 console.log(dataUserInfo);
-
-
-
                 displayUserProfile(dataUserInfo);
-
-
                 displayUpdateForm(lineProfile,dataUserInfo);
 
 
@@ -385,16 +382,31 @@
     // Display Registration Form
     function displayRegistrationForm(profile) {
         console.log(isUpdate)
+        console.log("this is profile =")
         console.log(profile);
-
+        ReligionDropdown()
         document.getElementById('status').classList.add('hidden');
         document.getElementById('user-profile').classList.add('hidden');
         document.getElementById('register-form').classList.remove('hidden');
-        document.getElementById('user-picture').src = profile.pictureUrl;
-        document.getElementById('user-name').innerText = "Name: " + profile.displayName;
-        document.getElementById('user-id').innerText = "UserID: " + profile.userId;
         document.getElementById('line-id').value = profile.userId;
         document.getElementById('line-name').value = profile.displayName;
+
+
+        //
+        // document.getElementById('status').classList.add('hidden');
+        // document.getElementById('user-profile').classList.add('hidden');
+        // document.getElementById('register-form').classList.remove('hidden');
+        // document.getElementById('user-picture').src = profile.pictureUrl;
+        // document.getElementById('user-name').innerText = "Name: " + profile.displayName;
+        // document.getElementById('user-id').innerText = "UserID: " + profile.userId;
+
+
+
+
+
+
+
+
     }
     // Update Form
     function displayUpdateForm(profile,userData) {
@@ -430,13 +442,23 @@
     }
 
 
-    function getCourse(COURSES) {
-        
+    function getMyCourses() {
+
+        const course = COURSES
+
+        console.log("this is courses =")
+        console.log(courses);
+
+    }
+
+    function getCourse() {
+            const courses = COURSES
+
         for (var i = 0; i < courses.length; i++) {
             let option = document.createElement("option");
             option.text = courses[i];
             option.value = courses[i];
-            document.getElementById("course").appendChild(option);
+            // document.getElementById("course").appendChild(option);
             document.getElementById("update-course").appendChild(option);
 
         }
@@ -451,9 +473,21 @@
             let option = document.createElement("option");
             option.text = religions[i];
             option.value = religions[i];
-            document.getElementById("religion").appendChild(option);
+            // document.getElementById("religion").appendChild(option);
             document.getElementById("update-religion").appendChild(option);
         }
+    }
+
+    function ReligionDropdown() {
+        const religions =["ไม่ประสงค์ระบุ","พุทธ","คริสต์","อิสลาม"];
+        const dropdown = document.getElementById("religion");
+        for (var i = 0; i < religions.length; i++) {
+            let option = document.createElement("option");
+            option.text = religions[i];
+            option.value = religions[i];
+            dropdown.appendChild(option);
+        }
+
     }
 
     function setSelectedReligion(religionValue) {
@@ -501,21 +535,13 @@
     }
 
 
-    function coursesToArray(course) {
-        var coursenames = course.split(",");
-        var coursenamesArray = [];
-        for (var i = 0; i < coursenames.length; i++) {
-            coursenamesArray.push(coursenames[i].trim());
-        }
-        return coursenamesArray;
-    }
-
     // Handle Registration
     document.getElementById('register-btn').addEventListener('click', async () => {
         const fullName = document.getElementById('full-name').value.trim();
         const name = document.getElementById('name').value.trim();
         const lastname = document.getElementById('lastname').value.trim();
-        const med = document.getElementById('med').value.trim();
+        // const med = document.getElementById('med').value.trim();
+        const med = document.querySelector('input[name="med"]:checked').value;
         const email = document.getElementById('email').value.trim();
         const phone = document.getElementById('phone').value.trim();
         const organization = document.getElementById('organization').value.trim();
@@ -639,7 +665,7 @@
                 });
                 if (response.ok) {
                     //alert("Update Successful!");
-                    showSuccessModal("Update Successful!");
+                    // showSuccessModal("Update Successful!");
                     location.reload();
                 } else {
                     alert("Update Failed!");
@@ -655,10 +681,6 @@
         }else {
 
         }
-
-
-
-
 
 
     });
@@ -683,6 +705,28 @@
         // isUpdate = true;
     }
     );
+    // Function to populate the dropdown
+    function populateCoursesDropdown() {
+        // const dropdown = document.getElementById('course-selection'); // Get the dropdown element
+        const dropdown = document.getElementById('course'); // Get the dropdown element
+
+        // Clear existing options (optional, in case you repopulate)
+        dropdown.innerHTML = '';
+
+        // Add a default option
+        const defaultOption = document.createElement('option');
+        defaultOption.text = 'Select a course';
+        defaultOption.value = '';
+        dropdown.appendChild(defaultOption);
+
+        // Add options from the courses array
+        courses.forEach(course => {
+            const option = document.createElement('option');
+            option.text = course;  // Set the text for the option
+            option.value = course; // Set the value for the option
+            dropdown.appendChild(option);
+        });
+    }
 
     // Show error modal
     function showErrorModal(message) {
