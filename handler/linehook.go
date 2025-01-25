@@ -80,7 +80,7 @@ func (h *LineWebhookHandler) LineHookHandle(c *gin.Context) {
 				case "news":
 				case "ประชาสัมพันธ์":
 					//imgUrl := "https://drive.google.com/file/d/1Zz0q8lf6fvNCQoNzZKkDw8OMaND95-Yp/view?usp=sharing"
-					imgUrl := "https://www.linefriends.com/img/img_sec.jpg"
+					imgUrl := "https://hostpital-sd.s3.ap-southeast-7.amazonaws.com/S__29261992.png"
 					h.lineService.SendImageMessage(e.ReplyToken, imgUrl)
 				case "calendar":
 				case "ปฏิทินงาน":
@@ -92,7 +92,12 @@ func (h *LineWebhookHandler) LineHookHandle(c *gin.Context) {
 					//h.lineService.SendFlexJsonMessage(e.ReplyToken, "")
 					h.lineService.SendQuickReplyMessage(e.ReplyToken)
 
+				case "custom":
+					log.Printf("custom: %v", msg["text"])
+					h.lineService.SendFlexJsonMessage(e.ReplyToken, "")
+
 				default:
+					break
 					// no action
 				}
 			}
@@ -266,4 +271,20 @@ func (h *LineWebhookHandler) CheckMemberRegister(c *gin.Context) {
 
 	c.JSON(200, gin.H{"isRegistered": isRegister})
 
+}
+func (h *LineWebhookHandler) PostUpdateMember(c *gin.Context) {
+	member := &services.Member{}
+	err := c.ShouldBindJSON(member)
+	cusErr := utils.NewCustomErrorHandler(c)
+	if err != nil {
+		cusErr.ValidateError(err)
+		return
+
+	}
+	err = h.lineService.UpdateMemberProfile(member.LineId, member)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+	}
+	log.Println(member)
+	c.JSON(200, gin.H{"message": "update member successful"})
 }

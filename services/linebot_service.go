@@ -92,7 +92,7 @@ func (s lineBotService) SendImageMessage(replyToken string, imageURL string) err
 					ImageUrl: imageURL,
 					Action: messaging_api.UriAction{
 						Label: "View detail",
-						Uri:   "https://dca3a8ac633b.ngrok.app/register",
+						Uri:   "https://dca3a8ac633b.ngrok.app/attend",
 					},
 				}, {
 					ImageUrl: imageURL,
@@ -169,17 +169,17 @@ func (s *lineBotService) SendFlexJsonMessage(replyToken string, json string) err
 	//if json == "" {
 	//	return errors.New("json is required")
 	//}
-	jsonString := `{
+	json = `{
   "type": "bubble",
   "hero": {
     "type": "image",
-    "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/01_1_cafe.png",
+    "url": "https://developers-resource.landpress.line.me/fx/img/01_1_cafe.png",
     "size": "full",
     "aspectRatio": "20:13",
     "aspectMode": "cover",
     "action": {
       "type": "uri",
-      "uri": "http://linecorp.com/"
+      "uri": "https://line.me/"
     }
   },
   "body": {
@@ -200,27 +200,27 @@ func (s *lineBotService) SendFlexJsonMessage(replyToken string, json string) err
           {
             "type": "icon",
             "size": "sm",
-            "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"
+            "url": "https://developers-resource.landpress.line.me/fx/img/review_gold_star_28.png"
           },
           {
             "type": "icon",
             "size": "sm",
-            "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"
+            "url": "https://developers-resource.landpress.line.me/fx/img/review_gold_star_28.png"
           },
           {
             "type": "icon",
             "size": "sm",
-            "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"
+            "url": "https://developers-resource.landpress.line.me/fx/img/review_gold_star_28.png"
           },
           {
             "type": "icon",
             "size": "sm",
-            "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"
+            "url": "https://developers-resource.landpress.line.me/fx/img/review_gold_star_28.png"
           },
           {
             "type": "icon",
             "size": "sm",
-            "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gray_star_28.png"
+            "url": "https://developers-resource.landpress.line.me/fx/img/review_gray_star_28.png"
           },
           {
             "type": "text",
@@ -252,7 +252,7 @@ func (s *lineBotService) SendFlexJsonMessage(replyToken string, json string) err
               },
               {
                 "type": "text",
-                "text": "Miraina Tower, 4-1-6 Shinjuku, Tokyo",
+                "text": "Flex Tower, 7-7-4 Midori-ku, Tokyo",
                 "wrap": true,
                 "color": "#666666",
                 "size": "sm",
@@ -298,7 +298,7 @@ func (s *lineBotService) SendFlexJsonMessage(replyToken string, json string) err
         "action": {
           "type": "uri",
           "label": "CALL",
-          "uri": "https://linecorp.com"
+          "uri": "https://line.me/"
         }
       },
       {
@@ -308,38 +308,24 @@ func (s *lineBotService) SendFlexJsonMessage(replyToken string, json string) err
         "action": {
           "type": "uri",
           "label": "WEBSITE",
-          "uri": "https://linecorp.com",
-          "altUri": {
-            "desktop": "https://line.me/ja/download"
-          }
+          "uri": "https://line.me/"
         }
       },
       {
-        "type": "spacer",
-        "size": "sm"
+        "type": "box",
+        "layout": "vertical",
+        "contents": [],
+        "margin": "sm"
       }
     ],
     "flex": 0
   }
 }`
-	contents, err := messaging_api.UnmarshalFlexContainer([]byte(jsonString))
+	//contents, err := messaging_api.UnmarshalFlexContainer([]byte(jsonString))
+	contents, err := messaging_api.UnmarshalFlexContainer([]byte(json))
 	if err != nil {
 		return err
 	}
-	//flexMessage := messaging_api.FlexMessage{
-	//	AltText:  "this is a flex message",
-	//	Contents: contents,
-	//}
-	//_, err = s.bot.ReplyMessage(&messaging_api.ReplyMessageRequest{
-	//	ReplyToken: replyToken,
-	//	Messages:   []messaging_api.MessageInterface{&flexMessage},
-	//})
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//return nil
-
 	_, err = s.bot.ReplyMessage(&messaging_api.ReplyMessageRequest{
 		ReplyToken: replyToken,
 		Messages: []messaging_api.MessageInterface{
@@ -515,6 +501,7 @@ func (s *lineBotService) UpdateMemberProfile(userId string, member *Member) erro
 	}
 	s.memberRepo.GetMemberByLineId(userId)
 
+	member.Status = true
 	err := s.memberRepo.UpdateMember(userId, &repository.Member{
 		Name:         member.Name,
 		LastName:     member.LastName,

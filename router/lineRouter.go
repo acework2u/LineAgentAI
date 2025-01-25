@@ -24,5 +24,6 @@ func (r *LineRouter) LineHookRouter(rg *gin.RouterGroup) {
 	rg.GET("/profile", r.lineHandler.GetLineProfile)
 	rg.PUT("/profile", r.lineHandler.PutLineProfile)
 	rg.POST("/check-registration", r.lineHandler.CheckMemberRegister)
+	rg.POST("/member-update", r.lineHandler.PostUpdateMember)
 
 }
