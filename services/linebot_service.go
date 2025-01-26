@@ -573,6 +573,57 @@ func (s *lineBotService) EventJoin(event *MemberJoinEvent) error {
 	}
 	return nil
 }
+func (s *lineBotService) CheckEventJoin(eventId string, userId string) (bool, error) {
+
+	if eventId == "" {
+		return false, errors.New("event id is required")
+	}
+	if userId == "" {
+		return false, errors.New("user id is required")
+	}
+	rs, err := s.eventRepo.CheckJoinEvent(eventId, userId)
+	if err != nil {
+		return false, errors.New("error")
+	}
+	if rs {
+		return true, nil
+	}
+
+	return false, nil
+}
+func (s *lineBotService) GetEventJoin(eventId string, userId string) (*MemberJoinEvent, error) {
+
+	if eventId == "" {
+		return nil, errors.New("event id is required")
+	}
+	if userId == "" {
+		return nil, errors.New("user id is required")
+	}
+
+	res, err := s.eventRepo.GetEventJoin(eventId, userId)
+	if err != nil {
+		return nil, err
+	}
+	joinTimeStr := time.Unix(res.JoinTime, 0).Format("2006-01-02 15:04:05")
+	memberJoinEvent := &MemberJoinEvent{
+		EventId:        res.EventId,
+		UserId:         res.UserId,
+		JoinTime:       joinTimeStr,
+		Name:           res.Name,
+		LastName:       res.LastName,
+		Organization:   res.Organization,
+		Position:       res.Position,
+		Course:         res.Course,
+		LineId:         res.LineId,
+		LineName:       res.LineName,
+		Tel:            res.Tel,
+		ReferenceName:  res.ReferenceName,
+		ReferencePhone: res.ReferencePhone,
+		Clinic:         res.Clinic,
+	}
+
+	return memberJoinEvent, nil
+}
 func validation(member *Member) error {
 	if member.Name == "" {
 		return errors.New("name is required")

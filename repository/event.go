@@ -5,6 +5,8 @@ type EventsRepository interface {
 	EventLeave(event *MemberEventImpl) error
 	GetEvent(eventId string) (*MemberEventImpl, error)
 	GetEvents(filter Filter) ([]*MemberEventImpl, error)
+	CheckJoinEvent(eventId string, userId string) (bool, error)
+	GetEventJoin(eventId string, userId string) (*MemberEventImpl, error)
 }
 
 type MemberEventImpl struct {

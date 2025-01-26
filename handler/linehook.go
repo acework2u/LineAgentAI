@@ -292,8 +292,8 @@ func (h *LineWebhookHandler) PostJoinEvent(c *gin.Context) {
 
 	eventJoin := services.MemberJoinEvent{}
 	err := c.ShouldBindJSON(&eventJoin)
-	log.Println("eventJoin:")
-	log.Println(eventJoin)
+	//log.Println("eventJoin:")
+	//log.Println(eventJoin)
 	cusErr := utils.NewCustomErrorHandler(c)
 	if err != nil {
 		log.Println("In Join Event: error")
@@ -311,4 +311,40 @@ func (h *LineWebhookHandler) PostJoinEvent(c *gin.Context) {
 
 	c.JSON(200, gin.H{"message": "join event successful"})
 
+}
+func (h *LineWebhookHandler) GetCheckEventJoin(c *gin.Context) {
+	userId := c.Query("userId")
+	eventID := c.Query("eventId")
+	if userId == "" {
+		c.JSON(400, gin.H{"error": "userId is required"})
+		return
+	}
+	if eventID == "" {
+		c.JSON(400, gin.H{"error": "eventId is required"})
+		return
+	}
+	eventJoin, err := h.lineService.CheckEventJoin(eventID, userId)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+	}
+	c.JSON(200, gin.H{"eventJoin": eventJoin})
+	//c.JSON(200, gin.H{"message": "check event join successful"})
+}
+func (h *LineWebhookHandler) GetEventJoin(c *gin.Context) {
+	userId := c.Query("userId")
+	eventID := c.Query("eventId")
+	if userId == "" {
+		c.JSON(400, gin.H{"error": "userId is required"})
+		return
+	}
+	if eventID == "" {
+		c.JSON(400, gin.H{"error": "eventId is required"})
+		return
+	}
+	eventJoin, err := h.lineService.GetEventJoin(eventID, userId)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"message": eventJoin})
 }

@@ -56,3 +56,37 @@ func (r *eventRepositoryImpl) GetEvent(eventId string) (*MemberEventImpl, error)
 func (r *eventRepositoryImpl) GetEvents(filter Filter) ([]*MemberEventImpl, error) {
 	panic("implement me")
 }
+func (r *eventRepositoryImpl) CheckJoinEvent(eventId string, userId string) (bool, error) {
+
+	// Create a filter to check if the event exists for the given eventId and userId
+	eid := fmt.Sprintf("%s", eventId)
+	filter := bson.M{
+		"eventId": eid,
+		"userId":  userId,
+	}
+
+	// Check if the event exists
+	count, err := r.eventsCollection.CountDocuments(r.ctx, filter)
+	if err != nil {
+		return false, fmt.Errorf("failed to check event membership: %w", err)
+	}
+
+	// If count is greater than 0, the user has joined the event
+	if count > 0 {
+		return true, nil
+	}
+	return false, nil
+}
+func (r *eventRepositoryImpl) GetEventJoin(eventId string, userId string) (*MemberEventImpl, error) {
+
+	filter := bson.M{
+		"eventId": eventId,
+		"userId":  userId,
+	}
+	event := MemberEventImpl{}
+	err := r.eventsCollection.FindOne(r.ctx, filter).Decode(&event)
+	if err != nil {
+		return nil, err
+	}
+	return &event, nil
+}

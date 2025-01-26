@@ -26,5 +26,7 @@ func (r *LineRouter) LineHookRouter(rg *gin.RouterGroup) {
 	rg.POST("/check-registration", r.lineHandler.CheckMemberRegister)
 	rg.POST("/member-update", r.lineHandler.PostUpdateMember)
 	rg.POST("/join-event", r.lineHandler.PostJoinEvent)
+	rg.GET("/check-join-event", r.lineHandler.GetCheckEventJoin)
+	rg.GET("/join-event", r.lineHandler.GetEventJoin)
 
 }
