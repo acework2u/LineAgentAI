@@ -86,37 +86,49 @@ func (s lineBotService) SendImageMessage(replyToken string, imageURL string) err
 	if imageURL == "" {
 		return errors.New("imageURL is required")
 	}
+	news1 := []messaging_api.ImageCarouselColumn{
+		{
+			ImageUrl: imageURL,
+			Action: messaging_api.UriAction{
+				Label: "View detail",
+				Uri:   "https://dca3a8ac633b.ngrok.app/attend",
+			},
+		},
+	}
+	newList := []messaging_api.ImageCarouselColumn{
+		{
+			ImageUrl: imageURL,
+			Action: messaging_api.UriAction{
+				Label: "View detail",
+				Uri:   "https://dca3a8ac633b.ngrok.app/attend",
+			},
+		}, {
+			ImageUrl: imageURL,
+			Action: messaging_api.PostbackAction{
+				Label: "Say hello",
+				Data:  "action=buy&itemid=123",
+			},
+		}, {
+			ImageUrl: imageURL,
+			Action: messaging_api.MessageAction{
+				Label: "Say hello",
+				Text:  "hello",
+			},
+		}, {
+			ImageUrl: imageURL,
+			Action: messaging_api.DatetimePickerAction{
+				Label: "Say hello",
+				Mode:  "datetime",
+				Data:  "action=buy&itemid=123",
+			},
+		},
+	}
+	_ = newList
+
 	imageMessage := messaging_api.TemplateMessage{
 		AltText: "Image carousel alt text",
 		Template: &messaging_api.ImageCarouselTemplate{
-			Columns: []messaging_api.ImageCarouselColumn{
-				{
-					ImageUrl: imageURL,
-					Action: messaging_api.UriAction{
-						Label: "View detail",
-						Uri:   "https://dca3a8ac633b.ngrok.app/attend",
-					},
-				}, {
-					ImageUrl: imageURL,
-					Action: messaging_api.PostbackAction{
-						Label: "Say hello",
-						Data:  "action=buy&itemid=123",
-					},
-				}, {
-					ImageUrl: imageURL,
-					Action: messaging_api.MessageAction{
-						Label: "Say hello",
-						Text:  "hello",
-					},
-				}, {
-					ImageUrl: imageURL,
-					Action: messaging_api.DatetimePickerAction{
-						Label: "Say hello",
-						Mode:  "datetime",
-						Data:  "action=buy&itemid=123",
-					},
-				},
-			},
+			Columns: news1,
 		},
 	}
 	_, err := s.bot.ReplyMessage(&messaging_api.ReplyMessageRequest{

@@ -84,13 +84,13 @@ func (h *LineWebhookHandler) LineHookHandle(c *gin.Context) {
 					h.lineService.SendImageMessage(e.ReplyToken, imgUrl)
 				case "calendar":
 				case "ปฏิทินงาน":
-					h.lineService.SendDateTimePickerMessage(e.ReplyToken)
+					//h.lineService.SendDateTimePickerMessage(e.ReplyToken)
 					//h.lineService.SendFlexCarouselMessage(e.ReplyToken)
 					//h.lineService.SendFlexJsonMessage(e.ReplyToken, "")
 				case "contact us":
 				case "ติดต่อเรา":
 					//h.lineService.SendFlexJsonMessage(e.ReplyToken, "")
-					h.lineService.SendQuickReplyMessage(e.ReplyToken)
+					//h.lineService.SendQuickReplyMessage(e.ReplyToken)
 
 				case "custom":
 					log.Printf("custom: %v", msg["text"])
