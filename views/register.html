@@ -84,17 +84,18 @@
                 <p class="text-muted" id="user-med"></p>
                 <p class="card-text" id="user-position"></p>
                 <p class="card-text" id="user-course"></p>
+                <p class="card-text" id="user-organization"></p>
 
                 <p class="card-text hidden">Passionate web developer with 5 years of experience in creating responsive and user-friendly websites.</p>
-                <div class="d-flex justify-content-center mb-3">
-                    <a href="#" class="btn btn-outline-primary me-2"><i class="bi bi-twitter"></i></a>
-                    <a href="#" class="btn btn-outline-primary me-2"><i class="bi bi-facebook"></i></a>
-                    <a href="#" class="btn btn-outline-primary"><i class="bi bi-instagram"></i></a>
-                </div>
+<!--                <div class="d-flex hidden justify-content-center mb-3">-->
+<!--                    <a href="#" class="btn btn-outline-primary me-2"><i class="bi bi-twitter"></i></a>-->
+<!--                    <a href="#" class="btn btn-outline-primary me-2"><i class="bi bi-facebook"></i></a>-->
+<!--                    <a href="#" class="btn btn-outline-primary"><i class="bi bi-instagram"></i></a>-->
+<!--                </div>-->
                 <ul class="list-group list-group-flush mb-3">
                     <li class="list-group-item bg-transparent" id="user-email"></li>
                     <li class="list-group-item bg-transparent" id="user-phone"></li>
-                    <li class="list-group-item bg-transparent" id="user-organization"></li>
+
                 </ul>
                 <div class="d-flex justify-content-center mb-3">
                     <p class="card-text" id="user-religion"></p>
@@ -126,7 +127,7 @@
     </div>
 
     <div class="row row-cols-1 row-cols-md-2 g-4 mb-3">
-        <div class="col" id="mini-profile">
+        <div class="col hidden" id="mini-profile">
             <div class="card shadow-sm">
                 <div class="card-body">
                     <img class="img-fluid profile-img  mb-3" id="user-mini-picture" alt="User Picture">
@@ -288,9 +289,10 @@
     const GET_PROFILE_API = `${baseUrl}/api/v1/profile`; // Replace with actual API endpoint
     const REGISTER_API = `${baseUrl}/api/v1/register`; // Replace with actual API endpoint
     const UPDATE_API = `${baseUrl}/api/v1/member-update`
-    let courses = ["ปธพ1","ปธพ2","ปธพ3","ปธพ4"];
+    // let courses = ["ปธพ1","ปธพ2","ปธพ3","ปธพ4"];
     let isUpdate = false;
-    const COURSES = ["ปธพ1","ปธพ2","ปธพ3","ปธพ4"];
+    const COURSES = ["ปธพ.1","ปธพ.2","ปธพ.3","ปธพ.4","ปธพ.5","ปธพ.6","ปธพ.7","ปธพ.8","ปธพ.9","ปธพ.10","ปธพ.11","ปธพ.X","ปนพ.1","ปนพ.2"];
+
 
 
 
@@ -470,14 +472,6 @@
     }
 
 
-    function getMyCourses() {
-
-        const course = COURSES
-
-        console.log("this is courses =")
-        console.log(courses);
-
-    }
 
     function getCourse() {
             const courses = COURSES
@@ -749,7 +743,7 @@
         defaultOption.text = 'Select a course';
         defaultOption.value = '';
         dropdown.appendChild(defaultOption);
-
+        let courses = COURSES;
         // Add options from the courses array
         courses.forEach(course => {
             const option = document.createElement('option');
