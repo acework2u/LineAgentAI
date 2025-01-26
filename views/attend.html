@@ -1,78 +1,327 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>โครงการแพทย์อาสาตรวจสุขภาพพระสงฆ์ถวายเป็นพระราชกุศลแด่สมเด็จพระสังฆราช สกลมหาสังฆปริณายก</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Volunteer Event</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
-            text-align: center;
-        }
-        .container {
-            max-width: 400px;
-            margin: auto;
-        }
-        .hidden {
-            display: none;
-        }
-        input, button {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        button {
-            background-color: #06c755;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        button:disabled {
-            background-color: #ccc;
-        }
-        .profile-card {
-            max-width: 400px;
-            margin: auto;
-            border: none;
-            border-radius: 15px;
-            overflow: hidden;
-        }
-        .profile-img {
-            width: 150px;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 50%;
-            margin-top: -75px;
-            border: 5px solid #fff;
-        }
-        .bg-light-custom {
             background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-line {
+            background-color: #00c300;
+            color: white;
+            border: none;
+        }
+
+        .btn-line:hover {
+            background-color: #00a600;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #343a40;
+        }
+
+        .header p {
+            color: #6c757d;
+        }
+
+        .event-details {
+            margin-bottom: 20px;
+        }
+
+        .event-details h3 {
+            font-size: 1.2rem;
+            color: #495057;
+        }
+
+        .event-details p {
+            color: #6c757d;
+            margin: 5px 0;
+        }
+
+        .banner {
+            width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+            border-radius: 8px;
         }
     </style>
 </head>
-<body>
-    <div class="container-fluid">
-        <div class="row">
-            <h1>โครงการแพทย์อาสาตรวจสุขภาพพระสงฆ์ถวายเป็นพระราชกุศลแด่สมเด็จพระสังฆราช สกลมหาสังฆปริณายก</h1>
-        </div>
-        <div class="row row-cols-1 row-cols-md-2 g-4 mb-3">
-            <div class="card profile-card shadow-sm text-center mb-3 hidden" id="user-profile">
-                <div class="card-body" >
-                    <img class="image-fluid" src="https://hostpital-sd.s3.ap-southeast-7.amazonaws.com/S__29261992.png">
-                    <h3 class="card-title mb-0" id="user-fullName"></h3>
-                </div>
 
+<body>
+<div class="container">
+    <img src="https://hostpital-sd.s3.ap-southeast-7.amazonaws.com/S__29261992.png" alt="Event Banner" class="banner">
+    <div class="header">
+        <h1>โครงการแพทย์อาสาตรวจสุขภาพพระสงฆ์ถวายเป็นพระกุศล</h1>
+        <p>แด่สมเด็จพระสงฆราช สกลมหาสังฆปริณายก</p>
+        <p>ในวันอาทิตย์ที่ 9 กุมภาพันธ์ 2568 ณ วัดราชบพิธสถิตมหาสีมารามราชวรวิหาร</p>
+    </div>
+
+    <div class="event-details">
+        <h3>Event Details:</h3>
+        <p><strong>Date:</strong> วันอาทิตย์ที่ 9 กุมภาพันธ์ 2568</p>
+        <p><strong>Time:</strong> 9:00 AM - 4:00 PM</p>
+        <p><strong>Location:</strong> ณ วัดราชบพิธสถิตมหาสีมารามราชวรวิหาร</p>
+        <p><strong>Description:</strong> การแต่งกาย : ปธพ.1-10 และ ปนพ.1-2 ใส่เสื้อประจำรุ่น ปธพ.X เสื้อสีขาวโลโก้สมเด็จฯ</p>
+    </div>
+    <div class="event-details mb-3 shadow-sm card text-center">
+        <h3 class="mt-3">เข้าร่วมกิจกรรม</h3>
+        <p>โปรดระบุข้อมูลเพิ่มเติม เพื่อเข้าร่วมกิจกรรม</p>
+        <div class="card-body text-center">
+            <p id="user-fullName" class="card-text"></p>
+            <p id="user-phone" class="card-text"></p>
+            <p id="user-email" class="card-text"></p>
+            <p id="user-organization" class="card-text"></p>
+            <p id="user-course" class="card-text"></p>
+
+        <form class="form-inline">
+            <input id="member-line-id" class="form-control me-2" type="hidden" placeholder="Enter your LINE ID" aria-label="Enter your LINE ID" />
+            <input id="member-line-name" class="form-control me-2" type="hidden" placeholder="Enter your LINE name" aria-label="Enter your LINE name" />
+            <div class="mb-2 mr-sm-2 mb-sm-0">
+<!--                <label for="member-fullName" class="sr-only">Full Name</label>-->
+                <input id="member-fullName" class="form-control me-2" type="hidden" placeholder="Enter your name" aria-label="Enter your name" />
+            </div>
+            <div class="mb-2 mr-sm-2 mb-sm-0">
+<!--                <label for="member-phone" class="sr-only">ID</label>-->
+                <input id="member-phone" class="form-control me-2" type="hidden" placeholder="Enter your phone number" aria-label="Enter your phone number" />
+            </div>
+            <div class="mb-2 mr-sm-2 mb-sm-0">
+<!--                <label for="member-email" class="sr-only">Email</label>-->
+                <input id="member-email" class="form-control me-2" type="hidden" placeholder="Enter your email" aria-label="Enter your email" />
+            </div>
+            <div class="mb-2 mr-sm-2 mb-sm-0">
+                <input id="member-organization" class="form-control me-2" type="hidden" placeholder="Enter your organization" aria-label="Enter your organization" />
+            </div>
+            <div class="mb-2 mr-sm-2 mb-sm-0">
+                <input id="member-course" class="form-control me-2" type="hidden" placeholder="Enter your course" aria-label="Enter your course" />
+            </div>
+            <div class="mb-2 mr-sm-2 mb-sm-0">
+                <input id="reference-name" class="form-control me-2" type="text" placeholder="Enter your reference name" aria-label="Enter your reference name" required />
+            </div>
+            <div class="mb-2 mr-sm-2 mb-sm-0">
+                <input id="reference-phone" class="form-control me-2" type="text" placeholder="Enter your reference phone number" aria-label="Enter your reference phone number" required />
+            </div>
+            <div class="mb-2 mr-sm-2 mb-sm-0">
+                <select id="clinic-select" class="form-select" aria-label="Default select example">
+                    <option selected>Select your clinic</option>
+                </select>
             </div>
 
+
+        </form>
         </div>
 
-        <img class="image-fluid" src="https://hostpital-sd.s3.ap-southeast-7.amazonaws.com/S__29261992.png">
-
     </div>
+
+    <button class="btn btn-line btn-lg w-100" id="joinEventBtn">Join the Event</button>
+</div>
+
+<script>
+
+    const LIff_ID = "2006793268-nJZqYeWE";
+    const baseUrl = " https://dca3a8ac633b.ngrok.app";
+    const GET_PROFILE_API = `${baseUrl}/api/v1/profile`; // Replace with actual API endpoint
+    const CHECK_REGISTRATION_API = `${baseUrl}/api/v1/check-registration`; // Replace with actual API endpoint
+    const CLINICS = [
+        "ให้โครงการจัดให้ ตามความเหมาะสม",
+        "คลินิกที่ 1  เจาะเลือด",
+        "คลินิกที่ 2 ตรวจสุขภาพและคัดกรองทั่วไป",
+        "คลินิกที่ 3 X-ray ปอด",
+        "คลินิกที่ 4 ตรวจคลื่นไฟฟ้าหัวใจ",
+        "คลินิกที่ 5 เวชศาสตร์ฟื้นฟูหัวใจ",
+        "คลินิกที่ 6 กระดูกและข้อ",
+        "คลินิกที่ 7 Fibro Scen",
+        "คลินิกที่ 8 จักษุ",
+        "คลินิกที่ 9 ผิวหนัง",
+        "คลินิกที่ 10 ทันตกรรม",
+        "คลินิกที่ 11 ตรวจสมรรถนะปอด",
+        "คลินิกที่ 12 วัคซีนไข้หวัดใหญ่",
+        "คลินิกที่ 13 อบรมการช่วยชีวิตขั้นพื้นฐาน (CPR)",
+        "คลินิกที่ 14 ABI การตรวจวัดความแข็งของหลอดเลือด",
+        "คลินิกที่ 15 อู่ข้าว-อู่น้ำ",
+        "คลินิกที่ 16 แจกถุงบุญ"]
+
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+        liff.init({
+            liffId: LIff_ID,
+        }).then(() => {
+            console.log("LIFF initialized");
+
+            if (liff.isLoggedIn()) {
+                handleUserLogin();
+            } else {
+                liff.login();
+            }
+
+
+            document.getElementById("joinEventBtn").addEventListener("click", () => {
+                if (!liff.isLoggedIn()) {
+                    liff.login();
+                } else {
+
+                    joinEvent().then(result => {
+                        alert(result);
+                    }).catch(err => {
+                        alert(err.message);
+                    });
+
+                    //alert("Thank you for joining the event! Check your LINE for updates.");
+                }
+            });
+        }).catch(err => {
+            console.error("LIFF initialization failed", err);
+        });
+    });
+
+    // Handler User login
+    async function handleUserLogin() {
+        try{
+            const profile = await liff.getProfile();
+            const userId = profile.userId;
+            console.log(profile);
+
+            //Check Register status
+            const response = await fetch(CHECK_REGISTRATION_API, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userId: userId
+                })
+            });
+            if (response.ok) {
+                const data = await response.json();
+                console.log(data);
+                fetchUserProfile(userId);
+            }else {
+               throw new Error("ท่านยังไม่ได้ลงทะเบียนสมาชิกแพทย์อาสา กรุณาลงทะเบียนก่อนเข้าร่วมกิจกรรม")
+            }
+
+
+
+
+        }catch(error){
+
+        }finally{
+            console.log("finally");
+        }
+    }
+    // Fetch User Profile
+    async function fetchUserProfile(userId) {
+        try {
+            const response = await fetch(`${GET_PROFILE_API}?userId=${userId}`);
+            const lineProfile = await liff.getProfile();
+            if (response.ok) {
+                const userData = await response.json();
+                const dataUserInfo = userData.userInfo;
+                console.log(dataUserInfo);
+                displayUserProfile(lineProfile,dataUserInfo);
+            } else {
+                throw new Error("Failed to fetch user profile");
+            }
+        }catch (error) {
+
+        }finally {
+
+        }
+    }
+    function displayUserProfile(lineProfile,dataUserInfo) {
+       console.log("this is dataUserInfo")
+       console.log(dataUserInfo);
+       const member = dataUserInfo.member;
+       const fullName = dataUserInfo.name +" "+ dataUserInfo.lastName;
+
+      // member profile
+        document.getElementById("user-fullName").innerText = "ชื่อ-สกุล :"+fullName;
+        document.getElementById("user-phone").innerText = "เบอร์โทร "+member.phone;
+        document.getElementById("user-email").innerText = "อีเมล "+member.email;
+        document.getElementById("user-organization").innerText = "หน่วยงานสังกัด "+member.organization;
+        document.getElementById("user-course").innerText = "รุ่นหลักสูตร "+member.course;
+
+       document.getElementById("member-line-id").value = lineProfile.userId;
+       document.getElementById("member-line-name").value = lineProfile.displayName;
+       document.getElementById("member-fullName").value = fullName;
+       document.getElementById("member-phone").value = member.phone;
+       document.getElementById("member-email").value = member.email;
+       document.getElementById("member-organization").value = member.organization;
+       document.getElementById("member-course").value = member.course;
+       // document.getElementById("reference-name").value = member.referenceName;
+       // document.getElementById("reference-phone").value = member.referencePhone;
+       document.getElementById("clinic-select").innerHTML = CLINICS.map(clinic => `<option value="${clinic}">${clinic}</option>`).join("");
+
+
+    }
+
+
+
+
+
+    // Simulate an API call or saving function
+    function joinEvent() {
+        return new Promise((resolve, reject) => {
+
+           const member = {
+               eventId: 1,
+               userId: document.getElementById("member-line-id").value,
+               lineName: document.getElementById("member-line-name").value,
+               name: document.getElementById("member-fullName").value,
+               phone: document.getElementById("member-phone").value,
+               email: document.getElementById("member-email").value,
+               organization: document.getElementById("member-organization").value,
+               course: document.getElementById("member-course").value,
+               referenceName: document.getElementById("reference-name").value,
+               referencePhone: document.getElementById("reference-phone").value,
+               clinic: document.getElementById("clinic-select").value,
+           }
+
+           console.log(member);
+           resolve("Save successful!");
+
+
+
+            // setTimeout(() => {
+            //     // Simulate success or failure
+            //     const isSuccess = true; // Change to false to simulate a failure
+            //     if (isSuccess) {
+            //         resolve('Save successful!');
+            //     } else {
+            //         reject(new Error('Save failed!'));
+            //     }
+            // }, 2000); // Simulate a 2-second delay
+
+
+
+        });
+    }
+
+
+
+</script>
 </body>
+
 </html>
