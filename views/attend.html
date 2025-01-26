@@ -103,6 +103,8 @@
             <input id="member-line-name" class="form-control me-2" type="hidden" placeholder="Enter your LINE name" aria-label="Enter your LINE name" />
             <div class="mb-2 mr-sm-2 mb-sm-0">
 <!--                <label for="member-fullName" class="sr-only">Full Name</label>-->
+                <input id="member-name" class="form-control me-2" type="hidden" placeholder="Enter your name" aria-label="Enter your name" />
+                <input id="member-lastName" class="form-control me-2" type="hidden" placeholder="Enter your name" aria-label="Enter your name" />
                 <input id="member-fullName" class="form-control me-2" type="hidden" placeholder="Enter your name" aria-label="Enter your name" />
             </div>
             <div class="mb-2 mr-sm-2 mb-sm-0">
@@ -114,6 +116,7 @@
                 <input id="member-email" class="form-control me-2" type="hidden" placeholder="Enter your email" aria-label="Enter your email" />
             </div>
             <div class="mb-2 mr-sm-2 mb-sm-0">
+                <input id="member-position" class="form-control me-2" type="hidden" placeholder="Enter your position" aria-label="Enter your position" />
                 <input id="member-organization" class="form-control me-2" type="hidden" placeholder="Enter your organization" aria-label="Enter your organization" />
             </div>
             <div class="mb-2 mr-sm-2 mb-sm-0">
@@ -146,6 +149,7 @@
     const baseUrl = " https://dca3a8ac633b.ngrok.app";
     const GET_PROFILE_API = `${baseUrl}/api/v1/profile`; // Replace with actual API endpoint
     const CHECK_REGISTRATION_API = `${baseUrl}/api/v1/check-registration`; // Replace with actual API endpoint
+    const JOIN_EVENT_API = `${baseUrl}/api/v1/join-event`;
     const CLINICS = [
         "ให้โครงการจัดให้ ตามความเหมาะสม",
         "คลินิกที่ 1  เจาะเลือด",
@@ -185,11 +189,44 @@
                     liff.login();
                 } else {
 
-                    joinEvent().then(result => {
-                        alert(result);
-                    }).catch(err => {
-                        alert(err.message);
-                    });
+                    let isValid = true;
+                    const referenceName = document.getElementById("reference-name").value;
+                    const referencePhone = document.getElementById("reference-phone").value;
+                    const clinic = document.getElementById("clinic-select").value;
+
+                    if (!referenceName || !referencePhone) {
+                        isValid = false;
+
+                        if (referenceName.length < 1) {
+                            document.getElementById("reference-name").focus();
+                            document.getElementById("reference-name").classList.add("is-invalid");
+                        }
+                        if (referencePhone.length < 1) {
+                            document.getElementById("reference-phone").focus();
+                            document.getElementById("reference-phone").classList.add("is-invalid");
+                        }
+
+                    }
+                    if (isValid) {
+                      // const result = joinEvent();
+                      // console.log("result")
+                      // result.then(result => {
+                      //     alert(result);
+                      // });
+                        joinEvent().then(result => {
+                            console.log(result);
+                            alert(result.message);
+                        }).catch(err =>{
+                            console.log(err);
+                            alert(err.error);
+                        })
+                    }
+
+                    // joinEvent().then(result => {
+                    //     alert(result);
+                    // }).catch(err => {
+                    //     alert(err.message);
+                    // });
 
                     //alert("Thank you for joining the event! Check your LINE for updates.");
                 }
@@ -263,11 +300,14 @@
         document.getElementById("user-organization").innerText = "หน่วยงานสังกัด "+member.organization;
         document.getElementById("user-course").innerText = "รุ่นหลักสูตร "+member.course;
 
+       document.getElementById("member-name").value = member.name;
+       document.getElementById("member-lastName").value = member.lastName;
        document.getElementById("member-line-id").value = lineProfile.userId;
        document.getElementById("member-line-name").value = lineProfile.displayName;
        document.getElementById("member-fullName").value = fullName;
        document.getElementById("member-phone").value = member.phone;
        document.getElementById("member-email").value = member.email;
+       document.getElementById("member-position").value = member.position;
        document.getElementById("member-organization").value = member.organization;
        document.getElementById("member-course").value = member.course;
        // document.getElementById("reference-name").value = member.referenceName;
@@ -277,44 +317,46 @@
 
     }
 
-
-
-
-
-    // Simulate an API call or saving function
+    // an API call or saving function
     function joinEvent() {
-        return new Promise((resolve, reject) => {
+        return new Promise( async (resolve, reject) => {
+            try {
+                const data = {
+                    eventId: "1",
+                    userId: document.getElementById("member-line-id").value,
+                    lineName: document.getElementById("member-line-name").value,
+                    name: document.getElementById("member-name").value,
+                    lastName: document.getElementById("member-lastName").value,
+                    tel: document.getElementById("member-phone").value,
+                    email: document.getElementById("member-email").value,
+                    position: document.getElementById("member-position").value,
+                    organization: document.getElementById("member-organization").value,
+                    course: document.getElementById("member-course").value,
+                    lineId: document.getElementById("member-line-id").value,
+                    referenceName: document.getElementById("reference-name").value,
+                    referencePhone: document.getElementById("reference-phone").value,
+                    clinic: document.getElementById("clinic-select").value,
+                }
+                const response = await fetch(JOIN_EVENT_API, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log(result);
+                    resolve(result);
 
-           const member = {
-               eventId: 1,
-               userId: document.getElementById("member-line-id").value,
-               lineName: document.getElementById("member-line-name").value,
-               name: document.getElementById("member-fullName").value,
-               phone: document.getElementById("member-phone").value,
-               email: document.getElementById("member-email").value,
-               organization: document.getElementById("member-organization").value,
-               course: document.getElementById("member-course").value,
-               referenceName: document.getElementById("reference-name").value,
-               referencePhone: document.getElementById("reference-phone").value,
-               clinic: document.getElementById("clinic-select").value,
-           }
+                } else {
+                    const error = await response.json();
+                    console.log(error);
+                    reject(error);
 
-           console.log(member);
-           resolve("Save successful!");
+                }
 
-
-
-            // setTimeout(() => {
-            //     // Simulate success or failure
-            //     const isSuccess = true; // Change to false to simulate a failure
-            //     if (isSuccess) {
-            //         resolve('Save successful!');
-            //     } else {
-            //         reject(new Error('Save failed!'));
-            //     }
-            // }, 2000); // Simulate a 2-second delay
-
-
+            } catch (error) {
+                reject(error);
+            }
 
         });
     }

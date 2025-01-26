@@ -13,6 +13,7 @@ type LineBotService interface {
 	GetLineProfile(userId string) (*UserInfo, error)
 	UpdateMemberProfile(userId string, member *Member) error
 	CheckMemberRegister(userId string) (bool, error)
+	EventJoin(event *MemberJoinEvent) error
 }
 type SourceHook struct {
 	Type   string `json:"type"`
@@ -96,4 +97,21 @@ type ReplyMessage struct {
 type Text struct {
 	Type string `json:"type"`
 	Text string `json:"text"`
+}
+
+type MemberJoinEvent struct {
+	EventId        string `json:"eventId" binding:"required" validate:"required,min=3,max=20"`
+	UserId         string `json:"userId" binding:"required"`
+	JoinTime       string `json:"joinTime,omitempty"`
+	Name           string `json:"name" binding:"required" validate:"required,min=3,max=20"`
+	LastName       string `json:"lastName" binding:"required" validate:"required,min=3,max=20"`
+	Organization   string `json:"organization" binding:"required"`
+	Position       string `json:"position" binding:"required"`
+	Course         string `json:"course" binding:"required"`
+	LineId         string `json:"lineId" binding:"required"`
+	LineName       string `json:"lineName" binding:"required"`
+	Tel            string `json:"tel" binding:"required" validate:"required,numeric,min=10,max=10"`
+	ReferenceName  string `json:"referenceName" binding:"required" validate:"required,min=3,max=20"`
+	ReferencePhone string `json:"referencePhone" binding:"required" validate:"required,numeric,min=10,max=10"`
+	Clinic         string `json:"clinic" binding:"required"`
 }

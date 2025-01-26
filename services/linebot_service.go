@@ -14,9 +14,10 @@ type lineBotService struct {
 	cfg        *conf.AppConfig
 	bot        *messaging_api.MessagingApiAPI
 	memberRepo repository.MemberRepository
+	eventRepo  repository.EventsRepository
 }
 
-func NewLineBotService(memberRepo repository.MemberRepository) LineBotService {
+func NewLineBotService(memberRepo repository.MemberRepository, eventRepo repository.EventsRepository) LineBotService {
 	cfg, _ := conf.NewAppConfig()
 	bot, _ := messaging_api.NewMessagingApiAPI(cfg.LineApp.ChannelToken)
 
@@ -24,6 +25,7 @@ func NewLineBotService(memberRepo repository.MemberRepository) LineBotService {
 		cfg:        cfg,
 		bot:        bot,
 		memberRepo: memberRepo,
+		eventRepo:  eventRepo,
 	}
 }
 func (s *lineBotService) SendTextMessage(text string) error {
@@ -541,6 +543,35 @@ func (s *lineBotService) CheckMemberRegister(userId string) (bool, error) {
 		return true, nil
 	}
 	return false, nil
+}
+func (s *lineBotService) EventJoin(event *MemberJoinEvent) error {
+	if len(event.EventId) == 0 {
+		return errors.New("event id is required")
+	}
+	if len(event.Name) == 0 || len(event.LastName) == 0 {
+		return errors.New("name and lastname is required")
+	}
+	err := s.eventRepo.EventJoin(&repository.MemberEventImpl{
+		EventId:        event.EventId,
+		UserId:         event.UserId,
+		JoinTime:       time.Now().Unix(),
+		Name:           event.Name,
+		LastName:       event.LastName,
+		Organization:   event.Organization,
+		Position:       event.Position,
+		Course:         event.Course,
+		LineId:         event.LineId,
+		LineName:       event.LineName,
+		Tel:            event.Tel,
+		ReferenceName:  event.ReferenceName,
+		ReferencePhone: event.ReferencePhone,
+		Clinic:         event.Clinic,
+	})
+
+	if err != nil {
+		return err
+	}
+	return nil
 }
 func validation(member *Member) error {
 	if member.Name == "" {

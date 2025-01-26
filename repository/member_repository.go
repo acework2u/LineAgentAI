@@ -128,3 +128,14 @@ func (r *memberRepositoryImpl) GetMembers(filter Filter) ([]*Member, error) {
 
 	return members, nil
 }
+
+func (r *memberRepositoryImpl) CreateJoinEvent(event *JoinEventImpl) error {
+
+	panic("implement me")
+}
+func (r *memberRepositoryImpl) GetJoinEvent(eventId string) (*JoinEventImpl, error) {
+	panic("implement me")
+}
+func (r *memberRepositoryImpl) CheckJoinEvent(eventId string, userId string) (bool, error) {
+	panic("implement me")
+}

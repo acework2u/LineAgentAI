@@ -288,3 +288,27 @@ func (h *LineWebhookHandler) PostUpdateMember(c *gin.Context) {
 	log.Println(member)
 	c.JSON(200, gin.H{"message": "update member successful"})
 }
+func (h *LineWebhookHandler) PostJoinEvent(c *gin.Context) {
+
+	eventJoin := services.MemberJoinEvent{}
+	err := c.ShouldBindJSON(&eventJoin)
+	log.Println("eventJoin:")
+	log.Println(eventJoin)
+	cusErr := utils.NewCustomErrorHandler(c)
+	if err != nil {
+		log.Println("In Join Event: error")
+		log.Println(err)
+		cusErr.ValidateError(err)
+		return
+	}
+
+	err = h.lineService.EventJoin(&eventJoin)
+
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "join event successful"})
+
+}

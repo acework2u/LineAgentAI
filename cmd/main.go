@@ -17,6 +17,7 @@ import (
 
 const (
 	MemberCollectionName = "members"
+	EventsCollectionName = "events"
 )
 
 var (
@@ -32,6 +33,7 @@ var (
 	LineRouter     *router.LineRouter
 	lineBotService services.LineBotService
 	memberRepo     repository.MemberRepository
+	eventsRepo     repository.EventsRepository
 )
 
 func init() {
@@ -44,10 +46,12 @@ func init() {
 	// DB Connection
 	client = conf.ConnectionDB()
 	memberCollection = conf.GetCollection(client, MemberCollectionName)
+	eventsCollection := conf.GetCollection(client, EventsCollectionName)
 	// Service
 
 	memberRepo = repository.NewMemberRepository(ctx, memberCollection)
-	lineBotService = services.NewLineBotService(memberRepo)
+	eventsRepo = repository.NewEventRepository(ctx, eventsCollection)
+	lineBotService = services.NewLineBotService(memberRepo, eventsRepo)
 	LineHandler = handler.NewLineWebhookHandler(lineBotService)
 	LineRouter = router.NewLineRouter(LineHandler)
 

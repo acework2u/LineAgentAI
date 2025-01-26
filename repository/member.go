@@ -29,6 +29,22 @@ type Filter struct {
 	Keyword string   `json:"keyword"`
 	Members []string `json:"members"`
 }
+type JoinEventImpl struct {
+	EventId        string `json:"eventId" binding:"required" validate:"required,min=3,max=20"`
+	UserId         string `json:"userId" binding:"required"`
+	JoinTime       int64  `json:"joinTime,omitempty"`
+	Name           string `json:"name" binding:"required" validate:"required,min=3,max=20"`
+	LastName       string `json:"lastName" binding:"required" validate:"required,min=3,max=20"`
+	Organization   string `json:"organization" binding:"required"`
+	Position       string `json:"position" binding:"required"`
+	Course         string `json:"course" binding:"required"`
+	LineId         string `json:"lineId" binding:"required"`
+	LineName       string `json:"lineName" binding:"required"`
+	Tel            string `json:"tel" binding:"required" validate:"required,numeric,min=10,max=10"`
+	ReferenceName  string `json:"referenceName" binding:"required" validate:"required,min=3,max=20"`
+	ReferencePhone string `json:"referencePhone" binding:"required" validate:"required,numeric,min=10,max=10"`
+	Clinic         string `json:"clinic" binding:"required"`
+}
 
 type MemberRepository interface {
 	CreateMember(member *Member) error
@@ -36,4 +52,7 @@ type MemberRepository interface {
 	UpdateMember(lineId string, member *Member) error
 	DeleteMember(id string) error
 	GetMembers(filter Filter) ([]*Member, error)
+	CreateJoinEvent(event *JoinEventImpl) error
+	GetJoinEvent(eventId string) (*JoinEventImpl, error)
+	CheckJoinEvent(eventId string, userId string) (bool, error)
 }
