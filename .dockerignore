@@ -1,0 +1,6 @@
+*.log
+.gitignore
+.git/
+.DS_Store
+node_moules
+frontend/node_modules
