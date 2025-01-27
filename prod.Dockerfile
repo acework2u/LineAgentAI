@@ -6,7 +6,7 @@ ENV GOARCH=amd64
 
 WORKDIR /app
 
-COPY go.mod gosum ./
+COPY go.mod go.sum ./
 
 COPY . .
 
