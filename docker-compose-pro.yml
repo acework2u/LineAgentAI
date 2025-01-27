@@ -1,0 +1,61 @@
+services:
+  web:
+    container_name: front-line
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    restart: always
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    env_file:
+      - .env
+    networks:
+      - line_bot_ci_cd_net
+  app:
+    container_name: line-api-gw
+    image: acework2u/line-medical-volunteer:latest
+    volumes:
+      - .:/app
+    links:
+      - database
+    ports:
+      - "8081:8081"
+    networks:
+      - line_bot_ci_cd_net
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      ME_CONFIG_MONGODB_URL: ${MONGURI}
+      ME_CONFIG_MONGODB_PORT: 27019
+      ME_CONFIG_MONGODB_SERVER: 'e-hosp-doctor'
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "localhost:172.18.0.1"
+  database:
+    container_name: e-hosp-doctor
+    image: mongo:latest
+    hostname: e-hosp-doctor
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+      MONGODB_DB: ${MONGODB_DB}
+      MONGODB_USER: ${MONGODB_USER}
+      MONGODB_PASSWORD: ${MONGODB_PASSWORD}
+    env_file:
+      - .env
+    ports:
+      - ${MONGODB_PORT}:27017
+    networks:
+      - line_bot_ci_cd_net
+    volumes:
+      - ./init.sh:/docker-entrypoint-initdb.d/init.sh:ro
+      - medical_volunteer_data:/data/db
+volumes:
+  medical_volunteer_data:
+
+networks:
+  line_bot_ci_cd_net:
+    driver: bridge
+    name: line_bot_ci_cd_net

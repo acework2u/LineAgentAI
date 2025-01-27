@@ -11,7 +11,8 @@ COPY go.mod go.sum ./
 COPY . .
 
 # go build app
-RUN go build -o api-server ./cmd/main.go
+# RUN go build -o api-server cmd/main.go
+RUN go build -o api-server .
 
 FROM alpine:3.14 AS production
 RUN apk add --no-cach ca-certificates
