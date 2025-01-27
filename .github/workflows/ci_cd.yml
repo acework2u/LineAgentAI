@@ -12,33 +12,25 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@v4
       - name: Create .env file
-        run: echo "PORT-${{ secrets.PORT }}" >> .env
-      - name: login to docker hub
+        run: echo "PORT=${{ secrets.PORT }}" >> .env
+      - name: Login to Docker Hub
         run: echo ${{ secrets.DOCKER_TOKEN }} | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
-#        run: docker login -u ${{secrets.DOCKER_USERNAME}} -p ${{secrets.DOCKER_PASSWORD}}
-      - name: Build docker image
+      - name: Build Docker image
         run: docker build -t acework2u/line-medical-volunteer -f prod.Dockerfile .
-      - name: Push image to docker hub
+      - name: Push image to Docker Hub
         run: docker push acework2u/line-medical-volunteer:latest
   deploy:
     needs: [build]
     runs-on: self-hosted
     steps:
-      - name: Pull docker image
+      - name: Pull Docker image
         run: docker pull acework2u/line-medical-volunteer:latest
       - name: Delete old container
         run: docker rm -f line-medical-volunteer
-      - name: Run docker container
+      - name: Run Docker container
         run: |
           set -e  # Exit immediately if a command exits with a non-zero status
-          cd ~/line-medical-app/  # แก้ไขให้ตรงกับ path ที่มี docker-compose.yml
-          docker compose down              # หยุด container ที่รันอยู่
-          docker compose pull              # ดึง image ล่าสุดจาก Docker Hub
-          docker compose up -d             # รัน container ด้วย image ล่าสุด
-
-#        run: docker run -d -p 8088:8088 --name e-document-service acework2u/e-document-service:latest
-#        run: docker-compose -f docker-compose.prod.yml up -d
-#        run: docker buildx build --platform=linux/amd64 -t e-document-service . --target production -f Dockerfile.production --no-cache
-
-
-
+          cd ~/line-medical-app/  # Adjust to match the path containing docker-compose.yml
+          docker compose down              # Stop running containers
+          docker compose pull              # Pull the latest image from Docker Hub
+          docker compose up -d             # Run containers with the latest image
