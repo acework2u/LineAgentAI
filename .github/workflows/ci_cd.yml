@@ -31,7 +31,7 @@ jobs:
       - name: Run Docker container
         run: |
           set -e #Exit immediately if a command exits with a non-zero status
-          cd ~/line-medical-volunteer/ # this edit path have to docker-compose.yml
+          cd ~/line-medical-app/ # this edit path have to docker-compose.yml
           docker compose down
           docker compose pull
           docker compose up -d

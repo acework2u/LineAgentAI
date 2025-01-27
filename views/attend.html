@@ -90,7 +90,12 @@
         <p><strong>Location:</strong> ณ วัดราชบพิธสถิตมหาสีมารามราชวรวิหาร</p>
         <p><strong>Description:</strong> การแต่งกาย : ปธพ.1-10 และ ปนพ.1-2 ใส่เสื้อประจำรุ่น ปธพ.X เสื้อสีขาวโลโก้สมเด็จฯ</p>
     </div>
-    <div class="event-details mb-3 shadow-sm card text-center">
+    <div class="mb-3 shadow-sm card text-center green-500 d-none" id="registerMemberCard">
+        <h3>ท่านยังไม่่ได้เป็นสมาชิกแพทย์อาสา</h3>
+        <p>กรุณาลงทะเบียนสมาชิก ก่อนเข้าร่วมกิจกรรม</p>
+
+    </div>
+    <div class="event-details mb-3 shadow-sm card text-center" id="joinEventCard">
         <h3 class="mt-3">เข้าร่วมกิจกรรม</h3>
         <p>โปรดระบุข้อมูลเพิ่มเติม เพื่อเข้าร่วมกิจกรรม</p>
         <p id="event-status" class="card-text green-500"></p>
@@ -149,12 +154,11 @@
 
         </form>
         </div>
-
+        <button class="btn btn-line btn-lg w-100" id="joinEventBtn">Join the Event</button>
     </div>
 
-    <button class="btn btn-line btn-lg w-100" id="joinEventBtn">Join the Event</button>
-</div>
 
+</div>
 <script>
 
     const LIff_ID = "2006793268-nJZqYeWE";
@@ -252,11 +256,23 @@
                     userId: userId
                 })
             });
+
+
+
             if (response.ok) {
                 const data = await response.json();
+                console.log("in handleUserLogin on attend ")
                 console.log(data);
 
-                 fetchUserProfile(userId);
+                if(data.isRegistered){
+                    fetchUserProfile(userId);
+                }else{
+                   // member is not register
+                   document.getElementById("joinEventForm").classList.remove("d-none");
+
+                }
+
+
             }else {
                throw new Error("ท่านยังไม่ได้ลงทะเบียนสมาชิกแพทย์อาสา กรุณาลงทะเบียนก่อนเข้าร่วมกิจกรรม")
             }
