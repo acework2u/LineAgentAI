@@ -85,6 +85,9 @@ func StartServer() {
 	server.GET("/attend", func(c *gin.Context) {
 		c.HTML(200, "attend.html", nil)
 	})
+	server.GET("/events", func(c *gin.Context) {
+		c.HTML(200, "event.html", nil)
+	})
 
 	// router
 	routers := server.Group("/api/v1")

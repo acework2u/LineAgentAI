@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Check-in</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .btn-line {
+            background-color: #00c300;
+            color: white;
+            border: none;
+        }
+
+        .btn-line:hover {
+            background-color: #00a600;
+        }
+
+        .header {
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #343a40;
+        }
+
+        .header p {
+            color: #6c757d;
+        }
+
+        #qrcode {
+            margin: 20px 0;
+        }
+
+        #scanResult {
+            margin-top: 20px;
+            color: #495057;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Event Check-in</h1>
+        <p>Scan the QR Code to Check-in</p>
+    </div>
+
+    <button class="btn btn-line btn-lg w-100" id="scanQrBtn">Scan QR Code</button>
+
+    <div id="qrcode">
+        <!-- QR Code will be rendered here -->
+    </div>
+
+    <div id="scanResult">
+        <!-- Scan result will be displayed here -->
+    </div>
+</div>
+
+<script>
+    const LIFF_ID = "2006793268-Bp72Z8Lj";
+    document.addEventListener('DOMContentLoaded', () => {
+        liff.init({ liffId: LIFF_ID }).then(() => {
+            console.log("LIFF initialized");
+
+            const scanQrBtn = document.getElementById("scanQrBtn");
+            const scanResult = document.getElementById("scanResult");
+
+            scanQrBtn.addEventListener("click", () => {
+                if (liff.isInClient()) {
+                    liff.scanCode().then(result => {
+                        const qrCodeData = result.value;
+                        scanResult.innerHTML = `<p>QR Code Scanned: ${qrCodeData}</p>`;
+
+                        // Handle check-in logic (e.g., send QR data to server)
+                        console.log("Scanned QR Code:", qrCodeData);
+                    }).catch(err => {
+                        scanResult.innerHTML = `<p>Error scanning QR Code. Please try again.</p>`;
+                        console.error("Error scanning QR Code:", err);
+                    });
+                } else {
+                    scanResult.innerHTML = `<p>QR Code scanning is only available in the LINE app.</p>`;
+                }
+            });
+
+        }).catch(err => {
+            console.error("LIFF initialization failed", err);
+        });
+    });
+</script>
+</body>
+
+</html>
