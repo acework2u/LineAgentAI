@@ -86,7 +86,6 @@
                 <p class="card-text" id="user-course"></p>
                 <p class="card-text" id="user-organization"></p>
 
-                <p class="card-text hidden">Passionate web developer with 5 years of experience in creating responsive and user-friendly websites.</p>
 <!--                <div class="d-flex hidden justify-content-center mb-3">-->
 <!--                    <a href="#" class="btn btn-outline-primary me-2"><i class="bi bi-twitter"></i></a>-->
 <!--                    <a href="#" class="btn btn-outline-primary me-2"><i class="bi bi-facebook"></i></a>-->
@@ -151,7 +150,7 @@
                 <input type="hidden" id="full-name" class="form-input" placeholder="Enter your full name">
             </div>
 <!--            <input type="text" id="full-name" placeholder="Enter your full name" required>-->
-            <input type="text" class="form-input" id="title-name" placeholder="ระบุคคำนำหน้าชื่อ" required >
+            <input type="text" class="form-input" id="title-name" placeholder="ระบุ นาย,นาง,นางสาว" required >
             <input type="text" class ="form-input" id="name" placeholder="ระบุชื่อ" required>
             <input type="text" class="form-input" id="lastname" placeholder="นามสกุล" required>
             <input type="email" id="email" class="form-input" placeholder="ระบุ email" required>
@@ -197,11 +196,13 @@
         <h2 id="form-title" class="color gray">Update User Profile</h2>
         <form id="updated-form" class="p-4 bg-light-custom rounded-3 shadow-sm">
             <div class="mb-3">
-                <input type="text" id="update-full-name" class="form-input"  required>
+                <input type="hidden" id="update-full-name" class="form-input">
             </div>
-            <input type="email" id="update-email" class="form-input" placeholder="Enter your email" required>
+            <input type="text" class="form-input" id="update-title-name" placeholder="ระบุ นาย,นาง,นางสาว">
             <input type="text" class ="form-input" id="update-name" placeholder="Enter your name">
             <input type="text" class="form-input" id="update-lastname" placeholder="Enter your lastname">
+            <input type="email" id="update-email" class="form-input" placeholder="Enter your email" required>
+
 
             <input type="text" class="form-input" id="update-phone" placeholder="Enter your phone number">
 
@@ -215,6 +216,10 @@
                 <input class="form-check-input" type="radio" name="med" id="update-med-no" value="no-med" onChange="handleMedChange(event)">
                 <label class="form-check-label" for="update-med-no">NO-MED</label>
             </div>
+            <div id="extra-fields" class="form-group">
+                <!--                <label for="extra-info">ระบุรายละเอียด MED / NO-MED</label>-->
+                <input name="med-extra-info" type="text" id="update-extra-info" class="form-control mb-2" placeholder="บอกรายละเอียด MED / NO-MED เพิ่มเติมให้เราทราบ">
+            </div>
             <input type="text" class="form-input" id="update-organization" placeholder="Enter your organization">
             <input type="text" class="form-input" id="update-position" placeholder="Enter your position">
             <select class="form-select" id="update-course" aria-label="Default select example">
@@ -224,8 +229,8 @@
             <select class="form-select" id="update-religion" aria-label="Default select example">
                 <option selected>Open this select menu</option>
             </select>
-            <input type="text" class="form-input" id="update-line-name" placeholder="Enter your line name">
-            <input type="text" class="form-input" id="update-line-id" placeholder="Enter your line id">
+            <input type="text" class="form-input" id="update-line-name" placeholder="Enter your line name" readonly>
+            <input type="hidden" class="form-input" id="update-line-id" placeholder="Enter your line id">
 
             <button class="btn btn-secondary" type="button" id="update-cancel-btn">Cancel</button>
             <button type="button" class="btn btn-primary" id="update-btn">Save</button>
@@ -443,6 +448,7 @@
             setMedValue(medValueFromData);
 
             document.getElementById('update-full-name').value = userData.name + " " + userData.lastName;
+            document.getElementById('update-title-name').value = member.title;
             document.getElementById('update-email').value = member.email;
             document.getElementById('update-name').value = userData.name;
             document.getElementById('update-lastname').value = userData.lastName;
@@ -454,6 +460,7 @@
             document.getElementById('update-religion').value = member.religion;
             document.getElementById('update-line-name').value = profile.displayName;
             document.getElementById('update-line-id').value = userData.lineId;
+            document.getElementById('update-extra-info').value = member.medExtraInfo;
 
 
 
@@ -550,12 +557,11 @@
     // Handle Registration
     document.getElementById('register-btn').addEventListener('click', async () => {
 
+        const Title = document.getElementById('title-name').value.trim();
         const name = document.getElementById('name').value.trim();
         const lastname = document.getElementById('lastname').value.trim();
         document.getElementById('full-name').value = name + " " + lastname;
         const fullName = document.getElementById('full-name').value.trim();
-
-        // const med = document.getElementById('med').value.trim();
         const med = document.querySelector('input[name="med"]:checked').value;
         const email = document.getElementById('email').value.trim();
         const phone = document.getElementById('phone').value.trim();
@@ -565,6 +571,9 @@
         const foodAllergy = document.getElementById('foodAllergy').value.trim();
         const religion = document.getElementById('religion').value.trim();
         const lineId = document.getElementById('line-id').value.trim();
+        const lineName = document.getElementById('line-name').value.trim();
+        const medExtraInfo = document.getElementById('extra-info').value.trim();
+
 
 
 
@@ -582,6 +591,7 @@
                 const profile = await liff.getProfile();
                 const data = {
                     userId: profile.userId,
+                    title: Title,
                     fullName,
                     name,
                     lastname,
@@ -589,9 +599,11 @@
                     foodAllergy,
                     religion,
                     lineId,
+                    lineName,
                     email,
                     phone,
                     med,
+                    medExtraInfo,
                     organization,
                     position,
 
@@ -645,7 +657,7 @@
         const lineId = document.getElementById('update-line-id').value.trim();
         const lineName = document.getElementById('update-line-name').value.trim();
         const medExtraInfo = document.getElementById('extra-info').value.trim();
-        const Title = document.getElementsById("title-name").value.trim();
+        const Title = document.getElementById('update-title-name').value.trim();
         let isValid = true;
         // Validate fields
         if (!fullName || !email || !phone || !organization || !position) {
@@ -664,6 +676,7 @@
                     fullName,
                     name,
                     med,
+                    medExtraInfo,
                     organization,
                     position,
                     lastname,
@@ -672,7 +685,6 @@
                     religion,
                     lineId,
                     lineName,
-                    medExtraInfo,
                     email,
                     phone,
                     status: profile.status,
