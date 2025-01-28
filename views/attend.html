@@ -93,12 +93,13 @@
     <div class="mb-3 shadow-sm card text-center green-500 d-none" id="registerMemberCard">
         <h3>ท่านยังไม่่ได้เป็นสมาชิกแพทย์อาสา</h3>
         <p>กรุณาลงทะเบียนสมาชิก ก่อนเข้าร่วมกิจกรรม</p>
-
+<!--         <button class="btn btn-line btn-lg w-100" id="member-register-btn">Register</button>-->
     </div>
     <div class="event-details mb-3 shadow-sm card text-center" id="joinEventCard">
         <h3 class="mt-3">เข้าร่วมกิจกรรม</h3>
         <p>โปรดระบุข้อมูลเพิ่มเติม เพื่อเข้าร่วมกิจกรรม</p>
         <p id="event-status" class="card-text green-500"></p>
+        <button class="btn btn-line btn-lg w-100" id="member-register-btn">Register</button>
         <div class="card-body text-center">
             <div id="member-profile" class="mb-3 d-none">
             <p id="user-fullName" class="card-text"></p>
@@ -259,7 +260,7 @@
 
             console.log(dataCheckEvent.eventJoin);
 
-
+            // Check member join event
             if(dataCheckEvent.eventJoin){
                 fetchGetEventJoin(userId);
                 document.getElementById("joinEventCard").classList.remove("d-none");
@@ -268,13 +269,9 @@
                 // document.getElementById("joinEventBtn").classList.add("d-none");
                 // document.getElementById("joinEventDisplay").classList.remove("d-none");
 
-
-
             }else{
                 document.getElementById("joinEventForm").classList.remove("d-none");
             }
-
-
 
             const lineProfile = await liff.getProfile();
             const checkMember = checkMemberRegistration(lineProfile.userId);
@@ -401,6 +398,20 @@
     }
 
 
+
+
+
+
+    // Enable the "Join Event" button
+    function enableMemberRegisterButton() {
+
+        document.getElementById("event-status").innerHTML = "ท่านยังไม่ได้เป็นสามาชิก! กรุณาลงทะเบียนสมาชิกแพทย์อาสา เพื่อเข้าร่วมกิจกรรม"
+
+        const joinButton = document.getElementById("member-register-btn");
+        joinButton.disabled = false;
+        joinButton.addEventListener("click", redirectToRegistrationPage);
+    }
+
     // Check if the user is registered
     async function checkMemberRegistration(userId) {
         try {
@@ -412,6 +423,8 @@
                 })
             });
             const data = await response.json();
+            console.log("in checkMemberRegistration on attend")
+            console.log(data.isRegistered);
             return data.isRegistered;
         }catch (error) {
             console.log(error);
@@ -421,9 +434,9 @@
 
     //Redirect to Liff registration page
     function redirectToRegistrationPage() {
-        // liff.redirectToLogin();
-        const url = "https://liff.line.me/2006793268-7rZrb1Kw";
-        liff.openWindow({ url, external: true });
+        const registerUrl = "https://liff.line.me/2006793268-7rZrb1Kw";
+        liff.openWindow({ url: registerUrl, external: true });
+
     }
 
 
@@ -436,12 +449,16 @@
             }else{
                 const profile = await liff.getProfile();
                 const userId = profile.userId;
-                const checkMember = checkMemberRegistration(userId);
+                const checkMember = await checkMemberRegistration(userId);
+
+                console.log("check member is",checkMember);
+
                 if (checkMember){
                     // Handler user login
                     handleUserLogin();
                 } else{
-                    redirectToRegistrationPage();
+                    // redirectToRegistrationPage();
+                    enableMemberRegisterButton();
                 }
             }
 
