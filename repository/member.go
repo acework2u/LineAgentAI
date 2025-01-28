@@ -1,6 +1,7 @@
 package repository
 
 type Member struct {
+	Title        string `bson:"title"`
 	Name         string `bson:"name"`
 	LastName     string `bson:"lastname"`
 	PinCode      int    `bson:"pincode"`
@@ -8,11 +9,12 @@ type Member struct {
 	Phone        string `bson:"phone"`
 	BirthDate    int64  `bson:"birthdate"`
 	Med          string `bson:"med"`
+	MedExtraInfo string `bson:"medextrainfo"`
 	Organization string `bson:"organization"`
 	Position     string `bson:"position"`
 	Course       string `bson:"course"`
 	LineId       string `bson:"lineid"`
-	Line         string `bson:"line"`
+	LineName     string `bson:"lineName"`
 	Facebook     string `bson:"facebook"`
 	Instagram    string `bson:"instagram"`
 	FoodAllergy  string `bson:"foodallergy"`

@@ -189,10 +189,6 @@
         "คลินิกที่ 15 อู่ข้าว-อู่น้ำ",
         "คลินิกที่ 16 แจกถุงบุญ"]
 
-
-
-
-
     // Handler User login
     async function handleUserLogin() {
         try{
@@ -397,16 +393,10 @@
         });
     }
 
-
-
-
-
-
     // Enable the "Join Event" button
     function enableMemberRegisterButton() {
 
         document.getElementById("event-status").innerHTML = "ท่านยังไม่ได้เป็นสามาชิก! กรุณาลงทะเบียนสมาชิกแพทย์อาสา เพื่อเข้าร่วมกิจกรรม"
-
         const joinButton = document.getElementById("member-register-btn");
         joinButton.disabled = false;
         joinButton.addEventListener("click", redirectToRegistrationPage);
@@ -438,7 +428,6 @@
         liff.openWindow({ url: registerUrl, external: true });
 
     }
-
 
     async function initializeLiff(){
         try {

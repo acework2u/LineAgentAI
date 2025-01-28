@@ -71,7 +71,7 @@
 
     </style>
 </head>
-<body onload="getCourse(),getReligion(),getMyCourses(),populateCoursesDropdown()">
+<body onload="getCourse(),getReligion(),populateCoursesDropdown()">
 <div class="container">
 
     <div class="row row-cols-1 row-cols-md-2 g-4 mb-3">
@@ -151,7 +151,7 @@
                 <input type="hidden" id="full-name" class="form-input" placeholder="Enter your full name">
             </div>
 <!--            <input type="text" id="full-name" placeholder="Enter your full name" required>-->
-
+            <input type="text" class="form-input" id="title-name" placeholder="ระบุคคำนำหน้าชื่อ" required >
             <input type="text" class ="form-input" id="name" placeholder="ระบุชื่อ" required>
             <input type="text" class="form-input" id="lastname" placeholder="นามสกุล" required>
             <input type="email" id="email" class="form-input" placeholder="ระบุ email" required>
@@ -165,10 +165,11 @@
                 <input class="form-check-input" type="radio" name="med" id="med-no" value="no-med" onChange="handleMedChange(event)">
                 <label class="form-check-label" for="med-no">NO-MED</label>
             </div>
-            <div id="extra-fields" class="form-group hidden">
-                <label for="extra-info">Extra Info (for MED Yes):</label>
-                <input name="med-extra-info" type="text" id="extra-info" class="form-control" placeholder="Enter your Med info">
+            <div id="extra-fields" class="form-group">
+<!--                <label for="extra-info">ระบุรายละเอียด MED / NO-MED</label>-->
+                <input name="med-extra-info" type="text" id="extra-info" class="form-control mb-2" placeholder="บอกรายละเอียด MED / NO-MED เพิ่มเติมให้เราทราบ">
             </div>
+
 
             <input type="text" class="form-input" id="organization" placeholder="หน่วยงานที่สังกัด">
             <input type="text" class="form-input" id="position" placeholder="ตำแหน่ง">
@@ -291,9 +292,7 @@
     const UPDATE_API = `${baseUrl}/api/v1/member-update`
     // let courses = ["ปธพ1","ปธพ2","ปธพ3","ปธพ4"];
     let isUpdate = false;
-    const COURSES = ["ปธพ.1","ปธพ.2","ปธพ.3","ปธพ.4","ปธพ.5","ปธพ.6","ปธพ.7","ปธพ.8","ปธพ.9","ปธพ.10","ปธพ.11","ปธพ.X","ปนพ.1","ปนพ.2"];
-
-
+    const COURSES = ["ปธพ.1","ปธพ.2","ปธพ.3","ปธพ.4","ปธพ.5","ปธพ.6","ปธพ.7","ปธพ.8","ปธพ.9","ปธพ.10","ปธพ.11","ปธพ.X","ปนพ.1","ปนพ.2","ปนพ.3","ปอพ.1","ปอพ.2","ปอพ.3","ปอก.1"];
 
 
     // Initialize LIFF
@@ -329,19 +328,8 @@
                 const data = await response.json();
                 console.log(data);
                 if (data.isRegistered) {
-                    // User is registered, fetch their profile
-                    // if (isUpdate) {
-                    //     displayUpdateForm(profile,data.userInfo);
-                    // }else{
-                    //     fetchUserProfile(userId);
-                    //     displayUserProfile(profile);
-                    //     displayUpdateForm(profile,data.userInfo);
-                    // }
-
                      fetchUserProfile(userId);
-                    // displayUserProfile(profile);
 
-                    // fetchUserProfile(userId);
                 } else {
                     // User is not registered, show the registration form
                     displayRegistrationForm(profile);
@@ -541,8 +529,10 @@
         // Perform any other action based on the selected value
         if (selectedMed === "Med") {
             console.log("User selected Yes for MED.");
+            document.getElementById("extra-fields").classList.remove("d-none");
         } else if (selectedMed === "No-Med") {
             console.log("User selected No for MED.");
+            document.getElementById("extra-fields").classList.remove("d-none");
         }
     }
     function setMedValue(medValue) {
@@ -654,6 +644,8 @@
         const religion = document.getElementById('update-religion').value.trim();
         const lineId = document.getElementById('update-line-id').value.trim();
         const lineName = document.getElementById('update-line-name').value.trim();
+        const medExtraInfo = document.getElementById('extra-info').value.trim();
+        const Title = document.getElementsById("title-name").value.trim();
         let isValid = true;
         // Validate fields
         if (!fullName || !email || !phone || !organization || !position) {
@@ -668,6 +660,7 @@
                 console.log(profile);
                 const data = {
                     userId: profile.userId,
+                    title: Title,
                     fullName,
                     name,
                     med,
@@ -678,6 +671,8 @@
                     foodAllergy,
                     religion,
                     lineId,
+                    lineName,
+                    medExtraInfo,
                     email,
                     phone,
                     status: profile.status,
@@ -740,7 +735,7 @@
 
         // Add a default option
         const defaultOption = document.createElement('option');
-        defaultOption.text = 'Select a course';
+        defaultOption.text = 'เลือกรุ่นของท่าน';
         defaultOption.value = '';
         dropdown.appendChild(defaultOption);
         let courses = COURSES;
@@ -768,63 +763,6 @@
     // Initialize LIFF on page load
     initLIFF();
 </script>
-<!--
-<script>
-    // Replace with your LIFF ID
-    const LIFF_ID = "2006793268-7rZrb1Kw";
-
-    // Initialize LIFF
-    async function initLIFF() {
-        try {
-            await liff.init({ liffId: LIFF_ID });
-            document.getElementById('status').innerText = "LIFF initialized";
-            if (liff.isLoggedIn()) {
-                displayUserProfile();
-            } else {
-                liff.login();
-            }
-        } catch (error) {
-            document.getElementById('status').innerText = "Error initializing LIFF: " + error;
-        }
-    }
-
-    // Display User Profile
-    async function displayUserProfile() {
-        try {
-            const profile = await liff.getProfile();
-            document.getElementById('register-form').classList.remove('hidden');
-            document.getElementById('status').classList.add('hidden');
-            document.getElementById('user-picture').src = profile.pictureUrl;
-            document.getElementById('user-name').innerText = "Name: " + profile.displayName;
-            document.getElementById('user-id').innerText = "UserID: " + profile.userId;
-        } catch (error) {
-            document.getElementById('status').innerText = "Error getting profile: " + error;
-        }
-    }
-
-    // Handle Registration
-    document.getElementById('register-btn').addEventListener('click', async () => {
-        const fullName = document.getElementById('full-name').value;
-        const email = document.getElementById('email').value;
-
-        if (fullName && email) {
-            // Here you can send the data to your backend server
-            console.log({
-                userId: (await liff.getProfile()).userId,
-                fullName: fullName,
-                email: email
-            });
-
-            alert('Registration Successful!');
-        } else {
-            alert('Please fill in all fields.');
-        }
-    });
-
-    // Initialize LIFF on page load
-    initLIFF();
-</script>
--->
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>

@@ -429,6 +429,7 @@ func (s *lineBotService) RegisterMember(member *Member) error {
 
 	now := time.Now().Unix()
 	err := s.memberRepo.CreateMember(&repository.Member{
+		Title:        member.Title,
 		Name:         member.Name,
 		LastName:     member.LastName,
 		PinCode:      member.PinCode,
@@ -436,11 +437,12 @@ func (s *lineBotService) RegisterMember(member *Member) error {
 		Phone:        member.Phone,
 		BirthDate:    member.BirthDate,
 		Med:          member.Med,
+		MedExtraInfo: member.MedExtraInfo,
 		Organization: member.Organization,
 		Position:     member.Position,
 		Course:       member.Course,
 		LineId:       member.LineId,
-		Line:         member.Line,
+		LineName:     member.LineName,
 		Facebook:     member.Facebook,
 		Instagram:    member.Instagram,
 		FoodAllergy:  member.FoodAllergy,
@@ -473,6 +475,7 @@ func (s *lineBotService) GetLineProfile(userId string) (*UserInfo, error) {
 	}
 
 	memberInfo := Member{
+		Title:        rs.Title,
 		Name:         rs.Name,
 		LastName:     rs.LastName,
 		PinCode:      rs.PinCode,
@@ -480,11 +483,12 @@ func (s *lineBotService) GetLineProfile(userId string) (*UserInfo, error) {
 		Phone:        rs.Phone,
 		BirthDate:    rs.BirthDate,
 		Med:          rs.Med,
+		MedExtraInfo: rs.MedExtraInfo,
 		Organization: rs.Organization,
 		Position:     rs.Position,
 		Course:       rs.Course,
 		LineId:       rs.LineId,
-		Line:         rs.Line,
+		LineName:     rs.LineName,
 		Facebook:     rs.Facebook,
 		Instagram:    rs.Instagram,
 		FoodAllergy:  rs.FoodAllergy,
@@ -517,6 +521,7 @@ func (s *lineBotService) UpdateMemberProfile(userId string, member *Member) erro
 
 	member.Status = true
 	err := s.memberRepo.UpdateMember(userId, &repository.Member{
+		Title:        member.Title,
 		Name:         member.Name,
 		LastName:     member.LastName,
 		PinCode:      member.PinCode,
@@ -524,12 +529,13 @@ func (s *lineBotService) UpdateMemberProfile(userId string, member *Member) erro
 		Phone:        member.Phone,
 		BirthDate:    member.BirthDate,
 		Med:          member.Med,
+		MedExtraInfo: member.MedExtraInfo,
 		Organization: member.Organization,
 		Position:     member.Position,
 		UpdatedDate:  time.Now().Unix(),
 		Course:       member.Course,
 		LineId:       member.LineId,
-		Line:         member.Line,
+		LineName:     member.LineName,
 		Facebook:     member.Facebook,
 		Instagram:    member.Instagram,
 		FoodAllergy:  member.FoodAllergy,

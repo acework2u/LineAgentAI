@@ -25,6 +25,7 @@ type SourceHook struct {
 	} `json:"source"`
 }
 type Member struct {
+	Title        string `json:"title"`
 	Name         string `json:"name" binding:"required" validate:"required,min=3,max=20"`
 	LastName     string `json:"lastName" binding:"required" validate:"required,min=3,max=20"`
 	PinCode      int    `json:"pinCode"`
@@ -32,11 +33,12 @@ type Member struct {
 	Phone        string `json:"phone" binding:"required" validate:"required,numeric,min=10,max=10"`
 	BirthDate    int64  `json:"birthDate" `
 	Med          string `json:"med" binding:"required"`
+	MedExtraInfo string `json:"medExtraInfo"`
 	Organization string `json:"organization" binding:"required"`
 	Position     string `json:"position" binding:"required"`
 	Course       string `json:"course" binding:"required"`
 	LineId       string `json:"lineId" binding:"required"`
-	Line         string `json:"line"`
+	LineName     string `json:"lineName"`
 	Facebook     string `json:"facebook"`
 	Instagram    string `json:"instagram"`
 	FoodAllergy  string `json:"foodAllergy"`
