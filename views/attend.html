@@ -100,6 +100,7 @@
         <p>โปรดระบุข้อมูลเพิ่มเติม เพื่อเข้าร่วมกิจกรรม</p>
         <p id="event-status" class="card-text green-500"></p>
         <div class="card-body text-center">
+            <div id="member-profile" class="mb-3 d-none">
             <p id="user-fullName" class="card-text"></p>
             <p id="user-phone" class="card-text"></p>
             <p id="user-email" class="card-text"></p>
@@ -113,9 +114,9 @@
                 <p id="join-time"></p>
             <a class="btn" href="https://liff.line.me/2006793268-Bp72Z8Lj" >Check In</a>
             </div>
+            </div>
 
-
-        <form class="form-inline d-none" id="joinEventForm">
+           <form class="form-inline d-none" id="joinEventForm">
             <input id="member-line-id" class="form-control me-2" type="hidden" placeholder="Enter your LINE ID" aria-label="Enter your LINE ID" />
             <input id="member-line-name" class="form-control me-2" type="hidden" placeholder="Enter your LINE name" aria-label="Enter your LINE name" />
             <div class="mb-2 mr-sm-2 mb-sm-0">
@@ -147,14 +148,15 @@
             </div>
             <div class="mb-2 mr-sm-2 mb-sm-0">
                 <select id="clinic-select" class="form-select" aria-label="Default select example">
-                    <option selected>Select your clinic</option>
+                    <option selected>กรุณาเลือกคลินิก ที่ท่านต้องการ</option>
                 </select>
             </div>
-
-
+            <button class="btn btn-line btn-lg w-100" id="joinEventBtn">Join the Event</button>
         </form>
+
+
         </div>
-        <button class="btn btn-line btn-lg w-100" id="joinEventBtn">Join the Event</button>
+
     </div>
 
 
@@ -186,96 +188,56 @@
         "คลินิกที่ 15 อู่ข้าว-อู่น้ำ",
         "คลินิกที่ 16 แจกถุงบุญ"]
 
-    document.addEventListener('DOMContentLoaded', () => {
-        liff.init({
-            liffId: LIff_ID,
-        }).then(() => {
-            console.log("LIFF initialized");
-
-            if (liff.isLoggedIn()) {
-                handleUserLogin();
-            } else {
-                liff.login();
-            }
 
 
-            document.getElementById("joinEventBtn").addEventListener("click", () => {
-                if (!liff.isLoggedIn()) {
-                    liff.login();
-                } else {
 
-                    let isValid = true;
-                    const referenceName = document.getElementById("reference-name").value;
-                    const referencePhone = document.getElementById("reference-phone").value;
-                    const clinic = document.getElementById("clinic-select").value;
-
-                    if (!referenceName || !referencePhone) {
-                        isValid = false;
-
-                        if (referenceName.length < 1) {
-                            document.getElementById("reference-name").focus();
-                            document.getElementById("reference-name").classList.add("is-invalid");
-                        }
-                        if (referencePhone.length < 1) {
-                            document.getElementById("reference-phone").focus();
-                            document.getElementById("reference-phone").classList.add("is-invalid");
-                        }
-
-                    }
-                    if (isValid) {
-
-                        joinEvent().then(result => {
-                            console.log(result);
-                            alert(result.message);
-                            location.reload();
-                        }).catch(err =>{
-                            console.log(err);
-                            alert(err.error);
-                        })
-                    }
-
-                }
-            });
-        }).catch(err => {
-            console.error("LIFF initialization failed", err);
-        });
-    });
 
     // Handler User login
     async function handleUserLogin() {
         try{
             const profile = await liff.getProfile();
             const userId = profile.userId;
-            console.log(profile);
+            //console.log(profile);
+
+                fetchUserProfile(userId);
+
+
+            // Check member registration
+            // const checkMember = checkMemberRegistration(userId);
+            // if (checkMember){
+            //     fetchUserProfile(userId);
+            // } else{
+            //    redirectToRegistrationPage()
+            // }
 
             //Check Register status
-            const response = await fetch(CHECK_REGISTRATION_API, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    userId: userId
-                })
-            });
-
-
-
-            if (response.ok) {
-                const data = await response.json();
-                console.log("in handleUserLogin on attend ")
-                console.log(data);
-
-                if(data.isRegistered){
-                    fetchUserProfile(userId);
-                }else{
-                   // member is not register
-                   document.getElementById("joinEventForm").classList.remove("d-none");
-
-                }
-
-
-            }else {
-               throw new Error("ท่านยังไม่ได้ลงทะเบียนสมาชิกแพทย์อาสา กรุณาลงทะเบียนก่อนเข้าร่วมกิจกรรม")
-            }
+            // const response = await fetch(CHECK_REGISTRATION_API, {
+            //     method: "POST",
+            //     headers: { "Content-Type": "application/json" },
+            //     body: JSON.stringify({
+            //         userId: userId
+            //     })
+            // });
+            //
+            //
+            //
+            // if (response.ok) {
+            //     const data = await response.json();
+            //     console.log("in handleUserLogin on attend ")
+            //     console.log(data);
+            //
+            //     if(data.isRegistered){
+            //         fetchUserProfile(userId);
+            //     }else{
+            //        // member is not register
+            //        document.getElementById("joinEventForm").classList.remove("d-none");
+            //
+            //     }
+            //
+            //
+            // }else {
+            //    throw new Error("ท่านยังไม่ได้ลงทะเบียนสมาชิกแพทย์อาสา กรุณาลงทะเบียนก่อนเข้าร่วมกิจกรรม")
+            // }
 
 
 
@@ -293,12 +255,20 @@
             const checkJoinEvent = await fetch(`${CHECK_JOIN_EVENT_API}?eventId=1&userId=${userId}`);
 
             const dataCheckEvent = await checkJoinEvent.json();
+
+
             console.log(dataCheckEvent.eventJoin);
+
+
             if(dataCheckEvent.eventJoin){
-                document.getElementById("joinEventForm").classList.add("d-none");
-                document.getElementById("joinEventBtn").classList.add("d-none");
-                document.getElementById("joinEventDisplay").classList.remove("d-none");
                 fetchGetEventJoin(userId);
+                document.getElementById("joinEventCard").classList.remove("d-none");
+                document.getElementById("member-profile").classList.remove("d-none");
+                // document.getElementById("joinEventForm").classList.add("d-none");
+                // document.getElementById("joinEventBtn").classList.add("d-none");
+                // document.getElementById("joinEventDisplay").classList.remove("d-none");
+
+
 
             }else{
                 document.getElementById("joinEventForm").classList.remove("d-none");
@@ -307,13 +277,16 @@
 
 
             const lineProfile = await liff.getProfile();
-            if (response.ok) {
+            const checkMember = checkMemberRegistration(lineProfile.userId);
+
+            if (checkMember) {
                 const userData = await response.json();
                 const dataUserInfo = userData.userInfo;
                 console.log(dataUserInfo);
                 displayUserProfile(lineProfile,dataUserInfo);
             } else {
-                throw new Error("Failed to fetch user profile");
+                // throw new Error("Failed to fetch user profile");
+                redirectToRegistrationPage()
             }
         }catch (error) {
 
@@ -427,6 +400,157 @@
         });
     }
 
+
+    // Check if the user is registered
+    async function checkMemberRegistration(userId) {
+        try {
+            const response = await fetch(CHECK_REGISTRATION_API, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userId: userId
+                })
+            });
+            const data = await response.json();
+            return data.isRegistered;
+        }catch (error) {
+            console.log(error);
+            return false;
+        }
+    }
+
+    //Redirect to Liff registration page
+    function redirectToRegistrationPage() {
+        // liff.redirectToLogin();
+        const url = "https://liff.line.me/2006793268-7rZrb1Kw";
+        liff.openWindow({ url, external: true });
+    }
+
+
+    async function initializeLiff(){
+        try {
+            await liff.init({ liffId: LIff_ID});
+            console.log("LIFF initialized");
+            if (!liff.isLoggedIn()) {
+                liff.login();
+            }else{
+                const profile = await liff.getProfile();
+                const userId = profile.userId;
+                const checkMember = checkMemberRegistration(userId);
+                if (checkMember){
+                    // Handler user login
+                    handleUserLogin();
+                } else{
+                    redirectToRegistrationPage();
+                }
+            }
+
+        }catch (error) {
+            console.log("Liff Initialization Failed:",error);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded',initializeLiff);
+
+    document.getElementById("joinEventBtn").addEventListener("click", () => {
+        if (!liff.isLoggedIn()) {
+            liff.login();
+        } else {
+
+            let isValid = true;
+            const referenceName = document.getElementById("reference-name").value;
+            const referencePhone = document.getElementById("reference-phone").value;
+
+
+            if (!referenceName || !referencePhone) {
+                isValid = false;
+
+                if (referenceName.length < 1) {
+                    document.getElementById("reference-name").focus();
+                    document.getElementById("reference-name").classList.add("is-invalid");
+                }
+                if (referencePhone.length < 1) {
+                    document.getElementById("reference-phone").focus();
+                    document.getElementById("reference-phone").classList.add("is-invalid");
+                }
+
+            }
+            if (isValid) {
+
+                joinEvent().then(result => {
+                    console.log(result);
+                    alert(result.message);
+                    location.reload();
+                }).catch(err =>{
+                    console.log(err);
+                    alert(err.error);
+                })
+            }
+
+        }
+    });
+
+
+/*
+    document.addEventListener('DOMContentLoaded', () => {
+        liff.init({
+            liffId: LIff_ID,
+        }).then(() => {
+            console.log("LIFF initialized");
+
+            if (liff.isLoggedIn()) {
+
+                // Check member registration
+                handleUserLogin();
+
+
+            } else {
+                liff.login();
+            }
+
+
+            document.getElementById("joinEventBtn").addEventListener("click", () => {
+                if (!liff.isLoggedIn()) {
+                    liff.login();
+                } else {
+
+                    let isValid = true;
+                    const referenceName = document.getElementById("reference-name").value;
+                    const referencePhone = document.getElementById("reference-phone").value;
+                    const clinic = document.getElementById("clinic-select").value;
+
+                    if (!referenceName || !referencePhone) {
+                        isValid = false;
+
+                        if (referenceName.length < 1) {
+                            document.getElementById("reference-name").focus();
+                            document.getElementById("reference-name").classList.add("is-invalid");
+                        }
+                        if (referencePhone.length < 1) {
+                            document.getElementById("reference-phone").focus();
+                            document.getElementById("reference-phone").classList.add("is-invalid");
+                        }
+
+                    }
+                    if (isValid) {
+
+                        joinEvent().then(result => {
+                            console.log(result);
+                            alert(result.message);
+                            location.reload();
+                        }).catch(err =>{
+                            console.log(err);
+                            alert(err.error);
+                        })
+                    }
+
+                }
+            });
+        }).catch(err => {
+            console.error("LIFF initialization failed", err);
+        });
+    });
+*/
 
 
 </script>
