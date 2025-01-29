@@ -458,7 +458,37 @@
         }
     }
 
-    document.addEventListener('DOMContentLoaded',initializeLiff);
+    async function initializeLiff2(){
+        liff.init({
+        liffId: LIff_ID,
+    }).then( async () => {
+            console.log("LIFF initialized");
+            document.getElementById("event-status").innerText = "loading..."
+            if (liff.isLoggedIn()) {
+                const profile = await liff.getProfile();
+                const userId = profile.userId;
+                const checkMember = await checkMemberRegistration(userId);
+
+                console.log("check member is",checkMember);
+                if (checkMember){
+                    // Handler user login
+                    document.getElementById("member-register-btn").classList.add("d-none");
+                    document.getElementById("event-status").innerText = ""
+                    handleUserLogin();
+                } else{
+                    // redirectToRegistrationPage();
+                    enableMemberRegisterButton();
+                }
+            } else {
+                 liff.login();
+            }
+    }).catch((err) => {
+        console.log("Error initializing LIFF:", err);
+        })
+
+    }
+
+    document.addEventListener('DOMContentLoaded',initializeLiff2);
 
     document.getElementById("joinEventBtn").addEventListener("click", () => {
         if (!liff.isLoggedIn()) {
@@ -498,67 +528,6 @@
         }
     });
 
-
-/*
-    document.addEventListener('DOMContentLoaded', () => {
-        liff.init({
-            liffId: LIff_ID,
-        }).then(() => {
-            console.log("LIFF initialized");
-
-            if (liff.isLoggedIn()) {
-
-                // Check member registration
-                handleUserLogin();
-
-
-            } else {
-                liff.login();
-            }
-
-
-            document.getElementById("joinEventBtn").addEventListener("click", () => {
-                if (!liff.isLoggedIn()) {
-                    liff.login();
-                } else {
-
-                    let isValid = true;
-                    const referenceName = document.getElementById("reference-name").value;
-                    const referencePhone = document.getElementById("reference-phone").value;
-                    const clinic = document.getElementById("clinic-select").value;
-
-                    if (!referenceName || !referencePhone) {
-                        isValid = false;
-
-                        if (referenceName.length < 1) {
-                            document.getElementById("reference-name").focus();
-                            document.getElementById("reference-name").classList.add("is-invalid");
-                        }
-                        if (referencePhone.length < 1) {
-                            document.getElementById("reference-phone").focus();
-                            document.getElementById("reference-phone").classList.add("is-invalid");
-                        }
-
-                    }
-                    if (isValid) {
-
-                        joinEvent().then(result => {
-                            console.log(result);
-                            alert(result.message);
-                            location.reload();
-                        }).catch(err =>{
-                            console.log(err);
-                            alert(err.error);
-                        })
-                    }
-
-                }
-            });
-        }).catch(err => {
-            console.error("LIFF initialization failed", err);
-        });
-    });
-*/
 
 
 </script>

@@ -16,6 +16,7 @@ type LineBotService interface {
 	EventJoin(event *MemberJoinEvent) error
 	CheckEventJoin(eventId string, userId string) (bool, error)
 	GetEventJoin(eventId string, userId string) (*MemberJoinEvent, error)
+	CheckInEvent(eventCheckIn *EventCheckIn) (bool, error)
 }
 type SourceHook struct {
 	Type   string `json:"type"`
@@ -118,4 +119,24 @@ type MemberJoinEvent struct {
 	ReferenceName  string `json:"referenceName" binding:"required" validate:"required,min=3,max=20"`
 	ReferencePhone string `json:"referencePhone" binding:"required" validate:"required,numeric,min=10,max=10"`
 	Clinic         string `json:"clinic" binding:"required"`
+}
+
+type QrCodeMessage struct {
+	QrCode    string `json:"qrCode"`
+	Timestamp string `json:"timestamp"`
+	UserId    string `json:"userId"`
+}
+
+type QrCodeImpl struct {
+	ClinicNo string `json:"clinicNo"`
+	EventId  string `json:"eventId"`
+}
+type EventCheckIn struct {
+	EventId      string `json:"eventId"`
+	UserId       string `json:"userId"`
+	CheckIn      bool   `json:"checkIn"`
+	CheckOut     bool   `json:"checkOut"`
+	CheckInTime  int64  `json:"checkInTime,omitempty"`
+	CheckOutTime int64  `json:"checkOutTime,omitempty"`
+	CheckInPlace string `json:"checkInPlace"`
 }

@@ -7,6 +7,7 @@ type EventsRepository interface {
 	GetEvents(filter Filter) ([]*MemberEventImpl, error)
 	CheckJoinEvent(eventId string, userId string) (bool, error)
 	GetEventJoin(eventId string, userId string) (*MemberEventImpl, error)
+	CheckInEvent(userId string, eventCheckIn *EventCheckIn) (bool, error)
 }
 
 type MemberEventImpl struct {
@@ -24,4 +25,17 @@ type MemberEventImpl struct {
 	ReferenceName  string `bson:"`
 	ReferencePhone string `bson:"referencePhone"`
 	Clinic         string `bson:"clinic"`
+}
+type EventCheckIn struct {
+	EventId      string `bson:"eventId"`
+	UserId       string `bson:"userId"`
+	CheckIn      bool   `bson:"checkIn"`
+	CheckOut     bool   `bson:"checkOut"`
+	CheckInTime  int64  `bson:"checkInTime,omitempty"`
+	CheckOutTime int64  `bson:"checkOutTime,omitempty"`
+	CheckInPlace string `bson:"checkInPlace"`
+}
+type CertificateEvent struct {
+	EventId string `bson:"eventId"`
+	UserId  string `bson:"userId"`
 }

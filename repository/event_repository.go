@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type eventRepositoryImpl struct {
@@ -89,4 +90,28 @@ func (r *eventRepositoryImpl) GetEventJoin(eventId string, userId string) (*Memb
 		return nil, err
 	}
 	return &event, nil
+}
+func (r *eventRepositoryImpl) CheckInEvent(userId string, eventCheckIn *EventCheckIn) (bool, error) {
+	filer := bson.M{
+		"eventId": eventCheckIn.EventId,
+		"lineId":  userId,
+	}
+
+	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+	result := r.eventsCollection.FindOneAndUpdate(r.ctx, filer, bson.M{
+		"$set": bson.M{
+			"checkIn":      eventCheckIn.CheckIn,
+			"checkOut":     eventCheckIn.CheckOut,
+			"checkInTime":  eventCheckIn.CheckInTime,
+			"checkOutTime": eventCheckIn.CheckOutTime,
+			"checkInPlace": eventCheckIn.CheckInPlace,
+		},
+	}, opts)
+
+	if result.Err() != nil {
+		return false, result.Err()
+	}
+
+	return true, nil
+
 }

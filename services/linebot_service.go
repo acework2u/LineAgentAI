@@ -642,6 +642,31 @@ func (s *lineBotService) GetEventJoin(eventId string, userId string) (*MemberJoi
 
 	return memberJoinEvent, nil
 }
+func (s *lineBotService) CheckInEvent(eventCheckIn *EventCheckIn) (bool, error) {
+
+	if eventCheckIn.EventId == "" {
+		return false, errors.New("event id is required")
+	}
+	if eventCheckIn.UserId == "" {
+		return false, errors.New("user id is required")
+	}
+	//checkIntime := time.Unix(eventCheckIn.CheckInTime, 0).Format("2006-01-02 15:04:05")
+
+	res, err := s.eventRepo.CheckInEvent(eventCheckIn.UserId, &repository.EventCheckIn{
+		EventId:      eventCheckIn.EventId,
+		UserId:       eventCheckIn.UserId,
+		CheckIn:      eventCheckIn.CheckIn,
+		CheckInTime:  eventCheckIn.CheckInTime,
+		CheckInPlace: eventCheckIn.CheckInPlace,
+		CheckOut:     eventCheckIn.CheckOut,
+		CheckOutTime: eventCheckIn.CheckOutTime,
+	})
+	if err != nil {
+		return false, err
+	}
+	return res, nil
+
+}
 func validation(member *Member) error {
 	if member.Name == "" {
 		return errors.New("name is required")

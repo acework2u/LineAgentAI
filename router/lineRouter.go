@@ -28,5 +28,6 @@ func (r *LineRouter) LineHookRouter(rg *gin.RouterGroup) {
 	rg.POST("/join-event", r.lineHandler.PostJoinEvent)
 	rg.GET("/check-join-event", r.lineHandler.GetCheckEventJoin)
 	rg.GET("/join-event", r.lineHandler.GetEventJoin)
+	rg.POST("/event-check-in", r.lineHandler.PostCheckInEvent)
 
 }
