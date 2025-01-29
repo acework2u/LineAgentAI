@@ -3,10 +3,12 @@ services:
     container_name: front-line
     image: nginx:latest
     ports:
-      - "8080:80"
+      - "80:80"
+      - "443:443"
     restart: always
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./views:/var/www/html
     env_file:
       - .env
     networks:
@@ -15,7 +17,8 @@ services:
     container_name: line-api-gw
     image: acework2u/line-medical-volunteer:latest
     volumes:
-      - .:/app
+      - ./conf:/app/conf
+      - ./views:/app/views:ro
     links:
       - database
     ports:
@@ -30,7 +33,7 @@ services:
       ME_CONFIG_MONGODB_SERVER: 'e-hosp-doctor'
     extra_hosts:
       - "host.docker.internal:host-gateway"
-      - "localhost:172.18.0.1"
+      - "localhost:172.19.0.1"
   database:
     container_name: e-hosp-doctor
     image: mongo:latest
