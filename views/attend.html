@@ -266,6 +266,7 @@
                 // document.getElementById("joinEventDisplay").classList.remove("d-none");
 
             }else{
+                document.getElementById("member-profile").classList.remove("d-none");
                 document.getElementById("joinEventForm").classList.remove("d-none");
             }
 
@@ -444,6 +445,7 @@
 
                 if (checkMember){
                     // Handler user login
+                    document.getElementById("member-register-btn").classList.add("d-none");
                     handleUserLogin();
                 } else{
                     // redirectToRegistrationPage();
