@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Volunteer Registration</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+        }
+        .hidden {
+            display: none;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #06c755;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #ccc;
+        }
+        .profile-card {
+            max-width: 400px;
+            margin: auto;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        .profile-img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-top: -75px;
+            border: 5px solid #fff;
+        }
+        .bg-light-custom {
+            background-color: #f8f9fa;
+        }
+        #loading-overlay .spinner-border {
+            width: 4rem;
+            height: 4rem;
+        }
+        @media (min-width: 768px) {
+            .profile-img {
+                width: 150px;
+                height: 150px;
+            }
+            .container {
+                max-width: 600px;
+            }
+        }
+
+    </style>
+</head>
+<body onload="getCourse(),getReligion(),populateCoursesDropdown()">
+<div class="container">
+
+    <div class="row row-cols-1 row-cols-md-2 g-4 mb-3">
+        <p id="status">Initializing...</p>
+        <div class="card profile-card shadow-sm text-center mb-3 hidden" id="user-profile">
+            <div class="card-body" >
+                <img class="img-fluid profile-img mb-3" id="user-picture" alt="User Picture">
+                <h3 class="card-title mb-0" id="user-fullName"></h3>
+                <div>
+                <p class="text-muted" id="user-med"></p>
+                <p class="card-text" id="user-position"></p>
+                <p class="card-text" id="user-course"></p>
+                <p class="card-text" id="user-organization"></p>
+
+<!--                <div class="d-flex hidden justify-content-center mb-3">-->
+<!--                    <a href="#" class="btn btn-outline-primary me-2"><i class="bi bi-twitter"></i></a>-->
+<!--                    <a href="#" class="btn btn-outline-primary me-2"><i class="bi bi-facebook"></i></a>-->
+<!--                    <a href="#" class="btn btn-outline-primary"><i class="bi bi-instagram"></i></a>-->
+<!--                </div>-->
+                <ul class="list-group list-group-flush mb-3">
+                    <li class="list-group-item bg-transparent" id="user-email"></li>
+                    <li class="list-group-item bg-transparent" id="user-phone"></li>
+
+                </ul>
+                <div class="d-flex justify-content-center mb-3">
+                    <p class="card-text" id="user-religion"></p>
+
+                </div>
+                    <div class="d-flex justify-content-center mb-3">
+
+                        <p class="card-text" id="user-foodAllergy"></p>
+                    </div>
+                <div class="d-flex justify-content-between text-center mt-4">
+                    <div>
+                        <h5 class="mb-0" id="followers">0</h5>
+                        <small class="text-muted">Followers</small>
+                    </div>
+                    <div>
+                        <h5 class="mb-0" id="my-join-event">0</h5>
+                        <small class="text-muted">Join</small>
+                    </div>
+                    <div>
+                        <h5 class="mb-0">0</h5>
+                        <small class="text-muted">Completed</small>
+                    </div>
+                </div>
+                <button class="btn btn-primary w-100 mt-4" id="change-member">Edit Profile</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 g-4 mb-3">
+        <div class="col hidden" id="mini-profile">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <img class="img-fluid profile-img  mb-3" id="user-mini-picture" alt="User Picture">
+                    <h5 id="user-line-display" class="card-title"></h5>
+                    <p id="short-intro-context" class="card-text"></p>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div id="register-form" class="hidden">
+
+        <h3 id="form-title" class="color gray">Member Register</h3>
+
+        <form id="registration-form" class="p-4 bg-light-custom rounded-3 shadow-sm">
+            <div class="mb-3">
+<!--                <label for="full-name" class="form-label">Full Name</label>-->
+                <input type="hidden" id="full-name" class="form-input" placeholder="Enter your full name">
+            </div>
+<!--            <input type="text" id="full-name" placeholder="Enter your full name" required>-->
+            <input type="text" class="form-input" id="title-name" placeholder="ระบุ นาย,นาง,นางสาว" required >
+            <input type="text" class ="form-input" id="name" placeholder="ระบุชื่อ" required>
+            <input type="text" class="form-input" id="lastname" placeholder="นามสกุล" required>
+            <input type="email" id="email" class="form-input" placeholder="ระบุ email" required>
+            <input type="text" class="form-input" id="phone" placeholder="เบอร์โทรศัพท์" required>
+
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="med" id="med-yes" value="med" onChange="handleMedChange(event)" checked>
+                <label class="form-check-label" for="med-yes">MED</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="med" id="med-no" value="no-med" onChange="handleMedChange(event)">
+                <label class="form-check-label" for="med-no">NO-MED</label>
+            </div>
+            <div id="extra-fields" class="form-group">
+<!--                <label for="extra-info">ระบุรายละเอียด MED / NO-MED</label>-->
+                <input name="med-extra-info" type="text" id="extra-info" class="form-control mb-2" placeholder="บอกรายละเอียด MED / NO-MED เพิ่มเติมให้เราทราบ">
+            </div>
+
+
+            <input type="text" class="form-input" id="organization" placeholder="หน่วยงานที่สังกัด">
+            <input type="text" class="form-input" id="position" placeholder="ตำแหน่ง">
+
+            <select class="form-select" id="course" aria-label="รุ่น">
+                <option selected>เลือก-เพื่อระบุรุ่น</option>
+            </select>
+
+            <input type="text" class="form-input" id="foodAllergy" placeholder="Enter your food allergy">
+            <select class="form-select" id="religion" aria-label="ศาสนาของท่านคือ">
+                <option selected>ระบุศาสนาของท่าน</option>
+            </select>
+            <input type="text" class="form-input" id="line-name" placeholder="Enter your line name" readonly>
+            <input type="hidden" class="form-input" id="line-id" placeholder="Enter your line id" readonly>
+
+            <button type="button" id="register-btn">Register</button>
+        </form>
+    </div>
+
+
+    <div id="update-form" class="hidden">
+        <!--        <img id="user-picture" alt="User Picture" width="100" style="border-radius: 50%;">-->
+        <!--        <p id="user-name"></p>-->
+        <!--        <p id="user-id"></p>-->
+        <h2 id="form-title" class="color gray">Update User Profile</h2>
+        <form id="updated-form" class="p-4 bg-light-custom rounded-3 shadow-sm">
+            <div class="mb-3">
+                <input type="hidden" id="update-full-name" class="form-input">
+            </div>
+            <input type="text" class="form-input" id="update-title-name" placeholder="ระบุ นาย,นาง,นางสาว">
+            <input type="text" class ="form-input" id="update-name" placeholder="Enter your name">
+            <input type="text" class="form-input" id="update-lastname" placeholder="Enter your lastname">
+            <input type="email" id="update-email" class="form-input" placeholder="Enter your email" required>
+
+
+            <input type="text" class="form-input" id="update-phone" placeholder="Enter your phone number">
+
+
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="med" id="update-med-yes" value="med" onChange="handleMedChange(event)" checked>
+                <label class="form-check-label" for="update-med-yes">MED</label>
+
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="med" id="update-med-no" value="no-med" onChange="handleMedChange(event)">
+                <label class="form-check-label" for="update-med-no">NO-MED</label>
+            </div>
+            <div id="extra-fields" class="form-group">
+                <!--                <label for="extra-info">ระบุรายละเอียด MED / NO-MED</label>-->
+                <input name="med-extra-info" type="text" id="update-extra-info" class="form-control mb-2" placeholder="บอกรายละเอียด MED / NO-MED เพิ่มเติมให้เราทราบ">
+            </div>
+            <input type="text" class="form-input" id="update-organization" placeholder="Enter your organization">
+            <input type="text" class="form-input" id="update-position" placeholder="Enter your position">
+            <select class="form-select" id="update-course" aria-label="Default select example">
+                <option selected>Open this select menu</option>
+            </select>
+            <input type="text" class="form-input" id="update-foodAllergy" placeholder="Enter your food allergy">
+            <select class="form-select" id="update-religion" aria-label="Default select example">
+                <option selected>Open this select menu</option>
+            </select>
+            <input type="text" class="form-input" id="update-line-name" placeholder="Enter your line name" readonly>
+            <input type="hidden" class="form-input" id="update-line-id" placeholder="Enter your line id">
+
+            <button class="btn btn-secondary" type="button" id="update-cancel-btn">Cancel</button>
+            <button type="button" class="btn btn-primary" id="update-btn">Save</button>
+
+        </form>
+        <div class="alert alert-success hidden" id="update-success-alert">
+            <strong>Success!</strong> Your profile has been updated.
+        </div>
+        <div class="alert alert-danger hidden" id="update-error-alert">
+            <strong>Error!</strong> There was an error updating your profile.
+        </div>
+
+    </div>
+
+
+</div>
+
+<!-- Error Modal -->
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="errorModalLabel">Error</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="errorModalMessage">
+                <!-- Error message will be injected here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Success Modal-->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-success" id="successModalLabel">Success</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="successModalMessage">
+                <-- Success message will be injected here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    // Replace with your LIFF ID
+    const LIFF_ID = "2006793268-7rZrb1Kw";
+    const baseUrl = "https://deepai.acework.info";
+    // API endpoints
+    const CHECK_REGISTRATION_API = `${baseUrl}/api/v1/check-registration`; // Replace with actual API endpoint
+    const GET_PROFILE_API = `${baseUrl}/api/v1/profile`; // Replace with actual API endpoint
+    const REGISTER_API = `${baseUrl}/api/v1/register`; // Replace with actual API endpoint
+    const UPDATE_API = `${baseUrl}/api/v1/member-update`
+    // let courses = ["ปธพ1","ปธพ2","ปธพ3","ปธพ4"];
+    let isUpdate = false;
+    const COURSES = ["ปธพ.1","ปธพ.2","ปธพ.3","ปธพ.4","ปธพ.5","ปธพ.6","ปธพ.7","ปธพ.8","ปธพ.9","ปธพ.10","ปธพ.11","ปธพ.X","ปนพ.1","ปนพ.2","ปนพ.3","ปอพ.1","ปอพ.2","ปอพ.3","ปอก.1"];
+
+
+    // Initialize LIFF
+    async function initLIFF() {
+        try {
+            await liff.init({ liffId: LIFF_ID });
+            document.getElementById('status').innerText = "loading...";
+            if (liff.isLoggedIn()) {
+                handleUserLogin();
+            } else {
+                liff.login();
+            }
+        } catch (error) {
+            document.getElementById('status').innerText = "Error initializing LIFF: " + error;
+        }
+    }
+
+    // Handle User Login
+    async function handleUserLogin() {
+        try {
+            const profile = await liff.getProfile();
+            const userId = profile.userId;
+
+
+            // Check registration status
+            const response = await fetch(CHECK_REGISTRATION_API, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log(data);
+                if (data.isRegistered) {
+                     fetchUserProfile(userId);
+
+                } else {
+                    // User is not registered, show the registration form
+                    displayRegistrationForm(profile);
+                }
+            } else {
+                throw new Error("Failed to check registration status");
+            }
+        } catch (error) {
+            document.getElementById('status').innerText = "Error: " + error.message;
+        }
+    }
+
+    // Fetch User Profile
+    async function fetchUserProfile(userId) {
+        try {
+            const response = await fetch(`${GET_PROFILE_API}?userId=${userId}`);
+            const lineProfile = await liff.getProfile();
+            if (response.ok) {
+                const userData = await response.json();
+                const dataUserInfo = userData.userInfo;
+                console.log(dataUserInfo);
+                displayUserProfile(dataUserInfo);
+                displayUpdateForm(lineProfile,dataUserInfo);
+
+
+            } else {
+                throw new Error("Failed to fetch user profile");
+            }
+        } catch (error) {
+            document.getElementById('status').innerText = "Error fetching profile: " + error.message;
+        }
+    }
+
+    // Display User Profile
+    function displayUserProfile(userData) {
+
+        console.log(isUpdate);
+        document.getElementById('status').innerText = "Welcome, " + userData.name;
+        document.getElementById('user-profile').classList.remove('hidden');
+        document.getElementById("mini-profile").classList.add('hidden');
+        document.getElementById('register-form').classList.add('hidden');
+        document.getElementById('user-fullName').innerText = userData.name + " " + userData.lastName;
+        // document.getElementById('user-id').innerText = "UserID: " + userData.userId;
+        document.getElementById('user-picture').src = userData.pictureUrl || '' || userData.pictureUrl;
+        document.getElementById('user-email').innerHTML = "<i class=\"bi bi-envelope-fill me-2\"></i>" + userData.member.email;
+        document.getElementById('user-phone').innerHTML = "<i class=\"bi bi-phone-fill me2\"></i> " + userData.member.phone;
+        document.getElementById('user-med').innerText = "MED: " + userData.member.med;
+        document.getElementById('user-organization').innerHTML = "<i class=\"bi bi-briefcase-fill me-2\"></i>" + userData.member.organization;
+        document.getElementById('user-position').innerText = "Position: " + userData.member.position;
+        document.getElementById('user-course').innerText = "Course: " + userData.member.course;
+        document.getElementById('user-foodAllergy').innerText = "Food Allergy: " + userData.member.foodAllergy;
+        document.getElementById('user-religion').innerText = "Religion: " + userData.member.religion;
+        document.getElementById('line-id').value = userData.userId;
+        document.getElementById('line-name').value = userData.name + " " + userData.lastname;
+
+
+            // displayUserProfile(userData);
+
+
+
+
+
+    }
+
+    // Display Registration Form
+    function displayRegistrationForm(profile) {
+        console.log(isUpdate)
+        console.log("this is profile =")
+        console.log(profile);
+        ReligionDropdown()
+        document.getElementById('status').classList.add('hidden');
+        document.getElementById('user-profile').classList.add('hidden');
+        document.getElementById('register-form').classList.remove('hidden');
+        document.getElementById('line-id').value = profile.userId;
+        document.getElementById('line-name').value = profile.displayName;
+        document.getElementById('user-mini-picture').src = profile.pictureUrl || '';
+        document.getElementById("user-line-display").innerText = profile.displayName;
+        document.getElementById("short-intro-context").innerText = "Hi, " + profile.displayName+". Please fill in your information below.";
+
+
+        //
+        // document.getElementById('status').classList.add('hidden');
+        // document.getElementById('user-profile').classList.add('hidden');
+        // document.getElementById('register-form').classList.remove('hidden');
+        // document.getElementById('user-picture').src = profile.pictureUrl;
+        // document.getElementById('user-name').innerText = "Name: " + profile.displayName;
+        // document.getElementById('user-id').innerText = "UserID: " + profile.userId;
+
+
+
+
+
+
+
+
+    }
+    // Update Form
+    function displayUpdateForm(profile,userData) {
+
+            // document.getElementById('status').classList.add('hidden');
+            // document.getElementById('user-profile').classList.add('hidden');
+            // document.getElementById('register-form').classList.add('hidden');
+            // document.getElementById('update-form').classList.remove('hidden');
+
+            const member = userData.member;
+            const course = member.course;
+            const medValueFromData = member.med;
+            setSelectedCourse(course);
+            let religion = member.religion;
+            setSelectedReligion(religion);
+            setMedValue(medValueFromData);
+
+            document.getElementById('update-full-name').value = userData.name + " " + userData.lastName;
+            document.getElementById('update-title-name').value = member.title;
+            document.getElementById('update-email').value = member.email;
+            document.getElementById('update-name').value = userData.name;
+            document.getElementById('update-lastname').value = userData.lastName;
+            document.getElementById('update-phone').value = member.phone;
+            document.getElementById('update-organization').value = member.organization;
+            document.getElementById('update-position').value = member.position;
+            document.getElementById('update-course').value = member.course;
+            document.getElementById('update-foodAllergy').value = member.foodAllergy;
+            document.getElementById('update-religion').value = member.religion;
+            document.getElementById('update-line-name').value = profile.displayName;
+            document.getElementById('update-line-id').value = userData.lineId;
+            document.getElementById('update-extra-info').value = member.medExtraInfo;
+
+
+
+    }
+
+
+
+    function getCourse() {
+            const courses = COURSES
+
+        for (var i = 0; i < courses.length; i++) {
+            let option = document.createElement("option");
+            option.text = courses[i];
+            option.value = courses[i];
+            // document.getElementById("course").appendChild(option);
+            document.getElementById("update-course").appendChild(option);
+
+        }
+
+    }
+    function getReligion() {
+
+        const religions =["ไม่ประสงค์ระบุ","พุทธ","คริสต์","อิสลาม"];
+        console.log("this is religion =")
+        console.log(religions);
+        for (var i = 0; i < religions.length; i++) {
+            let option = document.createElement("option");
+            option.text = religions[i];
+            option.value = religions[i];
+            // document.getElementById("religion").appendChild(option);
+            document.getElementById("update-religion").appendChild(option);
+        }
+    }
+
+    function ReligionDropdown() {
+        const religions =["ไม่ประสงค์ระบุ","พุทธ","คริสต์","อิสลาม"];
+        const dropdown = document.getElementById("religion");
+        for (var i = 0; i < religions.length; i++) {
+            let option = document.createElement("option");
+            option.text = religions[i];
+            option.value = religions[i];
+            dropdown.appendChild(option);
+        }
+
+    }
+
+    function setSelectedReligion(religionValue) {
+        const religionSelect = document.getElementById('update-religion');
+        const options = religionSelect.options;
+    for (let i = 0; i < options.length; i++) {
+    if (options[i].value === religionValue) {
+        options[i].selected = true;
+        }
+        }
+    }
+
+    function setSelectedCourse(courseValue) {
+        const courseSelect = document.getElementById('update-course');
+        const options = courseSelect.options;
+
+        for (let i = 0; i < options.length; i++) {
+            if (options[i].value === courseValue) {
+                options[i].selected = true;
+                break; // Stop the loop once the match is found
+            }
+        }
+    }
+
+    function handleMedChange(event) {
+        const selectedMed = event.target.value; // Get the value of the selected radio button
+        console.log("Selected MED value:", selectedMed);
+
+        // Perform any other action based on the selected value
+        if (selectedMed === "Med") {
+            console.log("User selected Yes for MED.");
+            document.getElementById("extra-fields").classList.remove("d-none");
+        } else if (selectedMed === "No-Med") {
+            console.log("User selected No for MED.");
+            document.getElementById("extra-fields").classList.remove("d-none");
+        }
+    }
+    function setMedValue(medValue) {
+        // Use querySelector to find the radio button with the matching value
+        const medRadio = document.querySelector(`input[name="med"][value="${medValue}"]`);
+        if (medRadio) {
+            medRadio.checked = true; // Set the radio button as checked
+            console.log(`MED value set to: ${medValue}`);
+        } else {
+            console.error(`MED value "${medValue}" not found in the options.`);
+        }
+    }
+
+
+    // Handle Registration
+    document.getElementById('register-btn').addEventListener('click', async () => {
+
+        const Title = document.getElementById('title-name').value.trim();
+        const name = document.getElementById('name').value.trim();
+        const lastname = document.getElementById('lastname').value.trim();
+        document.getElementById('full-name').value = name + " " + lastname;
+        const fullName = document.getElementById('full-name').value.trim();
+        const med = document.querySelector('input[name="med"]:checked').value;
+        const email = document.getElementById('email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const organization = document.getElementById('organization').value.trim();
+        const position = document.getElementById('position').value.trim();
+        const course = document.getElementById('course').value.trim();
+        const foodAllergy = document.getElementById('foodAllergy').value.trim();
+        const religion = document.getElementById('religion').value.trim();
+        const lineId = document.getElementById('line-id').value.trim();
+        const lineName = document.getElementById('line-name').value.trim();
+        const medExtraInfo = document.getElementById('extra-info').value.trim();
+
+
+
+
+        let isValid = true;
+
+        // Validate fields
+        if (!fullName || !email || !phone || !organization || !position) {
+            isValid = false;
+            // alert("All fields are required.");
+            showErrorModal("Please fill in all fields.");
+        }
+
+        if (isValid) {
+            try {
+                const profile = await liff.getProfile();
+                const data = {
+                    userId: profile.userId,
+                    title: Title,
+                    fullName,
+                    name,
+                    lastname,
+                    course,
+                    foodAllergy,
+                    religion,
+                    lineId,
+                    lineName,
+                    email,
+                    phone,
+                    med,
+                    medExtraInfo,
+                    organization,
+                    position,
+
+                };
+
+                // Send registration data to API
+                const response = await fetch(REGISTER_API, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert("Registration Successful!");
+                    location.reload();
+                } else {
+                    // console.log(response);
+                    // console.log(await response.json());
+                    // const error = await response.json();
+                    console.log("this is error");
+                    const err = await response.json();
+                    let erMsg = "Failed to register member : "+ err.message[0].field + " is " + err.message[0].message;
+                    console.log(erMsg);
+                    showErrorModal(erMsg);
+                    // showErrorModal(erMsg);
+                    // console.log(error.message[0]);
+                    // console.log(error.status);
+                    // error.message ? showErrorModal(error[0].message) : showErrorModal("Failed to register user");
+                    // throw new Error("Failed to register user"+" "+erMsg);
+                }
+            } catch (error) {
+                alert("Error during registration: " + error.message);
+            }
+        }
+    });
+
+    // Handle Update profile
+    document.getElementById('update-btn').addEventListener('click', async () => {
+        // Pre load
+        const fullName = document.getElementById('update-full-name').value.trim();
+        const name = document.getElementById('update-name').value.trim();
+        const lastname = document.getElementById('update-lastname').value.trim();
+        const med = document.querySelector('input[name="med"]:checked').value;
+        const email = document.getElementById('update-email').value.trim();
+        const phone = document.getElementById('update-phone').value.trim();
+        const organization = document.getElementById('update-organization').value.trim();
+        const position = document.getElementById('update-position').value.trim();
+        const course = document.getElementById('update-course').value.trim();
+        const foodAllergy = document.getElementById('update-foodAllergy').value.trim();
+        const religion = document.getElementById('update-religion').value.trim();
+        const lineId = document.getElementById('update-line-id').value.trim();
+        const lineName = document.getElementById('update-line-name').value.trim();
+        const medExtraInfo = document.getElementById('extra-info').value.trim();
+        const Title = document.getElementById('update-title-name').value.trim();
+        let isValid = true;
+        // Validate fields
+        if (!fullName || !email || !phone || !organization || !position) {
+            isValid = false;
+            // alert("All fields are required.");
+            showErrorModal("Please fill in all fields.");
+        }
+        // iif isValid is true send a data to update api
+        if (isValid) {
+            try {
+                const profile = await liff.getProfile();
+                console.log(profile);
+                const data = {
+                    userId: profile.userId,
+                    title: Title,
+                    fullName,
+                    name,
+                    med,
+                    medExtraInfo,
+                    organization,
+                    position,
+                    lastname,
+                    course,
+                    foodAllergy,
+                    religion,
+                    lineId,
+                    lineName,
+                    email,
+                    phone,
+                    status: profile.status,
+                }
+                console.log(data);
+                const response = await fetch(UPDATE_API, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+                if (response.ok) {
+                    //alert("Update Successful!");
+                    // showSuccessModal("Update Successful!");
+                    location.reload();
+                } else {
+                    alert("Update Failed!");
+                }
+            }catch (error) {
+                alert("Error during update: " + error.message);
+            }finally {
+                // Always hide the loading spinner
+
+            }
+
+
+        }else {
+
+        }
+
+
+    });
+
+    // Handle Cancel update profilr
+    document.getElementById('update-cancel-btn').addEventListener('click', async () => {
+        document.getElementById('user-profile').classList.remove('hidden');
+        document.getElementById('register-form').classList.add('hidden');
+        document.getElementById('update-form').classList.add('hidden');
+        isUpdate = false;
+    });
+
+    // Handle Chang member
+    document.getElementById('change-member').addEventListener('click', async () => {
+        isUpdate = true;
+        document.getElementById('user-profile').classList.add('hidden');
+        document.getElementById('register-form').classList.add('hidden')
+        document.getElementById('update-form').classList.remove('hidden');
+
+        // document.getElementById('register-form').classList.remove('hidden');
+        // document.getElementById('update-form').classList.add('hidden');
+        // isUpdate = true;
+    }
+    );
+    // Function to populate the dropdown
+    function populateCoursesDropdown() {
+        // const dropdown = document.getElementById('course-selection'); // Get the dropdown element
+        const dropdown = document.getElementById('course'); // Get the dropdown element
+
+        // Clear existing options (optional, in case you repopulate)
+        dropdown.innerHTML = '';
+
+        // Add a default option
+        const defaultOption = document.createElement('option');
+        defaultOption.text = 'เลือกรุ่นของท่าน';
+        defaultOption.value = '';
+        dropdown.appendChild(defaultOption);
+        let courses = COURSES;
+        // Add options from the courses array
+        courses.forEach(course => {
+            const option = document.createElement('option');
+            option.text = course;  // Set the text for the option
+            option.value = course; // Set the value for the option
+            dropdown.appendChild(option);
+        });
+    }
+
+    // Show error modal
+    function showErrorModal(message) {
+        const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+        document.getElementById('errorModalMessage').innerText = message;
+        errorModal.show();
+    }
+    // Show success modal
+    function showSuccessModal(message) {
+        const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+        document.getElementById('successModalMessage').innerText = message;
+        successModal.show();
+    }
+    // Initialize LIFF on page load
+    initLIFF();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>
