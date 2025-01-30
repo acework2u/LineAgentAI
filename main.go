@@ -47,6 +47,7 @@ func init() {
 	client = conf.ConnectionDB()
 	memberCollection = conf.GetCollection(client, MemberCollectionName)
 	eventsCollection := conf.GetCollection(client, EventsCollectionName)
+
 	// Service
 
 	memberRepo = repository.NewMemberRepository(ctx, memberCollection)
@@ -87,6 +88,9 @@ func StartServer() {
 	})
 	server.GET("/events", func(c *gin.Context) {
 		c.HTML(200, "event.html", nil)
+	})
+	server.GET("/events-calendar", func(c *gin.Context) {
+		c.HTML(200, "events-calendar.html", nil)
 	})
 
 	// router

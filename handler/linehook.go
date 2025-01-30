@@ -131,18 +131,7 @@ func (h *LineWebhookHandler) LineHookHandle(c *gin.Context) {
 					if datetime != "" {
 						log.Printf("Selected DateTime: %s", datetime)
 					}
-
-					//if e.Postback.Params.Date != "" {
-					//	log.Printf("Selected Date: %s", e.Postback.Params.Date)
-					//}
-					//if e.Postback.Params.Time != "" {
-					//	log.Printf("Selected Time: %s", e.Postback.Params.Time)
-					//}
-					//if e.Postback.Params.Datetime != "" {
-					//	log.Printf("Selected DateTime: %s", e.Postback.Params.Datetime)
-					//}
 				}
-
 			}
 
 			// Parse the query string
@@ -385,7 +374,28 @@ func (h *LineWebhookHandler) PostCheckInEvent(c *gin.Context) {
 
 	c.JSON(200, gin.H{"isCheckIn": true})
 }
+func (h *LineWebhookHandler) PostMyEvents(c *gin.Context) {
 
+	userId := services.EventCheckIn{}
+	err := c.ShouldBindJSON(&userId)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	if len(userId.UserId) == 0 {
+		c.JSON(400, gin.H{"error": "userId is required"})
+		return
+	}
+
+	myEvents, err := h.lineService.MyEvents(userId.UserId)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"myEvents": myEvents})
+
+}
 func conTimeStrToInt64(checkInTimeStr string) int64 {
 	// Assuming the check-in time is provided as a string in a specific datetime format.
 	const layout = "2006-01-02T15:04:05" // Example datetime format (adjust to your needs)

@@ -667,6 +667,29 @@ func (s *lineBotService) CheckInEvent(eventCheckIn *EventCheckIn) (bool, error) 
 	return res, nil
 
 }
+func (s *lineBotService) MyEvents(userId string) ([]*MemberJoinEvent, error) {
+	if userId == "" {
+		return nil, errors.New("user id is required")
+	}
+
+	myEvents, err := s.eventRepo.EventByUserId(userId)
+	if err != nil {
+		return nil, err
+	}
+	memberJoinEvents := make([]*MemberJoinEvent, len(myEvents))
+	for i, v := range myEvents {
+		joinTimeStr := time.Unix(v.JoinTime, 0).Format("2006-01-02 15:04:05")
+		memberJoinEvents[i] = &MemberJoinEvent{
+			EventId:      v.EventId,
+			UserId:       v.UserId,
+			JoinTime:     joinTimeStr,
+			Name:         v.Name,
+			LastName:     v.LastName,
+			Organization: v.Organization,
+		}
+	}
+	return memberJoinEvents, nil
+}
 func validation(member *Member) error {
 	if member.Name == "" {
 		return errors.New("name is required")

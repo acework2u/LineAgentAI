@@ -7,6 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"log"
 )
 
 type eventRepositoryImpl struct {
@@ -114,4 +115,106 @@ func (r *eventRepositoryImpl) CheckInEvent(userId string, eventCheckIn *EventChe
 
 	return true, nil
 
+}
+func (r *eventRepositoryImpl) EventByUserId(userId string) ([]*MemberEventImpl, error) {
+
+	//Find event is not checkin filter by user Id
+	query := bson.M{
+		"userId": userId,
+		"$or": bson.A{
+			bson.M{"checkIn": bson.M{"$exists": false}},
+			bson.M{"checkIn": false},
+		},
+	}
+
+	events := []*MemberEventImpl{}
+	cursor, err := r.eventsCollection.Find(r.ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(r.ctx)
+	for cursor.Next(r.ctx) {
+		var event MemberEventImpl
+		err := cursor.Decode(&event)
+		if err != nil {
+			return nil, err
+		}
+		events = append(events, &event)
+	}
+	count, _ := r.eventsCollection.CountDocuments(r.ctx, query)
+	log.Println(count)
+	return events, nil
+
+}
+func (r *eventRepositoryImpl) CreateEvent(event *Event) error {
+
+	res, err := r.eventsCollection.InsertOne(r.ctx, event)
+	if err != nil {
+		return err
+	}
+	if res.InsertedID == nil {
+		return errors.New("event not created")
+	}
+	return nil
+
+}
+func (r *eventRepositoryImpl) UpdateEvent(eventId string, event *Event) error {
+
+	// Create a filter to match the event by its ID
+	filter := bson.M{"eventId": eventId}
+	// Create the update data using MongoDB's $set operator
+	update := bson.M{
+		"$set": event,
+	}
+	// Perform the update operation
+	result, err := r.eventsCollection.UpdateOne(r.ctx, filter, update)
+	if err != nil {
+		return fmt.Errorf("failed to update event: %w", err)
+	}
+	// Check if any document was modified
+	if result.ModifiedCount == 0 {
+		return errors.New("event not found or no changes made")
+	}
+	return nil
+}
+func (r *eventRepositoryImpl) DeleteEvent(eventId string) error {
+	del, err := r.eventsCollection.DeleteOne(r.ctx, bson.M{"eventId": eventId})
+	if err != nil {
+		return err
+	}
+	if del.DeletedCount == 0 {
+		return errors.New("event not found or no changes made")
+	}
+	return nil
+}
+func (r *eventRepositoryImpl) EventByEventId(eventId string) (*Event, error) {
+	res := r.eventsCollection.FindOne(r.ctx, bson.M{"eventId": eventId})
+	if res.Err() != nil {
+		return nil, res.Err()
+	}
+	var event Event
+	err := res.Decode(&event)
+	if err != nil {
+		return nil, err
+	}
+	return &event, nil
+
+}
+func (r *eventRepositoryImpl) EventsList() ([]*Event, error) {
+	filter := bson.M{}
+	events := []*Event{}
+	cursor, err := r.eventsCollection.Find(r.ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(r.ctx)
+	for cursor.Next(r.ctx) {
+		var event Event
+		err := cursor.Decode(&event)
+		if err != nil {
+			return nil, err
+		}
+		events = append(events, &event)
+	}
+	return events, nil
 }

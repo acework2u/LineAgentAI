@@ -17,6 +17,7 @@ type LineBotService interface {
 	CheckEventJoin(eventId string, userId string) (bool, error)
 	GetEventJoin(eventId string, userId string) (*MemberJoinEvent, error)
 	CheckInEvent(eventCheckIn *EventCheckIn) (bool, error)
+	MyEvents(userId string) ([]*MemberJoinEvent, error)
 }
 type SourceHook struct {
 	Type   string `json:"type"`
@@ -106,6 +107,7 @@ type Text struct {
 
 type MemberJoinEvent struct {
 	EventId        string `json:"eventId" binding:"required" validate:"required,min=3,max=20"`
+	TitleEvent     string `json:"titleEvent"`
 	UserId         string `json:"userId" binding:"required"`
 	JoinTime       string `json:"joinTime,omitempty"`
 	Name           string `json:"name" binding:"required" validate:"required,min=3,max=20"`
@@ -139,4 +141,19 @@ type EventCheckIn struct {
 	CheckInTime  int64  `json:"checkInTime,omitempty"`
 	CheckOutTime int64  `json:"checkOutTime,omitempty"`
 	CheckInPlace string `json:"checkInPlace"`
+}
+
+type Filter struct {
+	Page    int      `json:"page"`
+	Limit   int      `json:"limit"`
+	Sort    string   `json:"sort"`
+	Keyword string   `json:"keyword"`
+	Members []string `json:"members"`
+}
+type EventFilter struct {
+	Page    int    `json:"page"`
+	Limit   int    `json:"limit"`
+	Sort    string `json:"sort"`
+	UserId  string `json:"userId"`
+	Keyword string `json:"keyword"`
 }

@@ -8,6 +8,35 @@ type EventsRepository interface {
 	CheckJoinEvent(eventId string, userId string) (bool, error)
 	GetEventJoin(eventId string, userId string) (*MemberEventImpl, error)
 	CheckInEvent(userId string, eventCheckIn *EventCheckIn) (bool, error)
+	EventByUserId(userId string) ([]*MemberEventImpl, error)
+	CreateEvent(event *Event) error
+	UpdateEvent(eventId string, event *Event) error
+	DeleteEvent(eventId string) error
+	EventByEventId(eventId string) (*Event, error)
+	EventsList() ([]*Event, error)
+}
+
+type Event struct {
+	EventId     string        `bson:"eventId"`
+	Title       string        `bson:"title"`
+	Description string        `bson:"description"`
+	StartDate   int64         `bson:"startDate,omitempty"`
+	EndDate     int64         `bson:"endDate"`
+	Place       string        `bson:"place"`
+	StartTime   int64         `bson:"startTime"`
+	Banner      []EventBanner `bson:"banner"`
+	EndTime     int64         `bson:"endTime"`
+	Location    string        `bson:"location"`
+	Status      bool          `bson:"status"`
+	CreatedDate int64         `bson:"createdDate"`
+	UpdatedDate int64         `bson:"updatedDate"`
+	LineId      string        `bson:"lineId"`
+	LineName    string        `bson:"lineName"`
+	EventType   string        `bson:"eventType"`
+}
+type EventBanner struct {
+	Url string `bson:"url"`
+	Img string `bson:"img"`
 }
 
 type MemberEventImpl struct {

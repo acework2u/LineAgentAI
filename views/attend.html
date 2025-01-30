@@ -85,6 +85,7 @@
     </div>
     <div class="event-details">
         <h3>Event Details:</h3>
+        <p><strong>Title:โครงการแพทย์อาสาตรวจสุขภาพพระสงฆ์ถวายเป็นพระกุศล แด่สมเด็จพระสงฆราช สกลมหาสังฆปริณายก</strong></p>
         <p><strong>Date:</strong> วันอาทิตย์ที่ 9 กุมภาพันธ์ 2568</p>
         <p><strong>Time:</strong> 9:00 AM - 4:00 PM</p>
         <p><strong>Location:</strong> ณ วัดราชบพิธสถิตมหาสีมารามราชวรวิหาร</p>
@@ -194,51 +195,7 @@
         try{
             const profile = await liff.getProfile();
             const userId = profile.userId;
-            //console.log(profile);
-
                 fetchUserProfile(userId);
-
-
-            // Check member registration
-            // const checkMember = checkMemberRegistration(userId);
-            // if (checkMember){
-            //     fetchUserProfile(userId);
-            // } else{
-            //    redirectToRegistrationPage()
-            // }
-
-            //Check Register status
-            // const response = await fetch(CHECK_REGISTRATION_API, {
-            //     method: "POST",
-            //     headers: { "Content-Type": "application/json" },
-            //     body: JSON.stringify({
-            //         userId: userId
-            //     })
-            // });
-            //
-            //
-            //
-            // if (response.ok) {
-            //     const data = await response.json();
-            //     console.log("in handleUserLogin on attend ")
-            //     console.log(data);
-            //
-            //     if(data.isRegistered){
-            //         fetchUserProfile(userId);
-            //     }else{
-            //        // member is not register
-            //        document.getElementById("joinEventForm").classList.remove("d-none");
-            //
-            //     }
-            //
-            //
-            // }else {
-            //    throw new Error("ท่านยังไม่ได้ลงทะเบียนสมาชิกแพทย์อาสา กรุณาลงทะเบียนก่อนเข้าร่วมกิจกรรม")
-            // }
-
-
-
-
         }catch(error){
 
         }finally{
@@ -356,6 +313,7 @@
             try {
                 const data = {
                     eventId: "1",
+                    titleEvent:"โครงการแพทย์อาสาตรวจสุขภาพพระสงฆ์ถวายเป็นพระกุศล แด่สมเด็จพระสงฆราช สกลมหาสังฆปริณายก",
                     userId: document.getElementById("member-line-id").value,
                     lineName: document.getElementById("member-line-name").value,
                     name: document.getElementById("member-name").value,
@@ -490,10 +448,12 @@
 
     document.addEventListener('DOMContentLoaded',initializeLiff2);
 
-    document.getElementById("joinEventBtn").addEventListener("click", () => {
+    document.getElementById("joinEventBtn").addEventListener("click", async () => {
         if (!liff.isLoggedIn()) {
-            liff.login();
+           return liff.login();
         } else {
+
+
 
             let isValid = true;
             const referenceName = document.getElementById("reference-name").value;
@@ -515,14 +475,18 @@
             }
             if (isValid) {
 
-                joinEvent().then(result => {
-                    console.log(result);
-                    alert(result.message);
-                    location.reload();
-                }).catch(err =>{
-                    console.log(err);
-                    alert(err.error);
-                })
+                const result = await joinEvent();
+                console.log(result);
+                alert(result.message);
+                location.reload();
+
+                try {}catch (error) {
+                    console.log(error);
+                    alert(error.error);
+                }
+
+
+
             }
 
         }

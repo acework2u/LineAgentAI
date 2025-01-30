@@ -133,3 +133,19 @@ func ComparePasswordWithSalt(password, hashPassword, secret string) error {
 	}
 	return nil
 }
+
+func DateToString(t time.Time) string {
+	return t.Format("2006-01-02")
+
+}
+func timeToString(t time.Time) string {
+	return t.Format("15:04")
+}
+func DateToTime(t string) time.Time {
+	date, _ := time.Parse("2006-01-02", t)
+	return date
+}
+func TimeToTime(t string) time.Time {
+	toTime, _ := time.Parse("15:04", t)
+	return toTime
+}
