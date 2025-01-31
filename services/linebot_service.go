@@ -667,7 +667,7 @@ func (s *lineBotService) CheckInEvent(eventCheckIn *EventCheckIn) (bool, error) 
 	return res, nil
 
 }
-func (s *lineBotService) MyEvents(userId string) ([]*MemberJoinEvent, error) {
+func (s *lineBotService) MyEvents(userId string) ([]*EventResponse, error) {
 	if userId == "" {
 		return nil, errors.New("user id is required")
 	}
@@ -676,19 +676,48 @@ func (s *lineBotService) MyEvents(userId string) ([]*MemberJoinEvent, error) {
 	if err != nil {
 		return nil, err
 	}
-	memberJoinEvents := make([]*MemberJoinEvent, len(myEvents))
-	for i, v := range myEvents {
-		joinTimeStr := time.Unix(v.JoinTime, 0).Format("2006-01-02 15:04:05")
-		memberJoinEvents[i] = &MemberJoinEvent{
-			EventId:      v.EventId,
-			UserId:       v.UserId,
-			JoinTime:     joinTimeStr,
-			Name:         v.Name,
-			LastName:     v.LastName,
-			Organization: v.Organization,
+	eventResponse := make([]*EventResponse, 0, len(myEvents))
+	for _, event := range myEvents {
+		banners := make([]EventBanner, 0, len(event.EventBanner))
+		if event.EventBanner != nil {
+			for _, v := range event.EventBanner {
+				banners = append(banners, EventBanner{
+					Url: v.Url,
+					Img: v.Img,
+				})
+			}
 		}
+
+		memberJoinEvent := &EventResponse{
+			EventId:     event.EventId,
+			Title:       event.EventName,
+			Description: event.EventDescription,
+			StartDate:   event.EventStartDate,
+			EndDate:     event.EventEndDate,
+			Place:       event.EventPlace,
+			StartTime:   event.EventStartTime,
+			Banner:      banners,
+			EndTime:     event.EventEndTime,
+			Location:    event.EventPlace,
+			Status:      event.IsJoin,
+		}
+		eventResponse = append(eventResponse, memberJoinEvent)
 	}
-	return memberJoinEvents, nil
+	return eventResponse, nil
+
+	//memberJoinEvents := make([]*MemberJoinEvent, len(myEvents))
+	//for i, v := range myEvents {
+	//	joinTimeStr := time.Unix(v.JoinTime, 0).Format("2006-01-02 15:04:05")
+	//	memberJoinEvents[i] = &MemberJoinEvent{
+	//		EventId:      v.EventId,
+	//		UserId:       v.UserId,
+	//		JoinTime:     joinTimeStr,
+	//		Name:         v.Name,
+	//		LastName:     v.LastName,
+	//		Organization: v.Organization,
+	//	}
+	//}
+	//return memberJoinEvents, nil
 }
 func validation(member *Member) error {
 	if member.Name == "" {

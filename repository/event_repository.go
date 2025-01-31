@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
+	"time"
 )
 
 type eventRepositoryImpl struct {
@@ -326,34 +327,98 @@ func (r *eventRepositoryImpl) CheckInEvent(userId string, eventCheckIn *EventChe
 	//return true, nil
 
 }
-func (r *eventRepositoryImpl) EventByUserId(userId string) ([]*MemberEventImpl, error) {
+func (r *eventRepositoryImpl) EventByUserId(userId string) ([]*EventResponse, error) {
 
-	//Find event is not checkin filter by user Id
-	query := bson.M{
-		"userId": userId,
-		"$or": bson.A{
-			bson.M{"checkIn": bson.M{"$exists": false}},
-			bson.M{"checkIn": false},
+	// get member join the event
+	filter := bson.M{
+		"members": bson.M{
+			"$elemMatch": bson.M{
+				"userId": userId,
+			},
 		},
 	}
-
-	events := []*MemberEventImpl{}
-	cursor, err := r.eventsCollection.Find(r.ctx, query)
+	// Opt
+	//opts := options.FindOne().SetProjection(bson.M{"members": 1})
+	//result := r.eventsCollection.FindOne(r.ctx, filter)
+	results, err := r.eventsCollection.Find(r.ctx, filter)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(r.ctx)
-	for cursor.Next(r.ctx) {
-		var event MemberEventImpl
-		err := cursor.Decode(&event)
+	defer results.Close(r.ctx)
+	events := []*Event{}
+	for results.Next(r.ctx) {
+		var event Event
+		err := results.Decode(&event)
 		if err != nil {
 			return nil, err
 		}
 		events = append(events, &event)
 	}
-	count, _ := r.eventsCollection.CountDocuments(r.ctx, query)
-	log.Println(count)
-	return events, nil
+
+	eventRes := []*EventResponse{}
+	for _, event := range events {
+		isJoin := false
+		for _, member := range event.Members {
+			if member.UserId == userId {
+				isJoin = true
+				break
+			}
+		}
+		item := EventResponse{
+			EventId:          event.EventId,
+			EventName:        event.Title,
+			EventDescription: event.Description,
+			EventStartDate:   time.Unix(event.StartDate, 0).Format("2006-01-02"),
+			EventEndDate:     time.Unix(event.EndDate, 0).Format("2006-01-02"),
+			EventPlace:       event.Place,
+			EventStartTime:   time.Unix(event.EndTime, 0).Format("15:04"),
+			EventBanner:      event.Banner,
+			EventEndTime:     time.Unix(event.EndTime, 0).Format("15:04"),
+			IsJoin:           isJoin,
+		}
+
+		eventRes = append(eventRes, &item)
+
+	}
+	return eventRes, nil
+	//for _, event := range events {
+	//	if event.Members != nil {
+	//		for _, member := range event.Members {
+	//			if member.UserId == userId {
+	//
+	//			}
+	//		}
+	//	}
+	//}
+
+	// members := eventRes.Members
+
+	//Find event is not checkin filter by user Id
+	//query := bson.M{
+	//	"userId": userId,
+	//	"$or": bson.A{
+	//		bson.M{"checkIn": bson.M{"$exists": false}},
+	//		bson.M{"checkIn": false},
+	//	},
+	//}
+	//
+	//events := []*MemberEventImpl{}
+	//cursor, err := r.eventsCollection.Find(r.ctx, query)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//defer cursor.Close(r.ctx)
+	//for cursor.Next(r.ctx) {
+	//	var event MemberEventImpl
+	//	err := cursor.Decode(&event)
+	//	if err != nil {
+	//		return nil, err
+	//	}
+	//	events = append(events, &event)
+	//}
+	//count, _ := r.eventsCollection.CountDocuments(r.ctx, query)
+	//log.Println(count)
+	//return events, nil
 
 }
 func (r *eventRepositoryImpl) CreateEvent(event *Event) error {

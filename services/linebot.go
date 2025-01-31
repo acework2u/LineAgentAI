@@ -17,7 +17,7 @@ type LineBotService interface {
 	CheckEventJoin(eventId string, userId string) (bool, error)
 	GetEventJoin(eventId string, userId string) (*MemberJoinEvent, error)
 	CheckInEvent(eventCheckIn *EventCheckIn) (bool, error)
-	MyEvents(userId string) ([]*MemberJoinEvent, error)
+	MyEvents(userId string) ([]*EventResponse, error)
 }
 type SourceHook struct {
 	Type   string `json:"type"`

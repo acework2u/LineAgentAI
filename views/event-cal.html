@@ -87,6 +87,7 @@
             background-color: #05a044;
         }
 
+
         /* Responsive Design */
         @media (max-width: 600px) {
             header h1 {
@@ -132,6 +133,55 @@
         .fade-out {
             animation: fadeOut 0.5s ease forwards;
         }
+        /* Banner Carousel */
+        .banner-carousel {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .banner-item {
+            flex: 0 0 auto;
+            scroll-snap-align: start;
+            width: 100%;
+        }
+
+        .banner-image {
+            width: 85%;
+            border-radius: 12px;
+            object-fit: cover;
+            height: 200px; /* Adjust height as needed */
+        }
+
+        /* Hide scrollbar for a cleaner look */
+        .banner-carousel::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Banner Grid (Alternative Layout) */
+        /*
+        .banner-carousel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .banner-item {
+            width: 100%;
+        }
+
+        .banner-image {
+            width: 100%;
+            border-radius: 12px;
+            object-fit: cover;
+            height: 150px;
+        }
+       */
+
+
     </style>
 </head>
 <body>
@@ -150,10 +200,11 @@
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
     const LIFF_ID = "2006793268-V7aWQ21x";
+    const BACKEND_URL = "https://dca3a8ac633b.ngrok.app";
     document.addEventListener('DOMContentLoaded', function () {
         // Initialize LIFF app
         liff.init({
-            liffId:"2006793268-V7aWQ21x" // Replace with your LIFF ID
+            liffId:LIFF_ID // Replace with your LIFF ID
         }).then(() => {
             if (!liff.isLoggedIn()) {
                 liff.login();
@@ -165,32 +216,82 @@
         });
     });
 
-    function initializeApp() {
-        fetchEvents();
+   async function initializeApp() {
+        const profile = await liff.getProfile();
+        const userId = profile.userId;
+
+        fetchEvents(userId);
     }
 
-    function fetchEvents() {
+    function fetchEvents(userId) {
         // Mock data for events
-        const events = [
-            { id: 1, title: 'Web Development Workshop', date: '2023-10-15', location: 'Online' },
-            { id: 2, title: 'AI and Machine Learning Seminar', date: '2023-10-20', location: 'Conference Hall' },
-            { id: 3, title: 'Networking Night', date: '2023-10-25', location: 'Downtown Cafe' }
-        ];
+        // fetch method post
+        const response = fetch(`${BACKEND_URL}/api/v1/my-event`,{
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                userId: userId
+            })
+        });
+        if (!response) return;
+        const events = response.then(response => response.json());
+        events.then(events => {
+            const eventList = document.getElementById('eventList');
+            eventList.innerHTML = ''; // Clear existing content
+
+            const banners = events.myEvents.map(event => event.banner).filter(banner => banner !== null);
+
+
+
+
+
+            const bannerHTML = banners[0].map(banner => `
+            <div class="banner-item">
+            <img src="${banner.img}" alt="Event Banner" class="banner-image">
+            <div class="banner-text">
+            </div>
+            </div>`).join('');
+
+            events.myEvents.forEach(event => {
+                const eventElement = document.createElement('div');
+                eventElement.className = 'event-item';
+                eventElement.innerHTML = `
+            <div class="banner-carousel">
+                ${bannerHTML}
+            </div>
+            <h3>${event.title}</h3>
+            <p>📅 Date: ${event.startDate}</p>
+            <p>📍 Location: ${event.location}</p>
+           ${event.status ? '<p class="joined-text">✅ Already joined</p>' : `<button onclick="joinEvent(${event.eventId})">Join Event</button>`}
+        `;
+                eventList.appendChild(eventElement);
+
+            });
+        }).catch(err => {
+            console.error(err);
+        })
+        // const events = [
+        //     { id: 1, title: 'Web Development Workshop', date: '2023-10-15', location: 'Online' },
+        //     { id: 2, title: 'AI and Machine Learning Seminar', date: '2023-10-20', location: 'Conference Hall' },
+        //     { id: 3, title: 'Networking Night', date: '2023-10-25', location: 'Downtown Cafe' }
+        // ];
 
         const eventList = document.getElementById('eventList');
         eventList.innerHTML = ''; // Clear existing content
 
-        events.forEach(event => {
-            const eventElement = document.createElement('div');
-            eventElement.className = 'event-item';
-            eventElement.innerHTML = `
-            <h3>${event.title}</h3>
-            <p>📅 Date: ${event.date}</p>
-            <p>📍 Location: ${event.location}</p>
-            <button onclick="joinEvent(${event.id})">Join Event</button>
-        `;
-            eventList.appendChild(eventElement);
-        });
+        // events.forEach(event => {
+        //     const eventElement = document.createElement('div');
+        //     eventElement.className = 'event-item';
+        //     eventElement.innerHTML = `
+        //     <h3>${event.title}</h3>
+        //     <p>📅 Date: ${event.date}</p>
+        //     <p>📍 Location: ${event.location}</p>
+        //     <button onclick="joinEvent(${event.id})">Join Event</button>
+        // `;
+        //     eventList.appendChild(eventElement);
+        // });
 
         // Add animation to event items
         setTimeout(() => {

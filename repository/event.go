@@ -8,7 +8,7 @@ type EventsRepository interface {
 	CheckJoinEvent(eventId string, userId string) (bool, error)
 	GetEventJoin(eventId string, userId string) (*MemberEventImpl, error)
 	CheckInEvent(userId string, eventCheckIn *EventCheckIn) (bool, error)
-	EventByUserId(userId string) ([]*MemberEventImpl, error)
+	EventByUserId(userId string) ([]*EventResponse, error)
 	CreateEvent(event *Event) error
 	UpdateEvent(eventId string, event *Event) error
 	DeleteEvent(eventId string) error
@@ -56,6 +56,20 @@ type MemberEventImpl struct {
 	ReferencePhone string `bson:"referencePhone"`
 	Clinic         string `bson:"clinic"`
 }
+
+type EventResponse struct {
+	EventId          string        `json:"eventId"`
+	EventName        string        `json:"evnetName"`
+	EventDescription string        `json:"eventDescription"`
+	EventStartDate   string        `json:"eventStartDate,omitempty"`
+	EventEndDate     string        `json:"eventEndDate"`
+	EventPlace       string        `json:"eventPlace"`
+	EventStartTime   string        `json:"eventStartTime"`
+	EventBanner      []EventBanner `json:"eventBanner"`
+	EventEndTime     string        `json:"eventEndTime"`
+	IsJoin           bool          `json:"isJoin"`
+}
+
 type EventCheckIn struct {
 	EventId      string `bson:"eventId"`
 	UserId       string `bson:"userId"`
