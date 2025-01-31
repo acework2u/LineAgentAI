@@ -34,6 +34,9 @@ var (
 	lineBotService services.LineBotService
 	memberRepo     repository.MemberRepository
 	eventsRepo     repository.EventsRepository
+	eventsService  services.EventsService
+	eventHandler   *handler.EventHandler
+	eventRouter    *router.EventRouter
 )
 
 func init() {
@@ -55,6 +58,10 @@ func init() {
 	lineBotService = services.NewLineBotService(memberRepo, eventsRepo)
 	LineHandler = handler.NewLineWebhookHandler(lineBotService)
 	LineRouter = router.NewLineRouter(LineHandler)
+
+	eventsService = services.NewEventsService(eventsRepo)
+	eventHandler = handler.NewEventHandler(eventsService)
+	eventRouter = router.NewEventRouter(eventHandler)
 
 	server = gin.Default()
 }
@@ -92,10 +99,14 @@ func StartServer() {
 	server.GET("/events-calendar", func(c *gin.Context) {
 		c.HTML(200, "events-calendar.html", nil)
 	})
+	server.GET("/event-cal", func(c *gin.Context) {
+		c.HTML(200, "event-cal.html", nil)
+	})
 
 	// router
 	routers := server.Group("/api/v1")
 	LineRouter.LineHookRouter(routers)
+	eventRouter.EventRouter(routers)
 
 	//server.Run(appConfig.App.Port)
 	log.Fatal(server.Run(":" + appConfig.App.Port + ""))

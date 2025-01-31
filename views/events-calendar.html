@@ -13,6 +13,105 @@
 
     <!-- LIFF SDK -->
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            /*background: linear-gradient(135deg, #06c755, #05a044); !* Gradient background *!*/
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2306c755' fill-opacity='0.1' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white; /* White text for better contrast */
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            margin: 10px 0 0;
+            opacity: 0.9; /* Slightly transparent for a modern look */
+        }
+
+        #eventList {
+            display: grid;
+            gap: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .event-item {
+            background: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            backdrop-filter: blur(10px); /* Adds a blur effect for a modern glassmorphism look */
+        }
+
+        .event-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .event-item h3 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin: 0 0 10px;
+            color: #06c755;
+        }
+
+        .event-item p {
+            font-size: 1rem;
+            color: #666;
+            margin: 5px 0;
+        }
+
+        .event-item button {
+            background-color: #06c755;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 15px;
+        }
+
+        .event-item button:hover {
+            background-color: #05a044;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .event-item h3 {
+                font-size: 1.3rem;
+            }
+
+            .event-item p {
+                font-size: 0.9rem;
+            }
+
+            .event-item button {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
 <div class="container my-5">

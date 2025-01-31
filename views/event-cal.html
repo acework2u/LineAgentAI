@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Calendar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Roboto', sans-serif;
+            /*background: linear-gradient(135deg, #06c755, #05a044); !* Gradient background *!*/
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2306c755' fill-opacity='0.1' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white; /* White text for better contrast */
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            margin: 10px 0 0;
+            opacity: 0.9; /* Slightly transparent for a modern look */
+        }
+
+        #eventList {
+            display: grid;
+            gap: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .event-item {
+            background: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            backdrop-filter: blur(10px); /* Adds a blur effect for a modern glassmorphism look */
+        }
+
+        .event-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .event-item h3 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin: 0 0 10px;
+            color: #06c755;
+        }
+
+        .event-item p {
+            font-size: 1rem;
+            color: #666;
+            margin: 5px 0;
+        }
+
+        .event-item button {
+            background-color: #06c755;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 15px;
+        }
+
+        .event-item button:hover {
+            background-color: #05a044;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .event-item h3 {
+                font-size: 1.3rem;
+            }
+
+            .event-item p {
+                font-size: 0.9rem;
+            }
+
+            .event-item button {
+                width: 100%;
+            }
+        }
+        /* Loading Spinner Animation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #06c755;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+
+        /* Fade Out Animation */
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        .fade-out {
+            animation: fadeOut 0.5s ease forwards;
+        }
+    </style>
+</head>
+<body>
+<div id="liffAppContent">
+    <header>
+        <h1>📅 Event Calendar</h1>
+        <p>Join exciting events and stay updated!</p>
+    </header>
+    <div id="eventList">
+        <!-- Events will be dynamically inserted here -->
+    </div>
+</div>
+<div id="liffIdErrorMessage" class="hidden">
+    <p>LIFF ID is not set. Please configure your LIFF ID.</p>
+</div>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+    const LIFF_ID = "2006793268-V7aWQ21x";
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initialize LIFF app
+        liff.init({
+            liffId:"2006793268-V7aWQ21x" // Replace with your LIFF ID
+        }).then(() => {
+            if (!liff.isLoggedIn()) {
+                liff.login();
+            } else {
+                initializeApp();
+            }
+        }).catch((err) => {
+            console.error('LIFF Initialization failed', err);
+        });
+    });
+
+    function initializeApp() {
+        fetchEvents();
+    }
+
+    function fetchEvents() {
+        // Mock data for events
+        const events = [
+            { id: 1, title: 'Web Development Workshop', date: '2023-10-15', location: 'Online' },
+            { id: 2, title: 'AI and Machine Learning Seminar', date: '2023-10-20', location: 'Conference Hall' },
+            { id: 3, title: 'Networking Night', date: '2023-10-25', location: 'Downtown Cafe' }
+        ];
+
+        const eventList = document.getElementById('eventList');
+        eventList.innerHTML = ''; // Clear existing content
+
+        events.forEach(event => {
+            const eventElement = document.createElement('div');
+            eventElement.className = 'event-item';
+            eventElement.innerHTML = `
+            <h3>${event.title}</h3>
+            <p>📅 Date: ${event.date}</p>
+            <p>📍 Location: ${event.location}</p>
+            <button onclick="joinEvent(${event.id})">Join Event</button>
+        `;
+            eventList.appendChild(eventElement);
+        });
+
+        // Add animation to event items
+        setTimeout(() => {
+            const eventItems = document.querySelectorAll('.event-item');
+            eventItems.forEach((item, index) => {
+                item.style.opacity = '1';
+                item.style.transform = 'translateY(0)';
+            });
+        }, 100);
+    }
+
+    function joinEvent(eventId) {
+        const button = document.querySelector(`button[onclick="joinEvent(${eventId})"]`);
+        if (!button) return;
+
+        // Disable the button and show loading spinner
+        button.disabled = true;
+        button.innerHTML = 'Joining... <div class="loading-spinner"></div>';
+
+        // Simulate an API call (replace this with your actual API call)
+        setTimeout(() => {
+            liff.getProfile().then(profile => {
+                const userId = profile.userId;
+                const message = `User ${userId} joined event ${eventId}`;
+
+                // Send message via LIFF
+                liff.sendMessages([{
+                    type: 'text',
+                    text: message
+                }]).then(() => {
+                    // Add fade-out animation to the button
+                    button.classList.add('fade-out');
+
+                    // Hide the button after the animation ends
+                    button.addEventListener('animationend', () => {
+                        button.style.display = 'none';
+                    });
+
+                    // Optionally, show a success message
+                    alert('You have successfully joined the event!');
+                }).catch((err) => {
+                    console.error('Error sending message:', err);
+                    button.disabled = false;
+                    button.innerHTML = 'Join Event';
+                });
+            }).catch((err) => {
+                console.error('Error getting profile:', err);
+                button.disabled = false;
+                button.innerHTML = 'Join Event';
+            });
+        }, 1500); // Simulate a 1.5-second API delay
+    }
+
+</script>
+</body>
+</html>

@@ -341,19 +341,27 @@ func (h *LineWebhookHandler) GetEventJoin(c *gin.Context) {
 func (h *LineWebhookHandler) PostCheckInEvent(c *gin.Context) {
 	qrcode := services.QrCodeMessage{}
 	err := c.ShouldBindJSON(&qrcode)
+
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
+
+	log.Println("In CheckInEvent: ")
+	log.Println(qrcode)
+
 	dataQr := services.QrCodeImpl{}
 	err = json.Unmarshal([]byte(qrcode.QrCode), &dataQr)
+
 	if err != nil {
+		log.Println("In CheckInEvent: error")
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
 	checkInData := services.QrCodeMessage{}
 	_ = checkInData
+
 	dataCheckIn := services.EventCheckIn{
 		EventId:      dataQr.EventId,
 		UserId:       qrcode.UserId,
@@ -364,8 +372,12 @@ func (h *LineWebhookHandler) PostCheckInEvent(c *gin.Context) {
 		CheckInPlace: dataQr.ClinicNo,
 	}
 
+	log.Println(dataCheckIn)
+
 	resCheckIn, err := h.lineService.CheckInEvent(&dataCheckIn)
 	if err != nil {
+		log.Println("In CheckInEvent: error")
+		log.Println(err)
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
@@ -398,7 +410,7 @@ func (h *LineWebhookHandler) PostMyEvents(c *gin.Context) {
 }
 func conTimeStrToInt64(checkInTimeStr string) int64 {
 	// Assuming the check-in time is provided as a string in a specific datetime format.
-	const layout = "2006-01-02T15:04:05" // Example datetime format (adjust to your needs)
+	const layout = "2006-01-02T15:04:05Z" // Example datetime format (adjust to your needs)
 
 	checkInTime, err := time.Parse(layout, checkInTimeStr)
 	if err != nil {

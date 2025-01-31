@@ -23,31 +23,96 @@ func NewEventRepository(ctx context.Context, eventsCollection *mongo.Collection)
 }
 
 func (r *eventRepositoryImpl) EventJoin(event *MemberEventImpl) error {
-	// Check if the event and user already exist
-	existingEvent := MemberEventImpl{}
-	err := r.eventsCollection.FindOne(r.ctx, bson.M{
-		"eventId": event.EventId,
-		"userId":  event.UserId,
-	}).Decode(&existingEvent)
 
-	if err == nil {
-		// If no error, it means the event and user already exist
-		return fmt.Errorf("user already joined this event")
-	} else if err != mongo.ErrNoDocuments {
-		// If the error is not "no documents", return the error
-		return fmt.Errorf("failed to check existing event: %w", err)
+	// Filter eventId and userId in Members document of Events
+	result := r.eventsCollection.FindOne(r.ctx, bson.M{"eventId": event.EventId})
+	if result.Err() != nil {
+		return result.Err()
 	}
-
-	// Proceed with further logic (e.g., insert the event) here
-	result, err := r.eventsCollection.InsertOne(r.ctx, event)
+	var eventRes Event
+	err := result.Decode(&eventRes)
 	if err != nil {
 		return err
 	}
-	//fmt.Println(result.InsertedID)
-	if result.InsertedID == nil {
-		return errors.New("event not created")
+	members := eventRes.Members
+	newMembers := []*MemberEventImpl{}
+	for _, member := range members {
+		if member.UserId == event.UserId {
+			//return errors.New("user already joined this event")
+		}
+		newMember := MemberEventImpl{
+			EventId:        event.EventId,
+			UserId:         event.UserId,
+			JoinTime:       event.JoinTime,
+			Name:           event.Name,
+			LastName:       event.LastName,
+			Organization:   event.Organization,
+			Position:       event.Position,
+			Course:         event.Course,
+			LineId:         event.LineId,
+			LineName:       event.LineName,
+			Tel:            event.Tel,
+			ReferenceName:  event.ReferenceName,
+			ReferencePhone: event.ReferencePhone,
+			Clinic:         event.Clinic,
+		}
+		newMembers = append(newMembers, &newMember)
+
+	}
+	newMembers = append(newMembers, event)
+	update := bson.M{
+		"$set": bson.M{
+			"members": newMembers,
+		},
+	}
+	_, err = r.eventsCollection.UpdateOne(r.ctx, bson.M{"eventId": event.EventId}, update)
+	if err != nil {
+		return err
 	}
 	return nil
+
+	//
+	//// Check Member in Events
+	//filter := bson.M{
+	//	"members": bson.M{
+	//		"$elemMatch": bson.M{
+	//			"eventId": event.EventId,
+	//			"userId":  event.UserId,
+	//		},
+	//	},
+	//}
+	//
+	//// Check if the event and user already exist
+	//existingEvent := MemberEventImpl{}
+	//err := r.eventsCollection.FindOne(r.ctx, filter).Decode(&existingEvent)
+	//if err != nil {
+	//	return err
+	//}
+	//
+	////err := r.eventsCollection.FindOne(r.ctx, bson.M{
+	////	"eventId": event.EventId,
+	////	"userId":  event.UserId,
+	////}).Decode(&existingEvent)
+	//
+	//if err == nil {
+	//	// If no error, it means the event and user already exist
+	//	return fmt.Errorf("user already joined this event")
+	//} else if err != mongo.ErrNoDocuments {
+	//	// If the error is not "no documents", return the error
+	//	return fmt.Errorf("failed to check existing event: %w", err)
+	//}
+	//
+	//// Proceed with further logic (e.g., insert the event) here
+	//
+	//result, err := r.eventsCollection.InsertOne(r.ctx, event)
+	//if err != nil {
+	//	return err
+	//}
+	////fmt.Println(result.InsertedID)
+	//if result.InsertedID == nil {
+	//	return errors.New("event not created")
+	//}
+	//return nil
 }
 func (r *eventRepositoryImpl) EventLeave(event *MemberEventImpl) error {
 	panic("implement me")
@@ -60,60 +125,205 @@ func (r *eventRepositoryImpl) GetEvents(filter Filter) ([]*MemberEventImpl, erro
 }
 func (r *eventRepositoryImpl) CheckJoinEvent(eventId string, userId string) (bool, error) {
 
-	// Create a filter to check if the event exists for the given eventId and userId
-	eid := fmt.Sprintf("%s", eventId)
-	filter := bson.M{
-		"eventId": eid,
-		"userId":  userId,
-	}
-
-	// Check if the event exists
-	count, err := r.eventsCollection.CountDocuments(r.ctx, filter)
+	// Check Event
+	count, err := r.eventsCollection.CountDocuments(r.ctx, bson.M{"eventId": eventId})
 	if err != nil {
 		return false, fmt.Errorf("failed to check event membership: %w", err)
 	}
+	if count == 0 {
+		return false, errors.New("event not found")
+	}
+	// Check the join event of members
+	filter := bson.M{
+		"members": bson.M{
+			"$elemMatch": bson.M{
+				"eventId": eventId,
+				"userId":  userId,
+			},
+		},
+	}
 
-	// If count is greater than 0, the user has joined the event
-	if count > 0 {
-		return true, nil
+	res := r.eventsCollection.FindOne(r.ctx, filter)
+	if res.Err() != nil {
+		return false, res.Err()
+	}
+	var eventRes Event
+	err = res.Decode(&eventRes)
+	if err != nil {
+		return false, err
+	}
+	members := eventRes.Members
+
+	for _, member := range members {
+		if member.UserId == userId {
+			return true, nil
+		}
+
 	}
 	return false, nil
+
+	// Create a filter to check if the event exists for the given eventId and userId
+	//eid := fmt.Sprintf("%s", eventId)
+	//filter := bson.M{
+	//	"eventId": eid,
+	//	"userId":  userId,
+	//}
+	//
+	//// Check if the event exists
+	//count, err := r.eventsCollection.CountDocuments(r.ctx, filter)
+	//if err != nil {
+	//	return false, fmt.Errorf("failed to check event membership: %w", err)
+	//}
+	//
+	//// If count is greater than 0, the user has joined the event
+	//if count > 0 {
+	//	return true, nil
+	//}
+	//return false, nil
 }
 func (r *eventRepositoryImpl) GetEventJoin(eventId string, userId string) (*MemberEventImpl, error) {
 
-	filter := bson.M{
-		"eventId": eventId,
-		"userId":  userId,
-	}
-	event := MemberEventImpl{}
-	err := r.eventsCollection.FindOne(r.ctx, filter).Decode(&event)
+	// Check have the event
+	countEvent, err := r.eventsCollection.CountDocuments(r.ctx, bson.M{"eventId": eventId})
 	if err != nil {
 		return nil, err
 	}
-	return &event, nil
+	if countEvent == 0 {
+		return nil, errors.New("event not found")
+	}
+	// Find event join data event members
+	filter := bson.M{
+		"members": bson.M{
+			"$elemMatch": bson.M{
+				"eventId": eventId,
+				"userId":  userId,
+			},
+		}}
+
+	// query data in events
+	result := r.eventsCollection.FindOne(r.ctx, filter)
+	if result.Err() != nil {
+		return nil, result.Err()
+	}
+	var eventRes Event
+	err = result.Decode(&eventRes)
+	if err != nil {
+		return nil, err
+	}
+	members := eventRes.Members
+	memberJoinInfo := MemberEventImpl{}
+	for _, member := range members {
+		memJoin := MemberEventImpl{
+			EventId:      member.EventId,
+			UserId:       member.UserId,
+			JoinTime:     member.JoinTime,
+			Name:         member.Name,
+			LastName:     member.LastName,
+			Organization: member.Organization,
+			Position:     member.Position,
+			Course:       member.Course,
+			LineId:       member.LineId,
+		}
+		memberJoinInfo = memJoin
+		break
+	}
+	return &memberJoinInfo, nil
+
+	//filter := bson.M{
+	//	"eventId": eventId,
+	//	"userId":  userId,
+	//}
+	//event := MemberEventImpl{}
+	//err := r.eventsCollection.FindOne(r.ctx, filter).Decode(&event)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//return &event, nil
 }
 func (r *eventRepositoryImpl) CheckInEvent(userId string, eventCheckIn *EventCheckIn) (bool, error) {
-	filer := bson.M{
-		"eventId": eventCheckIn.EventId,
-		"lineId":  userId,
+
+	// find exits the event
+	countEvent, err := r.eventsCollection.CountDocuments(r.ctx, bson.M{"eventId": eventCheckIn.EventId})
+	if err != nil {
+		return false, err
+	}
+	if countEvent == 0 {
+		return false, errors.New("event not found")
+	}
+	log.Println("check in countEvent:", countEvent)
+	// check memberCheckin and
+
+	filter := bson.M{
+		"eventCheckIn": bson.M{
+			"$elemMatch": bson.M{
+				"userId": userId,
+				"checkIn": bson.M{
+					"$exists": false,
+				},
+			},
+		},
 	}
 
-	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
-	result := r.eventsCollection.FindOneAndUpdate(r.ctx, filer, bson.M{
+	// Fine checkin for insert or update
+
+	result := r.eventsCollection.FindOneAndUpdate(r.ctx, filter, bson.M{
 		"$set": bson.M{
-			"checkIn":      eventCheckIn.CheckIn,
-			"checkOut":     eventCheckIn.CheckOut,
-			"checkInTime":  eventCheckIn.CheckInTime,
-			"checkOutTime": eventCheckIn.CheckOutTime,
-			"checkInPlace": eventCheckIn.CheckInPlace,
+			"eventCheckIn": eventCheckIn,
 		},
-	}, opts)
+	}, options.FindOneAndUpdate().SetUpsert(false))
 
 	if result.Err() != nil {
+
+		if result.Err() == mongo.ErrNoDocuments {
+			// insert memberCheckin to events
+			updateResult, er := r.eventsCollection.UpdateOne(r.ctx, bson.M{"eventId": eventCheckIn.EventId}, bson.M{
+				"$push": bson.M{
+					"eventCheckIn": eventCheckIn,
+				},
+			})
+			if er != nil {
+				return false, er
+			}
+			if updateResult.ModifiedCount == 0 {
+				return false, errors.New("event not found or no changes made")
+			}
+			return true, nil
+
+		}
 		return false, result.Err()
 	}
-
 	return true, nil
+
+	//result := r.eventsCollection.FindOne(r.ctx, filter)
+	//if result.Err() != nil {
+	//	return false, result.Err()
+	//}
+	//err = result.Decode(&eventCheckIn)
+	//if err != nil {
+	//	return false, err
+	//}
+
+	//filer := bson.M{
+	//	"eventId": eventCheckIn.EventId,
+	//	"lineId":  userId,
+	//}
+	//
+	//opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+	//result := r.eventsCollection.FindOneAndUpdate(r.ctx, filer, bson.M{
+	//	"$set": bson.M{
+	//		"checkIn":      eventCheckIn.CheckIn,
+	//		"checkOut":     eventCheckIn.CheckOut,
+	//		"checkInTime":  eventCheckIn.CheckInTime,
+	//		"checkOutTime": eventCheckIn.CheckOutTime,
+	//		"checkInPlace": eventCheckIn.CheckInPlace,
+	//	},
+	//}, opts)
+	//
+	//if result.Err() != nil {
+	//	return false, result.Err()
+	//}
+	//
+	//return true, nil
 
 }
 func (r *eventRepositoryImpl) EventByUserId(userId string) ([]*MemberEventImpl, error) {
@@ -147,6 +357,16 @@ func (r *eventRepositoryImpl) EventByUserId(userId string) ([]*MemberEventImpl, 
 
 }
 func (r *eventRepositoryImpl) CreateEvent(event *Event) error {
+
+	filter := bson.M{"eventId": event.EventId}
+
+	exits, err := r.eventsCollection.CountDocuments(r.ctx, filter)
+	if err != nil {
+		return err
+	}
+	if exits > 0 {
+		return errors.New("event already exists")
+	}
 
 	res, err := r.eventsCollection.InsertOne(r.ctx, event)
 	if err != nil {
