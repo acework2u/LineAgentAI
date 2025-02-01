@@ -4,7 +4,7 @@ type EventsService interface {
 	GetEvents() ([]*EventResponse, error)
 	GetEventById(eventId string) (*Event, error)
 	CreateEvent(event *EventImpl) error
-	UpdateEvent(event *Event) error
+	UpdateEvent(event *EventImpl) error
 	DeleteEvent(eventId string) error
 }
 

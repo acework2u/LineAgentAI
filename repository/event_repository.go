@@ -229,6 +229,7 @@ func (r *eventRepositoryImpl) GetEventJoin(eventId string, userId string) (*Memb
 			Position:       member.Position,
 			Course:         member.Course,
 			LineId:         member.LineId,
+			LineName:       member.LineName,
 			ReferenceName:  member.ReferenceName,
 			ReferencePhone: member.ReferencePhone,
 			Clinic:         member.Clinic,
@@ -239,16 +240,6 @@ func (r *eventRepositoryImpl) GetEventJoin(eventId string, userId string) (*Memb
 	}
 	return &memberJoinInfo, nil
 
-	//filter := bson.M{
-	//	"eventId": eventId,
-	//	"userId":  userId,
-	//}
-	//event := MemberEventImpl{}
-	//err := r.eventsCollection.FindOne(r.ctx, filter).Decode(&event)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//return &event, nil
 }
 func (r *eventRepositoryImpl) CheckInEvent(userId string, eventCheckIn *EventCheckIn) (bool, error) {
 

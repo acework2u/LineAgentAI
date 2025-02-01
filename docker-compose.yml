@@ -42,6 +42,7 @@ services:
     networks:
       - line_bot_ci_cd_net
     environment:
+      TZ: "Asia/Bangkok"
       ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
       ME_CONFIG_MONGODB_URL: ${MONGURI}

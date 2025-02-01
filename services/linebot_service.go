@@ -569,10 +569,16 @@ func (s *lineBotService) EventJoin(event *MemberJoinEvent) error {
 	if len(event.Name) == 0 || len(event.LastName) == 0 {
 		return errors.New("name and lastname is required")
 	}
+
+	//init the loc
+	loc, _ := time.LoadLocation("Asia/Bangkok")
+	//set timezone,
+	now := time.Now().In(loc)
+
 	err := s.eventRepo.EventJoin(&repository.MemberEventImpl{
 		EventId:        event.EventId,
 		UserId:         event.UserId,
-		JoinTime:       time.Now().Unix(),
+		JoinTime:       now.Unix(),
 		Name:           event.Name,
 		LastName:       event.LastName,
 		Organization:   event.Organization,
@@ -622,7 +628,8 @@ func (s *lineBotService) GetEventJoin(eventId string, userId string) (*MemberJoi
 	if err != nil {
 		return nil, err
 	}
-	joinTimeStr := time.Unix(res.JoinTime, 0).Format("2006-01-02 15:04:05")
+	//joinTimeStr := time.Unix(res.JoinTime, 0).Format("2006-01-02 15:04:05")
+	joinTimeStr := time.Unix(res.JoinTime, 0).Local().Format("2006-01-02 15:04:05")
 	memberJoinEvent := &MemberJoinEvent{
 		EventId:        res.EventId,
 		UserId:         res.UserId,

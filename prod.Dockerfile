@@ -16,6 +16,7 @@ RUN go build -o api-server .
 
 FROM alpine:3.14 AS production
 RUN apk add --no-cach ca-certificates
+RUN apk --no-cache add tzdata
 
 ENV GIN_MODE=release
 ENV APP_HOME=/app
@@ -25,6 +26,9 @@ WORKDIR "$APP_HOME"
 RUN pwd
 
 COPY --from=builder /app/api-server app-server
+COPY --from=builder /usr/local/go/lib/time/zoneinfo.zip /
+ENV ZONEINFO=/zoneinfo.zip
+
 RUN ["chmod","+x","app-server"]
 EXPOSE 8081
 CMD ["./app-server"]

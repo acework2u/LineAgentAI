@@ -2,8 +2,10 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"linechat/repository"
 	"linechat/utils"
+	"log"
 	"time"
 )
 
@@ -16,6 +18,12 @@ func NewEventsService(eventsRepository repository.EventsRepository) EventsServic
 }
 func (s *eventsService) GetEvents() ([]*EventResponse, error) {
 
+	//init the loc
+	loc, _ := time.LoadLocation("Asia/Bangkok")
+	_ = loc
+	//set timezone,
+	//now := time.Now().In(loc)
+
 	resEvent, err := s.eventRepo.EventsList()
 	if err != nil {
 		return nil, err
@@ -26,6 +34,10 @@ func (s *eventsService) GetEvents() ([]*EventResponse, error) {
 
 	for _, event := range resEvent {
 		banners := []EventBanner{}
+		//startDate := time.Unix(event.StartDate, 0).In(loc).Format("2006-01-02")
+		//startTime := time.Unix(event.StartTime, 0).In(loc).Format("15:04")
+		//endDate := time.Unix(event.EndDate, 0).In(loc).Format("2006-01-02")
+		//endTime := time.Unix(event.EndTime, 0).In(loc).Format("15:04")
 		startDate := time.Unix(event.StartDate, 0).Format("2006-01-02")
 		startTime := time.Unix(event.StartTime, 0).Format("15:04")
 		endDate := time.Unix(event.EndDate, 0).Format("2006-01-02")
@@ -78,6 +90,10 @@ func (s *eventsService) GetEventById(eventId string) (*Event, error) {
 
 }
 func (s *eventsService) CreateEvent(event *EventImpl) error {
+	//init the loc
+	loc, _ := time.LoadLocation("Asia/Bangkok")
+	//set timezone,
+	now := time.Now().In(loc)
 
 	bannerImpl := []repository.EventBanner{}
 	for _, banner := range event.Banner {
@@ -86,6 +102,8 @@ func (s *eventsService) CreateEvent(event *EventImpl) error {
 			Img: banner.Img,
 		})
 	}
+
+	// convert string datetime to Time
 
 	// Insert to repo
 	err := s.eventRepo.CreateEvent(&repository.Event{
@@ -100,7 +118,7 @@ func (s *eventsService) CreateEvent(event *EventImpl) error {
 		EndTime:     utils.TimeToTime(event.EndTime).Unix(),
 		Location:    event.Location,
 		Status:      true,
-		CreatedDate: time.Now().Unix(),
+		CreatedDate: now.Unix(),
 		UpdatedDate: 0,
 		LineId:      event.LineId,
 		LineName:    event.LineName,
@@ -111,11 +129,39 @@ func (s *eventsService) CreateEvent(event *EventImpl) error {
 	}
 	return nil
 }
-func (s *eventsService) UpdateEvent(event *Event) error {
+func (s *eventsService) UpdateEvent(event *EventImpl) error {
 	if event.EventId == "" {
 		return errors.New("event id is required")
 	}
 	// update event with event repository
+	//init the loc
+	bangKok, ok := time.LoadLocation("Asia/Bangkok")
+	if ok != nil {
+		fmt.Println("Error loading location:", ok)
+	}
+	////set timezone,
+	//now := time.Now().In(bangKok)
+	layout := "2006-01-02 15:04"
+
+	eventStart, _ := time.Parse(layout, event.StartDate)
+	log.Println(time.Now().Format(layout))
+	eventStartDate, _ := time.ParseInLocation(layout, event.StartDate, bangKok)
+	eventStartTime, _ := time.ParseInLocation(layout, event.StartTime, bangKok)
+	eventEndDate, _ := time.ParseInLocation(layout, event.EndDate, bangKok)
+	eventEndTime, _ := time.ParseInLocation(layout, event.EndTime, bangKok)
+
+	//eventStart = eventStart.In(bangKok)
+	//eventStartDate = eventStartDate.In(bangKok)
+	//eventStartTime = eventStartTime.In(bangKok)
+	//eventEndDate = eventEndDate.In(bangKok)
+
+	log.Println("Event Start:", event.StartDate, " ", event.EndDate)
+	log.Println(eventStart)
+	log.Println(eventStartDate)
+	log.Println(eventStartTime)
+	log.Println(eventEndDate)
+	log.Println(eventEndTime)
+
 	banerImpl := []repository.EventBanner{}
 	for _, banner := range event.Banner {
 		banerImpl = append(banerImpl, repository.EventBanner{
@@ -128,12 +174,12 @@ func (s *eventsService) UpdateEvent(event *Event) error {
 		EventId:     event.EventId,
 		Title:       event.Title,
 		Description: event.Description,
-		StartDate:   event.StartDate,
-		EndDate:     event.EndDate,
+		StartDate:   eventStartDate.Unix(),
+		EndDate:     eventEndDate.Unix(),
 		Place:       event.Place,
-		StartTime:   event.StartTime,
+		StartTime:   eventStartTime.Unix(),
+		EndTime:     eventEndTime.Unix(),
 		Banner:      banerImpl,
-		EndTime:     event.EndTime,
 		Location:    event.Location,
 		Status:      event.Status,
 		UpdatedDate: time.Now().Unix(),

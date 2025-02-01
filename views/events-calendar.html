@@ -22,7 +22,7 @@
             color: #333;
             min-height: 100vh;
             background-color: #f5f5f5;
-            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2306c755' fill-opacity='0.1' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
+            /*background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2306c755' fill-opacity='0.1' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");*/
         }
         header {
             text-align: center;
@@ -169,21 +169,6 @@
             const events = await response.json();
             const myEvents = events.myEvents;
 
-
-            // let formattedEvents = []
-            // for (let i = 0; i < myEvents.length; i++) {
-            //
-            //     let event = {
-            //         title:myEvents[i].title,
-            //         startDate:myEvents[i].startDate,
-            //         url:generateGoogleCalendarLink(myEvents[i].title,myEvents[i].startDate,myEvents[i].startTime,myEvents[i].location),
-            //     }
-            //     formattedEvents.push(event)
-            // }
-            // console.log(formattedEvents);
-            
-
-
             // Formatting events for FullCalendar
             let formattedEvents = myEvents.map(event => ({
                 title: event.title,
@@ -199,30 +184,14 @@
             }));
 
 
-
-            // Format events for FullCalendar
-            // let formattedEvents = myEvents.map(event => ({
-            //     title: event.title,
-            //     start: dateTimeToDateStr(event.startDate), // Ensure this is YYYY-MM-DD
-            //     url: generateGoogleCalendarLink(event.titleEvent, "2026-02-09","08:00", event.clinic)
-            // }));
-            // console.log(formattedEvents);
-
-
-
-            // let calendarEl = document.getElementById("calendar");
-            // let calendar = new FullCalendar.calendar(calendarEl, {});
-            // calendar.render();
-            // calendar.addEventSource(formattedEvents);
-            // calendar.refetchEvents();
-
-
             let calendarEl = document.getElementById("calendar");
             let calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: "dayGridMonth",
                 events: formattedEvents
             });
             calendar.render();
+            // calendar.addEventSource(formattedEvents);
+            calendar.refetchEvents();
             // Display Timeline View
             displayEventTimeline(myEvents);
 
@@ -258,9 +227,9 @@
                         <div class="timeline-content">
                             <strong>${event.title}</strong><br>
                             📍 Location: ${event.location} <br>
-                            📅 Date: ${event.startDate} <br>
-                            ⏰ Time: ${event.startTime} <br>
-                            ⏰ Time: ${event.endTime} <br>
+                            📅 กิจกรรมวันที่ : ${event.startDate} เวลา. ${event.startTime}<br>
+                            ⏰ สิ้นสุดกิจกรรมวันที่: ${event.endDate} เวลา. ${event.endTime} <br>
+                            <br>
 <!--                            <a href="${generateGoogleCalendarLink(event.title, event.startDate, event.startTime,event.endDate,event.endTime, event.location)}"-->
 <!--                               target="_blank" class="btn btn-primary btn-sm mt-2">Add to Google Calendar</a>-->
                         </div>

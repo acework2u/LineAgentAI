@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"linechat/services"
 	"linechat/utils"
@@ -52,6 +53,7 @@ func (e *EventHandler) CreateEvent(c *gin.Context) {
 
 }
 func (e *EventHandler) UpdateEvent(c *gin.Context) {
+
 	eventUpdate := &services.EventImpl{}
 	err := c.ShouldBindJSON(eventUpdate)
 	cusErr := utils.NewCustomErrorHandler(c)
@@ -61,29 +63,26 @@ func (e *EventHandler) UpdateEvent(c *gin.Context) {
 	}
 
 	// convert datetime string to date format "YYYY-MM-DDD"
-	startDatetime, _ := time.Parse("2006-01-02 15:04", eventUpdate.StartDate+" "+eventUpdate.StartTime)
-	endDateTime, _ := time.Parse("2006-01-02 15:04", eventUpdate.EndDate+" "+eventUpdate.EndTime)
-	startDatetime.Location()
-	endDateTime.Location()
-	// convert time format
-	//startTime := startDatetime.Format("15:04")
-	//endTime := endDateTime.Format("15:04")
 
-	dataEvent := services.Event{
+	stDate := fmt.Sprintf("%s %s", eventUpdate.StartDate, eventUpdate.StartTime)
+	enDate := fmt.Sprintf("%s %s", eventUpdate.EndDate, eventUpdate.EndTime)
+
+	dataEvent := services.EventImpl{
 		EventId:     eventUpdate.EventId,
 		Title:       eventUpdate.Title,
 		Description: eventUpdate.Description,
-		StartDate:   startDatetime.Unix(),
-		EndDate:     endDateTime.Unix(),
+		StartDate:   stDate,
+		StartTime:   stDate,
+		EndDate:     enDate,
+		EndTime:     enDate,
 		Place:       eventUpdate.Place,
-		StartTime:   startDatetime.Unix(),
 		Banner:      eventUpdate.Banner,
-		EndTime:     endDateTime.Unix(),
 		Location:    eventUpdate.Location,
 		Status:      eventUpdate.Status,
 		LineId:      eventUpdate.LineId,
 		LineName:    eventUpdate.LineName,
 		EventType:   eventUpdate.EventType,
+		UpdatedDate: time.Now().Local().Unix(),
 	}
 	err = e.eventService.UpdateEvent(&dataEvent)
 	if err != nil {

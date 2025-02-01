@@ -69,7 +69,7 @@ type MemberEventImpl struct {
 	LineId         string `bson:"lineId"`
 	LineName       string `bson:"lineName"`
 	Tel            string `bson:"tel"`
-	ReferenceName  string `bson:"`
+	ReferenceName  string `bson:"referenceName"`
 	ReferencePhone string `bson:"referencePhone"`
 	Clinic         string `bson:"clinic"`
 }
