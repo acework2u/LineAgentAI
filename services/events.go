@@ -1,7 +1,7 @@
 package services
 
 type EventsService interface {
-	GetEvents() ([]*Event, error)
+	GetEvents() ([]*EventResponse, error)
 	GetEventById(eventId string) (*Event, error)
 	CreateEvent(event *EventImpl) error
 	UpdateEvent(event *Event) error

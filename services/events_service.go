@@ -14,24 +14,42 @@ type eventsService struct {
 func NewEventsService(eventsRepository repository.EventsRepository) EventsService {
 	return &eventsService{eventRepo: eventsRepository}
 }
-func (s *eventsService) GetEvents() ([]*Event, error) {
+func (s *eventsService) GetEvents() ([]*EventResponse, error) {
 
 	resEvent, err := s.eventRepo.EventsList()
 	if err != nil {
 		return nil, err
 	}
-	eventList := []*Event{}
+	eventList := []*EventResponse{}
+
+	// banner
+
 	for _, event := range resEvent {
-		item := Event{
+		banners := []EventBanner{}
+		startDate := time.Unix(event.StartDate, 0).Format("2006-01-02")
+		startTime := time.Unix(event.StartTime, 0).Format("15:04")
+		endDate := time.Unix(event.EndDate, 0).Format("2006-01-02")
+		endTime := time.Unix(event.EndTime, 0).Format("15:04")
+
+		for _, banner := range event.Banner {
+			banners = append(banners, EventBanner{
+				Url: banner.Url,
+				Img: banner.Img,
+			})
+		}
+
+		item := EventResponse{
 			EventId:     event.EventId,
 			Title:       event.Title,
 			Description: event.Description,
-			StartDate:   event.StartDate,
-			EndDate:     event.EndDate,
+			StartDate:   startDate,
+			EndDate:     endDate,
 			Place:       event.Place,
-			StartTime:   event.StartTime,
-			EndTime:     event.EndTime,
+			StartTime:   startTime,
+			EndTime:     endTime,
+			Banner:      banners,
 			Location:    event.Location,
+			Status:      event.Status,
 		}
 		eventList = append(eventList, &item)
 	}
@@ -94,6 +112,39 @@ func (s *eventsService) CreateEvent(event *EventImpl) error {
 	return nil
 }
 func (s *eventsService) UpdateEvent(event *Event) error {
+	if event.EventId == "" {
+		return errors.New("event id is required")
+	}
+	// update event with event repository
+	banerImpl := []repository.EventBanner{}
+	for _, banner := range event.Banner {
+		banerImpl = append(banerImpl, repository.EventBanner{
+			Url: banner.Url,
+			Img: banner.Img,
+		})
+	}
+
+	err := s.eventRepo.UpdateEvent(event.EventId, &repository.Event{
+		EventId:     event.EventId,
+		Title:       event.Title,
+		Description: event.Description,
+		StartDate:   event.StartDate,
+		EndDate:     event.EndDate,
+		Place:       event.Place,
+		StartTime:   event.StartTime,
+		Banner:      banerImpl,
+		EndTime:     event.EndTime,
+		Location:    event.Location,
+		Status:      event.Status,
+		UpdatedDate: time.Now().Unix(),
+		LineId:      event.LineId,
+		LineName:    event.LineName,
+		EventType:   event.EventType,
+	})
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 func (s *eventsService) DeleteEvent(eventId string) error {

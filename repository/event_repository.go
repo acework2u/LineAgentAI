@@ -127,6 +127,7 @@ func (r *eventRepositoryImpl) GetEvents(filter Filter) ([]*MemberEventImpl, erro
 func (r *eventRepositoryImpl) CheckJoinEvent(eventId string, userId string) (bool, error) {
 
 	// Check Event
+
 	count, err := r.eventsCollection.CountDocuments(r.ctx, bson.M{"eventId": eventId})
 	if err != nil {
 		return false, fmt.Errorf("failed to check event membership: %w", err)
@@ -143,14 +144,18 @@ func (r *eventRepositoryImpl) CheckJoinEvent(eventId string, userId string) (boo
 			},
 		},
 	}
-
+	// check member is a join the event
 	res := r.eventsCollection.FindOne(r.ctx, filter)
 	if res.Err() != nil {
+		if res.Err() == mongo.ErrNoDocuments {
+			return false, nil
+		}
 		return false, res.Err()
 	}
 	var eventRes Event
 	err = res.Decode(&eventRes)
 	if err != nil {
+
 		return false, err
 	}
 	members := eventRes.Members
@@ -456,6 +461,8 @@ func (r *eventRepositoryImpl) UpdateEvent(eventId string, event *Event) error {
 	if err != nil {
 		return fmt.Errorf("failed to update event: %w", err)
 	}
+
+	log.Println("result:", result)
 	// Check if any document was modified
 	if result.ModifiedCount == 0 {
 		return errors.New("event not found or no changes made")

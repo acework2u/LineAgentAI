@@ -35,6 +35,23 @@ type Event struct {
 	EventType   string            `bson:"eventType"`
 	Members     []MemberEventImpl `bson:"members"`
 }
+type EventUpdateImpl struct {
+	EventId     string        `bson:"eventId"`
+	Title       string        `bson:"title"`
+	Description string        `bson:"description"`
+	StartDate   int64         `bson:"startDate,omitempty"`
+	EndDate     int64         `bson:"endDate"`
+	Place       string        `bson:"place"`
+	StartTime   int64         `bson:"startTime"`
+	Banner      []EventBanner `bson:"banner"`
+	EndTime     int64         `bson:"endTime"`
+	Location    string        `bson:"location"`
+	Status      bool          `bson:"status"`
+	UpdatedDate int64         `bson:"updatedDate"`
+	LineId      string        `bson:"lineId"`
+	LineName    string        `bson:"lineName"`
+	EventType   string        `bson:"eventType"`
+}
 type EventBanner struct {
 	Url string `bson:"url"`
 	Img string `bson:"img"`
