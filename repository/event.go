@@ -21,19 +21,19 @@ type Event struct {
 	Title       string            `bson:"title"`
 	Description string            `bson:"description"`
 	StartDate   int64             `bson:"startDate,omitempty"`
-	EndDate     int64             `bson:"endDate"`
+	EndDate     int64             `bson:"endDate,omitempty"`
 	Place       string            `bson:"place"`
-	StartTime   int64             `bson:"startTime"`
-	Banner      []EventBanner     `bson:"banner"`
+	StartTime   int64             `bson:"startTime,omitempty"`
+	Banner      []EventBanner     `bson:"banner,omitempty"`
 	EndTime     int64             `bson:"endTime"`
 	Location    string            `bson:"location"`
 	Status      bool              `bson:"status"`
-	CreatedDate int64             `bson:"createdDate"`
-	UpdatedDate int64             `bson:"updatedDate"`
+	CreatedDate int64             `bson:"createdDate,omitempty"`
+	UpdatedDate int64             `bson:"updatedDate,omitempty"`
 	LineId      string            `bson:"lineId"`
 	LineName    string            `bson:"lineName"`
 	EventType   string            `bson:"eventType"`
-	Members     []MemberEventImpl `bson:"members"`
+	Members     []MemberEventImpl `bson:"members,omitempty"`
 }
 type EventUpdateImpl struct {
 	EventId     string        `bson:"eventId"`

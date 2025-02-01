@@ -220,15 +220,19 @@ func (r *eventRepositoryImpl) GetEventJoin(eventId string, userId string) (*Memb
 	memberJoinInfo := MemberEventImpl{}
 	for _, member := range members {
 		memJoin := MemberEventImpl{
-			EventId:      member.EventId,
-			UserId:       member.UserId,
-			JoinTime:     member.JoinTime,
-			Name:         member.Name,
-			LastName:     member.LastName,
-			Organization: member.Organization,
-			Position:     member.Position,
-			Course:       member.Course,
-			LineId:       member.LineId,
+			EventId:        member.EventId,
+			UserId:         member.UserId,
+			JoinTime:       member.JoinTime,
+			Name:           member.Name,
+			LastName:       member.LastName,
+			Organization:   member.Organization,
+			Position:       member.Position,
+			Course:         member.Course,
+			LineId:         member.LineId,
+			ReferenceName:  member.ReferenceName,
+			ReferencePhone: member.ReferencePhone,
+			Clinic:         member.Clinic,
+			Tel:            member.Tel,
 		}
 		memberJoinInfo = memJoin
 		break
@@ -452,10 +456,24 @@ func (r *eventRepositoryImpl) UpdateEvent(eventId string, event *Event) error {
 
 	// Create a filter to match the event by its ID
 	filter := bson.M{"eventId": eventId}
+	//backup members and eventCheckIn
+	res := r.eventsCollection.FindOne(r.ctx, filter)
+	if res.Err() != nil {
+		return res.Err()
+	}
+	var eventRes Event
+	err := res.Decode(&eventRes)
+	if err != nil {
+		return err
+	}
+	members := eventRes.Members
+	event.Members = members
+
 	// Create the update data using MongoDB's $set operator
 	update := bson.M{
 		"$set": event,
 	}
+
 	// Perform the update operation
 	result, err := r.eventsCollection.UpdateOne(r.ctx, filter, update)
 	if err != nil {
