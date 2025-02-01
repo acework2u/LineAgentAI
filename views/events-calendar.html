@@ -161,17 +161,52 @@
                 })
             });
 
+            if (!response.ok) {
+                return console.error("Error fetching joined events:", response.statusText);
+            }
+
+
             const events = await response.json();
             const myEvents = events.myEvents;
-            console.log(myEvents);
+
+
+            // let formattedEvents = []
+            // for (let i = 0; i < myEvents.length; i++) {
+            //
+            //     let event = {
+            //         title:myEvents[i].title,
+            //         startDate:myEvents[i].startDate,
+            //         url:generateGoogleCalendarLink(myEvents[i].title,myEvents[i].startDate,myEvents[i].startTime,myEvents[i].location),
+            //     }
+            //     formattedEvents.push(event)
+            // }
+            // console.log(formattedEvents);
+            
+
+
+            // Formatting events for FullCalendar
+            let formattedEvents = myEvents.map(event => ({
+                title: event.title,
+                start: dateTimeToDateStr(event.startDate), // Convert to YYYY-MM-DD format
+                url: generateGoogleCalendarLink(
+                    event.title,
+                    event.startDate,
+                    event.startTime,
+                    event.endDate,
+                    event.endTime,
+                    event.location
+                )
+            }));
+
+
 
             // Format events for FullCalendar
-            let formattedEvents = myEvents.map(event => ({
-                title: event.titleEvent,
-                start: dateTimeToDateStr(event.joinTime), // Ensure this is YYYY-MM-DD
-                url: generateGoogleCalendarLink(event.titleEvent, "2026-02-09","08:00", event.clinic)
-            }));
-            console.log(formattedEvents);
+            // let formattedEvents = myEvents.map(event => ({
+            //     title: event.title,
+            //     start: dateTimeToDateStr(event.startDate), // Ensure this is YYYY-MM-DD
+            //     url: generateGoogleCalendarLink(event.titleEvent, "2026-02-09","08:00", event.clinic)
+            // }));
+            // console.log(formattedEvents);
 
 
 
@@ -197,9 +232,11 @@
     }
 
     // Generate Google Calendar Event Link
-    function generateGoogleCalendarLink(eventTitle, eventDate, eventTime, eventLocation) {
-        let startDateTime = `${eventDate}T${eventTime}:00`;
-        let endDateTime = `${eventDate}T${parseInt(eventTime) + 1}:00`; // Assume 1-hour event
+    function generateGoogleCalendarLink(eventTitle, eventDate, eventTime,eventEndDate,eventEndTime, eventLocation) {
+        // let startDateTime = `${eventDate}T${eventTime}:00`;
+        // let endDateTime = `${eventDate}T${parseInt(eventTime) + 1}:00`; // Assume 1-hour event
+        let startDateTime =formatGoogleCalendarDateTime(eventDate, eventTime);
+        let endDateTime = formatGoogleCalendarDateTime(eventDate, eventTime);
 
         let googleCalendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE`;
         googleCalendarUrl += `&text=${encodeURIComponent(eventTitle)}`;
@@ -214,14 +251,17 @@
         timelineContainer.innerHTML = ""; // Clear previous data
 
         events.forEach((event, index) => {
+
             let timelineItem = `
                     <div class="timeline-item">
                         <div class="timeline-date">${event.eventId}</div>
                         <div class="timeline-content">
-                            <strong>${event.titleEvent}</strong><br>
-                            📍 Location: ${event.clinic} <br>
-                            ⏰ Time: ${event.joinTime} <br>
-<!--                            <a href="${generateGoogleCalendarLink(event.eventName, event.eventDate, event.eventTime, event.eventLocation)}"-->
+                            <strong>${event.title}</strong><br>
+                            📍 Location: ${event.location} <br>
+                            📅 Date: ${event.startDate} <br>
+                            ⏰ Time: ${event.startTime} <br>
+                            ⏰ Time: ${event.endTime} <br>
+<!--                            <a href="${generateGoogleCalendarLink(event.title, event.startDate, event.startTime,event.endDate,event.endTime, event.location)}"-->
 <!--                               target="_blank" class="btn btn-primary btn-sm mt-2">Add to Google Calendar</a>-->
                         </div>
                     </div>
@@ -230,9 +270,10 @@
         });
     }
 
-
-
-
+    function formatGoogleCalendarDateTime(date, time) {
+        let dateObj = new Date(`${date}T${time}:00`);
+        return dateObj.toISOString().replace(/[-:.]/g, "").slice(0, 15) + "Z";
+    }
 
     function dateTimeToDateStr(dateTime) {
         let date = new Date(dateTime);
