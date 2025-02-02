@@ -8,7 +8,7 @@ type EventsRepository interface {
 	CheckJoinEvent(eventId string, userId string) (bool, error)
 	GetEventJoin(eventId string, userId string) (*MemberEventImpl, error)
 	CheckInEvent(userId string, eventCheckIn *EventCheckIn) (bool, error)
-	EventByUserId(userId string) ([]*EventResponse, error)
+	EventByUserId(userId string) ([]*Event, error)
 	CreateEvent(event *Event) error
 	UpdateEvent(eventId string, event *Event) error
 	DeleteEvent(eventId string) error

@@ -685,9 +685,9 @@ func (s *lineBotService) MyEvents(userId string) ([]*EventResponse, error) {
 	}
 	eventResponse := make([]*EventResponse, 0, len(myEvents))
 	for _, event := range myEvents {
-		banners := make([]EventBanner, 0, len(event.EventBanner))
-		if event.EventBanner != nil {
-			for _, v := range event.EventBanner {
+		banners := make([]EventBanner, 0, len(event.Banner))
+		if event.Banner != nil {
+			for _, v := range event.Banner {
 				banners = append(banners, EventBanner{
 					Url: v.Url,
 					Img: v.Img,
@@ -695,18 +695,24 @@ func (s *lineBotService) MyEvents(userId string) ([]*EventResponse, error) {
 			}
 		}
 
+		// Unix time to Datetime string format
+		stDate := time.Unix(event.StartDate, 0).Format("2006-01-02")
+		enDate := time.Unix(event.EndDate, 0).Format("2006-01-02")
+		stTime := time.Unix(event.StartTime, 0).Format("15:04")
+		enTime := time.Unix(event.EndTime, 0).Format("15:04")
+
 		memberJoinEvent := &EventResponse{
 			EventId:     event.EventId,
-			Title:       event.EventName,
-			Description: event.EventDescription,
-			StartDate:   event.EventStartDate,
-			EndDate:     event.EventEndDate,
-			Place:       event.EventPlace,
-			StartTime:   event.EventStartTime,
+			Title:       event.Title,
+			Description: event.Description,
+			StartDate:   stDate,
+			StartTime:   stTime,
+			EndDate:     enDate,
+			EndTime:     enTime,
+			Place:       event.Place,
 			Banner:      banners,
-			EndTime:     event.EventEndTime,
-			Location:    event.EventPlace,
-			Status:      event.IsJoin,
+			Location:    event.Location,
+			Status:      event.Status,
 		}
 		eventResponse = append(eventResponse, memberJoinEvent)
 	}

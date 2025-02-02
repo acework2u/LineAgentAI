@@ -8,7 +8,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
-	"time"
 )
 
 type eventRepositoryImpl struct {
@@ -327,7 +326,7 @@ func (r *eventRepositoryImpl) CheckInEvent(userId string, eventCheckIn *EventChe
 	//return true, nil
 
 }
-func (r *eventRepositoryImpl) EventByUserId(userId string) ([]*EventResponse, error) {
+func (r *eventRepositoryImpl) EventByUserId(userId string) ([]*Event, error) {
 
 	// get member join the event
 	filter := bson.M{
@@ -355,26 +354,52 @@ func (r *eventRepositoryImpl) EventByUserId(userId string) ([]*EventResponse, er
 		events = append(events, &event)
 	}
 
-	eventRes := []*EventResponse{}
+	eventRes := []*Event{}
+	myActiveEvent := []MemberEventImpl{}
 	for _, event := range events {
 		isJoin := false
 		for _, member := range event.Members {
 			if member.UserId == userId {
 				isJoin = true
+				myInfo := MemberEventImpl{
+					EventId:        member.EventId,
+					UserId:         member.UserId,
+					JoinTime:       member.JoinTime,
+					Name:           member.Name,
+					LastName:       member.LastName,
+					Organization:   member.Organization,
+					Position:       member.Position,
+					Course:         member.Course,
+					LineId:         member.LineId,
+					LineName:       member.LineName,
+					Tel:            member.Tel,
+					ReferenceName:  member.ReferenceName,
+					ReferencePhone: member.ReferencePhone,
+					Clinic:         member.Clinic,
+				}
+
+				myActiveEvent = append(myActiveEvent, myInfo)
 				break
 			}
 		}
-		item := EventResponse{
-			EventId:          event.EventId,
-			EventName:        event.Title,
-			EventDescription: event.Description,
-			EventStartDate:   time.Unix(event.StartDate, 0).Format("2006-01-02"),
-			EventEndDate:     time.Unix(event.EndDate, 0).Format("2006-01-02"),
-			EventPlace:       event.Place,
-			EventStartTime:   time.Unix(event.EndTime, 0).Format("15:04"),
-			EventBanner:      event.Banner,
-			EventEndTime:     time.Unix(event.EndTime, 0).Format("15:04"),
-			IsJoin:           isJoin,
+		item := Event{
+			EventId:     event.EventId,
+			Title:       event.Title,
+			Description: event.Description,
+			StartDate:   event.StartDate,
+			EndDate:     event.EndDate,
+			Place:       event.Place,
+			StartTime:   event.StartTime,
+			Banner:      event.Banner,
+			EndTime:     event.EndTime,
+			Location:    event.Location,
+			Status:      isJoin,
+			CreatedDate: event.CreatedDate,
+			UpdatedDate: event.UpdatedDate,
+			LineId:      event.LineId,
+			LineName:    event.LineName,
+			EventType:   event.EventType,
+			Members:     myActiveEvent,
 		}
 
 		eventRes = append(eventRes, &item)
