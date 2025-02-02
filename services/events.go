@@ -6,6 +6,7 @@ type EventsService interface {
 	CreateEvent(event *EventImpl) error
 	UpdateEvent(event *EventImpl) error
 	DeleteEvent(eventId string) error
+	EventsList() ([]*EventResponse, error)
 }
 
 type FilterEvent struct {

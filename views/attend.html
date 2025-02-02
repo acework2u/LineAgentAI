@@ -162,8 +162,46 @@
 
     </div>
 
+    <!-- Error Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger" id="errorModalLabel">Error</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="errorModalMessage">
+                    <!-- Error message will be injected here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Success Modal-->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-success" id="successModalLabel">Success</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="successModalMessage">
+                    <-- Success message will be injected here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </div>
+
+
+
 <script>
 
     const LIff_ID = "2006793268-nJZqYeWE";
@@ -200,7 +238,7 @@
         }catch(error){
 
         }finally{
-            console.log("finally");
+            // console.log("finally");
         }
     }
     // Fetch User Profile
@@ -217,9 +255,7 @@
                 fetchGetEventJoin(userId);
                 document.getElementById("joinEventCard").classList.remove("d-none");
                 document.getElementById("member-profile").classList.remove("d-none");
-                // document.getElementById("joinEventForm").classList.add("d-none");
-                // document.getElementById("joinEventBtn").classList.add("d-none");
-                // document.getElementById("joinEventDisplay").classList.remove("d-none");
+
 
             }else{
                 document.getElementById("member-profile").classList.remove("d-none");
@@ -263,8 +299,8 @@
         }
     }
     function displayUserProfile(lineProfile,dataUserInfo) {
-       console.log("this is dataUserInfo")
-       console.log(dataUserInfo);
+       //console.log("this is dataUserInfo")
+     //  console.log(dataUserInfo);
        const member = dataUserInfo.member;
        const fullName = dataUserInfo.name +" "+ dataUserInfo.lastName;
 
@@ -285,14 +321,12 @@
        document.getElementById("member-position").value = member.position;
        document.getElementById("member-organization").value = member.organization;
        document.getElementById("member-course").value = member.course;
-       // document.getElementById("reference-name").value = member.referenceName;
-       // document.getElementById("reference-phone").value = member.referencePhone;
-       document.getElementById("clinic-select").innerHTML = CLINICS.map(clinic => `<option value="${clinic}">${clinic}</option>`).join("");
+       // document.getElementById("clinic-select").innerHTML = CLINICS.map(clinic => `<option value="${clinic}">${clinic}</option>`).join("");
 
 
     }
     function displayEventJoin(data){
-        console.log("this is data")
+       // console.log("this is data")
         const eventInfo = data.message
         console.log(eventInfo);
         document.getElementById("joinEventForm").classList.add("d-none");
@@ -445,6 +479,28 @@
 
     }
 
+
+    function showSuccessModal(message) {
+        const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+        document.getElementById('successModalMessage').innerText = message;
+        successModal.show();
+    }
+    function showErrorModal(message) {
+        const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+        document.getElementById('errorModalMessage').innerText = message;
+        errorModal.show();
+    }
+    function showLoadingModal() {
+        const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+        loadingModal.show();
+    }
+    // Function to validate mobile number
+    function validateMobileNumber(phoneNumber) {
+        // Regex for a valid mobile number (10 digits, optional + and country code)
+        const regex = /^\+?(\d{1,4})?[-.\s]?\(?\d{1,4}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/;
+        return regex.test(phoneNumber);
+    }
+
     document.addEventListener('DOMContentLoaded',initializeLiff2);
 
     document.getElementById("joinEventBtn").addEventListener("click", async () => {
@@ -476,7 +532,11 @@
 
                 const result = await joinEvent();
                 console.log(result);
-                alert(result.message);
+                // alert(result.message);
+                // showSuccessModal(result.message);
+                // // setTimeout(() => {
+                // //     location.reload();
+                // }, 2000);
                 location.reload();
 
                 try {}catch (error) {
@@ -493,6 +553,44 @@
     document.getElementById("EventCheckInBtn").addEventListener("click", async () => {
         window.location.href = "https://liff.line.me/2006793268-Bp72Z8Lj";
     })
+    document.getElementById('reference-phone').addEventListener('keydown', function () {
+        const phoneNumber = this.value.trim();
+        const errorElement = document.getElementById('reference-phone');
+
+        if (validateMobileNumber(phoneNumber)) {
+            errorElement.textContent = '';
+        } else {
+            document.getElementById("reference-phone").classList.add("is-invalid");
+            errorElement.textContent = 'Invalid mobile number. Please enter a valid number.';
+        }
+    });
+    // Populate courses dropdown
+    function populateCoursesDropdown() {
+        const dropdown = document.getElementById('clinic-select');
+        dropdown.innerHTML = '';
+
+        // Default option
+        const defaultOption = document.createElement('option');
+        defaultOption.text = '<--เลือกคลีนิค-->';
+        defaultOption.value = '';
+        dropdown.appendChild(defaultOption);
+
+        // Add courses
+        CLINICS.forEach(course => {
+            const option = document.createElement('option');
+            option.text = course;
+            option.value = course;
+            dropdown.appendChild(option);
+        });
+    }
+    // Pre-select a course
+    function preselectCourse(value) {
+        const dropdown = document.getElementById('clinic-select');
+        dropdown.value = value;
+    }
+
+    // Initialize dropdown
+    populateCoursesDropdown();
 
 
 </script>

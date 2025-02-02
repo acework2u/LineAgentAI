@@ -91,7 +91,7 @@ func (s lineBotService) SendImageMessage(replyToken string, imageURL string) err
 			ImageUrl: imageURL,
 			Action: messaging_api.UriAction{
 				Label: "View detail",
-				Uri:   "https://dca3a8ac633b.ngrok.app/attend",
+				Uri:   "https://liff.line.me/2006793268-nJZqYeWE",
 			},
 		},
 	}
@@ -100,7 +100,7 @@ func (s lineBotService) SendImageMessage(replyToken string, imageURL string) err
 			ImageUrl: imageURL,
 			Action: messaging_api.UriAction{
 				Label: "View detail",
-				Uri:   "https://dca3a8ac633b.ngrok.app/attend",
+				Uri:   "https://liff.line.me/2006793268-nJZqYeWE",
 			},
 		}, {
 			ImageUrl: imageURL,
