@@ -326,7 +326,9 @@
     }
     function displayEventJoin(data){
         console.log("displayEventJoin")
+        // console.log(data);
         const eventInfo = data.message
+        if (eventInfo.eventCheckIn[0]){
         const memberCheckin = eventInfo.eventCheckIn[0];
         console.log(memberCheckin.checkIn);
         if (memberCheckin.checkIn){
@@ -337,15 +339,17 @@
             // convert data time to YYYY-MM-DD HH:MM
 
         }
+        }
 
         // console.log(eventInfo);
+        const joinTime = new Date(eventInfo.joinTime)
         document.getElementById("joinEventForm").classList.add("d-none");
         document.getElementById("joinEventBtn").classList.add("d-none");
         document.getElementById("joinEventDisplay").classList.remove("d-none");
         document.getElementById("event-reference-name").innerText = "ผู้แนะนำ: "+eventInfo.referenceName;
         document.getElementById("event-reference-phone").innerText = "เบอร์โทรผู้แนะนำ: "+eventInfo.referencePhone;
         document.getElementById("event-clinic").innerText = "คลินิก: "+eventInfo.clinic;
-        document.getElementById("join-time").innerText = "ลงทะเบียนเมื่อเวลา: "+eventInfo.joinTime;
+        document.getElementById("join-time").innerText = "ลงทะเบียนเมื่อเวลา: "+joinTime.toLocaleDateString()+" "+joinTime.toLocaleTimeString();
         document.getElementById("event-status").innerHTML = "<b class='green'>ลงทะเบียนกิจกรรมแล้ว</b>";
 
 
