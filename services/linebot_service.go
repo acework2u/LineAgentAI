@@ -630,8 +630,27 @@ func (s *lineBotService) GetEventJoin(eventId string, userId string) (*MemberJoi
 	}
 	//joinTimeStr := time.Unix(res.JoinTime, 0).Format("2006-01-02 15:04:05")
 	joinTimeStr := time.Unix(res.JoinTime, 0).Local().Format("2006-01-02 15:04:05")
+
+	// bind checkin the events
+	memberCheckIn := []*EventCheckIn{}
+	if res.EventCheckIn != nil {
+		for _, v := range res.EventCheckIn {
+			if v.UserId == userId {
+				checkIn := &EventCheckIn{
+					CheckIn:      v.CheckIn,
+					CheckInTime:  v.CheckInTime,
+					CheckInPlace: v.CheckInPlace,
+					CheckOut:     v.CheckOut,
+					CheckOutTime: v.CheckOutTime,
+				}
+				memberCheckIn = append(memberCheckIn, checkIn)
+			}
+		}
+	}
+
 	memberJoinEvent := &MemberJoinEvent{
 		EventId:        res.EventId,
+		TitleEvent:     "",
 		UserId:         res.UserId,
 		JoinTime:       joinTimeStr,
 		Name:           res.Name,
@@ -645,6 +664,7 @@ func (s *lineBotService) GetEventJoin(eventId string, userId string) (*MemberJoi
 		ReferenceName:  res.ReferenceName,
 		ReferencePhone: res.ReferencePhone,
 		Clinic:         res.Clinic,
+		EventCheckIn:   memberCheckIn,
 	}
 
 	return memberJoinEvent, nil

@@ -17,23 +17,24 @@ type EventsRepository interface {
 }
 
 type Event struct {
-	EventId     string            `bson:"eventId"`
-	Title       string            `bson:"title"`
-	Description string            `bson:"description"`
-	StartDate   int64             `bson:"startDate,omitempty"`
-	EndDate     int64             `bson:"endDate,omitempty"`
-	Place       string            `bson:"place"`
-	StartTime   int64             `bson:"startTime,omitempty"`
-	Banner      []EventBanner     `bson:"banner,omitempty"`
-	EndTime     int64             `bson:"endTime"`
-	Location    string            `bson:"location"`
-	Status      bool              `bson:"status"`
-	CreatedDate int64             `bson:"createdDate,omitempty"`
-	UpdatedDate int64             `bson:"updatedDate,omitempty"`
-	LineId      string            `bson:"lineId"`
-	LineName    string            `bson:"lineName"`
-	EventType   string            `bson:"eventType"`
-	Members     []MemberEventImpl `bson:"members,omitempty"`
+	EventId      string            `bson:"eventId"`
+	Title        string            `bson:"title"`
+	Description  string            `bson:"description"`
+	StartDate    int64             `bson:"startDate,omitempty"`
+	EndDate      int64             `bson:"endDate,omitempty"`
+	Place        string            `bson:"place"`
+	StartTime    int64             `bson:"startTime,omitempty"`
+	Banner       []EventBanner     `bson:"banner,omitempty"`
+	EndTime      int64             `bson:"endTime"`
+	Location     string            `bson:"location"`
+	Status       bool              `bson:"status"`
+	CreatedDate  int64             `bson:"createdDate,omitempty"`
+	UpdatedDate  int64             `bson:"updatedDate,omitempty"`
+	LineId       string            `bson:"lineId"`
+	LineName     string            `bson:"lineName"`
+	EventType    string            `bson:"eventType"`
+	Members      []MemberEventImpl `bson:"members,omitempty"`
+	EventCheckIn []*EventCheckIn   `bson:"eventCheckIn,omitempty"`
 }
 type EventUpdateImpl struct {
 	EventId     string        `bson:"eventId"`
@@ -58,20 +59,21 @@ type EventBanner struct {
 }
 
 type MemberEventImpl struct {
-	EventId        string `bson:"eventId"`
-	UserId         string `bson:"userId"`
-	JoinTime       int64  `bson:"joinTime,omitempty"`
-	Name           string `bson:"name"`
-	LastName       string `bson:"lastName"`
-	Organization   string `bson:"organization"`
-	Position       string `bson:"position"`
-	Course         string `bson:"course"`
-	LineId         string `bson:"lineId"`
-	LineName       string `bson:"lineName"`
-	Tel            string `bson:"tel"`
-	ReferenceName  string `bson:"referenceName"`
-	ReferencePhone string `bson:"referencePhone"`
-	Clinic         string `bson:"clinic"`
+	EventId        string          `bson:"eventId"`
+	UserId         string          `bson:"userId"`
+	JoinTime       int64           `bson:"joinTime,omitempty"`
+	Name           string          `bson:"name"`
+	LastName       string          `bson:"lastName"`
+	Organization   string          `bson:"organization"`
+	Position       string          `bson:"position"`
+	Course         string          `bson:"course"`
+	LineId         string          `bson:"lineId"`
+	LineName       string          `bson:"lineName"`
+	Tel            string          `bson:"tel"`
+	ReferenceName  string          `bson:"referenceName"`
+	ReferencePhone string          `bson:"referencePhone"`
+	Clinic         string          `bson:"clinic"`
+	EventCheckIn   []*EventCheckIn `bson:"eventCheckIn"`
 }
 
 type EventResponse struct {

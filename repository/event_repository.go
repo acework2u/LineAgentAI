@@ -215,8 +215,19 @@ func (r *eventRepositoryImpl) GetEventJoin(eventId string, userId string) (*Memb
 	if err != nil {
 		return nil, err
 	}
+
 	members := eventRes.Members
+
+	// last member is check in
+	checkin := []*EventCheckIn{}
+	for _, eventCheckIn := range eventRes.EventCheckIn {
+		if eventCheckIn.UserId == userId {
+			checkin = append(checkin, eventCheckIn)
+		}
+	}
+
 	memberJoinInfo := MemberEventImpl{}
+
 	for _, member := range members {
 		memJoin := MemberEventImpl{
 			EventId:        member.EventId,
@@ -233,10 +244,12 @@ func (r *eventRepositoryImpl) GetEventJoin(eventId string, userId string) (*Memb
 			ReferencePhone: member.ReferencePhone,
 			Clinic:         member.Clinic,
 			Tel:            member.Tel,
+			EventCheckIn:   checkin,
 		}
 		memberJoinInfo = memJoin
 		break
 	}
+
 	return &memberJoinInfo, nil
 
 }

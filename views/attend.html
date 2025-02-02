@@ -248,7 +248,7 @@
             const checkJoinEvent = await fetch(`${CHECK_JOIN_EVENT_API}?eventId=1&userId=${userId}`);
 
             const dataCheckEvent = await checkJoinEvent.json();
-            console.log(dataCheckEvent.eventJoin);
+            // console.log(dataCheckEvent.eventJoin);
 
             // Check member join event
             if(dataCheckEvent.eventJoin){
@@ -268,7 +268,7 @@
             if (checkMember) {
                 const userData = await response.json();
                 const dataUserInfo = userData.userInfo;
-                console.log(dataUserInfo);
+                // console.log(dataUserInfo);
                 displayUserProfile(lineProfile,dataUserInfo);
             } else {
                 // throw new Error("Failed to fetch user profile");
@@ -286,16 +286,15 @@
             const response = await fetch(`${JOIN_EVENT_API}?eventId=1&userId=${userId}`);
             if (response.ok) {
                 const data = await response.json();
-                console.log(data);
                 displayEventJoin(data);
             }else {
                 throw new Error("Failed to fetch user profile");
             }
 
         }catch (error) {
-            console.log(error);
+            // console.log(error);
         }finally {
-            console.log("finally");
+            // console.log("finally");
         }
     }
     function displayUserProfile(lineProfile,dataUserInfo) {
@@ -326,9 +325,20 @@
 
     }
     function displayEventJoin(data){
-       // console.log("this is data")
+        console.log("displayEventJoin")
         const eventInfo = data.message
-        console.log(eventInfo);
+        const memberCheckin = eventInfo.eventCheckIn[0];
+        console.log(memberCheckin.checkIn);
+        if (memberCheckin.checkIn){
+            const checkInBtn  = document.getElementById("EventCheckInBtn");
+            checkInBtn.disabled = true;
+            const memberCheckInTime = new Date(memberCheckin.checkInTime *1000);
+            checkInBtn.innerHTML = `latest checkin :<p>${memberCheckInTime.toLocaleDateString()} ${memberCheckInTime.toLocaleTimeString()}</p>`
+            // convert data time to YYYY-MM-DD HH:MM
+
+        }
+
+        // console.log(eventInfo);
         document.getElementById("joinEventForm").classList.add("d-none");
         document.getElementById("joinEventBtn").classList.add("d-none");
         document.getElementById("joinEventDisplay").classList.remove("d-none");
@@ -368,12 +378,12 @@
                 });
                 if (response.ok) {
                     const result = await response.json();
-                    console.log(result);
+                    // console.log(result);
                     resolve(result);
 
                 } else {
                     const error = await response.json();
-                    console.log(error);
+                    // console.log(error);
                     reject(error);
 
                 }
@@ -405,11 +415,11 @@
                 })
             });
             const data = await response.json();
-            console.log("in checkMemberRegistration on attend")
-            console.log(data.isRegistered);
+            // console.log("in checkMemberRegistration on attend")
+            // console.log(data.isRegistered);
             return data.isRegistered;
         }catch (error) {
-            console.log(error);
+            // console.log(error);
             return false;
         }
     }
@@ -432,7 +442,7 @@
                 const userId = profile.userId;
                 const checkMember = await checkMemberRegistration(userId);
 
-                console.log("check member is",checkMember);
+                // console.log("check member is",checkMember);
 
                 if (checkMember){
                     // Handler user login
@@ -445,7 +455,7 @@
             }
 
         }catch (error) {
-            console.log("Liff Initialization Failed:",error);
+            // console.log("Liff Initialization Failed:",error);
         }
     }
 
@@ -460,7 +470,7 @@
                 const userId = profile.userId;
                 const checkMember = await checkMemberRegistration(userId);
 
-                console.log("check member is",checkMember);
+                // console.log("check member is",checkMember);
                 if (checkMember){
                     // Handler user login
                     document.getElementById("member-register-btn").classList.add("d-none");
@@ -474,7 +484,7 @@
                  liff.login();
             }
     }).catch((err) => {
-        console.log("Error initializing LIFF:", err);
+        // console.log("Error initializing LIFF:", err);
         })
 
     }
@@ -507,9 +517,6 @@
         if (!liff.isLoggedIn()) {
            return liff.login();
         } else {
-
-
-
             let isValid = true;
             const referenceName = document.getElementById("reference-name").value;
             const referencePhone = document.getElementById("reference-phone").value;
@@ -531,7 +538,7 @@
             if (isValid) {
 
                 const result = await joinEvent();
-                console.log(result);
+                // console.log(result);
                 // alert(result.message);
                 // showSuccessModal(result.message);
                 // // setTimeout(() => {
@@ -540,7 +547,7 @@
                 location.reload();
 
                 try {}catch (error) {
-                    console.log(error);
+                    // console.log(error);
                     alert(error.error);
                 }
 
