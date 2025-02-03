@@ -37,6 +37,9 @@ var (
 	eventsService  services.EventsService
 	eventHandler   *handler.EventHandler
 	eventRouter    *router.EventRouter
+	reportService  services.ReportService
+	reportHandler  *handler.ReportHandler
+	reportRouter   *router.ReportRouter
 )
 
 func init() {
@@ -63,6 +66,12 @@ func init() {
 	eventHandler = handler.NewEventHandler(eventsService)
 	eventRouter = router.NewEventRouter(eventHandler)
 
+	// Report
+	reportService = services.NewReportService(eventsRepo, memberRepo)
+	reportHandler = handler.NewReportHandler(reportService)
+	reportRouter = router.NewReportRouter(reportHandler)
+
+	// Set server
 	server = gin.Default()
 }
 
@@ -107,6 +116,7 @@ func StartServer() {
 	routers := server.Group("/api/v1")
 	LineRouter.LineHookRouter(routers)
 	eventRouter.EventRouter(routers)
+	reportRouter.ReportRouter(routers)
 
 	//server.Run(appConfig.App.Port)
 	log.Fatal(server.Run(":" + appConfig.App.Port + ""))

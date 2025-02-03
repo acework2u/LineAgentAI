@@ -139,3 +139,24 @@ func (r *memberRepositoryImpl) GetJoinEvent(eventId string) (*JoinEventImpl, err
 func (r *memberRepositoryImpl) CheckJoinEvent(eventId string, userId string) (bool, error) {
 	panic("implement me")
 }
+func (r *memberRepositoryImpl) MemberList() ([]*Member, error) {
+	filter := bson.D{}
+	opts := options.Find().SetSort(bson.D{{"updatedDate", -1}})
+	cursor, err := r.memberCollection.Find(r.ctx, filter, opts)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(r.ctx)
+	members := []*Member{}
+	for cursor.Next(r.ctx) {
+		var member Member
+		err := cursor.Decode(&member)
+		if err != nil {
+			return nil, err
+		}
+		members = append(members, &member)
+	}
+
+	return members, nil
+
+}

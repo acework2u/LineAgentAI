@@ -1,5 +1,17 @@
 package repository
 
+type MemberRepository interface {
+	CreateMember(member *Member) error
+	GetMemberByLineId(id string) (*Member, error)
+	UpdateMember(lineId string, member *Member) error
+	DeleteMember(id string) error
+	GetMembers(filter Filter) ([]*Member, error)
+	CreateJoinEvent(event *JoinEventImpl) error
+	GetJoinEvent(eventId string) (*JoinEventImpl, error)
+	CheckJoinEvent(eventId string, userId string) (bool, error)
+	MemberList() ([]*Member, error)
+}
+
 type Member struct {
 	Title        string `bson:"title"`
 	Name         string `bson:"name"`
@@ -46,15 +58,4 @@ type JoinEventImpl struct {
 	ReferenceName  string `json:"referenceName" binding:"required" validate:"required,min=3,max=20"`
 	ReferencePhone string `json:"referencePhone" binding:"required" validate:"required,numeric,min=10,max=10"`
 	Clinic         string `json:"clinic" binding:"required"`
-}
-
-type MemberRepository interface {
-	CreateMember(member *Member) error
-	GetMemberByLineId(id string) (*Member, error)
-	UpdateMember(lineId string, member *Member) error
-	DeleteMember(id string) error
-	GetMembers(filter Filter) ([]*Member, error)
-	CreateJoinEvent(event *JoinEventImpl) error
-	GetJoinEvent(eventId string) (*JoinEventImpl, error)
-	CheckJoinEvent(eventId string, userId string) (bool, error)
 }
