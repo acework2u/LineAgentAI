@@ -24,95 +24,60 @@ func NewEventRepository(ctx context.Context, eventsCollection *mongo.Collection)
 
 func (r *eventRepositoryImpl) EventJoin(event *MemberEventImpl) error {
 
-	// Filter eventId and userId in Members document of Events
-	result := r.eventsCollection.FindOne(r.ctx, bson.M{"eventId": event.EventId})
-	if result.Err() != nil {
-		return result.Err()
+	// Define the filter to find the specific member in the event
+	memberFilter := bson.M{
+		"eventId":        event.EventId,
+		"members.userId": event.UserId,
 	}
-	var eventRes Event
-	err := result.Decode(&eventRes)
-	if err != nil {
-		return err
-	}
-	members := eventRes.Members
-	newMembers := []*MemberEventImpl{}
-	for _, member := range members {
-		if member.UserId == event.UserId {
-			//return errors.New("user already joined this event")
-		}
-		newMember := MemberEventImpl{
-			EventId:        event.EventId,
-			UserId:         event.UserId,
-			JoinTime:       event.JoinTime,
-			Name:           event.Name,
-			LastName:       event.LastName,
-			Organization:   event.Organization,
-			Position:       event.Position,
-			Course:         event.Course,
-			LineId:         event.LineId,
-			LineName:       event.LineName,
-			Tel:            event.Tel,
-			ReferenceName:  event.ReferenceName,
-			ReferencePhone: event.ReferencePhone,
-			Clinic:         event.Clinic,
-		}
-		newMembers = append(newMembers, &newMember)
 
-	}
-	newMembers = append(newMembers, event)
+	// Define the update operation
 	update := bson.M{
 		"$set": bson.M{
-			"members": newMembers,
+			"members.$[member].eventId":        event.EventId,
+			"members.$[member].joinTime":       event.JoinTime,
+			"members.$[member].name":           event.Name,
+			"members.$[member].lastName":       event.LastName,
+			"members.$[member].organization":   event.Organization,
+			"members.$[member].position":       event.Position,
+			"members.$[member].course":         event.Course,
+			"members.$[member].lineId":         event.LineId,
+			"members.$[member].lineName":       event.LineName,
+			"members.$[member].tel":            event.Tel,
+			"members.$[member].referenceName":  event.ReferenceName,
+			"members.$[member].referencePhone": event.ReferencePhone,
+			"members.$[member].clinic":         event.Clinic,
 		},
 	}
-	_, err = r.eventsCollection.UpdateOne(r.ctx, bson.M{"eventId": event.EventId}, update)
+
+	// Define array filters for the update
+	opts := options.Update().SetArrayFilters(options.ArrayFilters{
+		Filters: []interface{}{
+			bson.M{"member.userId": event.UserId},
+		},
+	})
+
+	// Try to update the existing member
+	updateResult, err := r.eventsCollection.UpdateOne(r.ctx, memberFilter, update, opts)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to update member: %w", err)
 	}
+
+	// If no document was modified, insert the member
+	if updateResult.ModifiedCount == 0 {
+		// Use $push to add the new member
+		insertUpdate := bson.M{
+			"$push": bson.M{
+				"members": event,
+			},
+		}
+		_, err := r.eventsCollection.UpdateOne(r.ctx, bson.M{"eventId": event.EventId}, insertUpdate)
+		if err != nil {
+			return fmt.Errorf("failed to insert new member: %w", err)
+		}
+	}
+
 	return nil
 
-	//
-	//// Check Member in Events
-	//filter := bson.M{
-	//	"members": bson.M{
-	//		"$elemMatch": bson.M{
-	//			"eventId": event.EventId,
-	//			"userId":  event.UserId,
-	//		},
-	//	},
-	//}
-	//
-	//// Check if the event and user already exist
-	//existingEvent := MemberEventImpl{}
-	//err := r.eventsCollection.FindOne(r.ctx, filter).Decode(&existingEvent)
-	//if err != nil {
-	//	return err
-	//}
-	//
-	////err := r.eventsCollection.FindOne(r.ctx, bson.M{
-	////	"eventId": event.EventId,
-	////	"userId":  event.UserId,
-	////}).Decode(&existingEvent)
-	//
-	//if err == nil {
-	//	// If no error, it means the event and user already exist
-	//	return fmt.Errorf("user already joined this event")
-	//} else if err != mongo.ErrNoDocuments {
-	//	// If the error is not "no documents", return the error
-	//	return fmt.Errorf("failed to check existing event: %w", err)
-	//}
-	//
-	//// Proceed with further logic (e.g., insert the event) here
-	//
-	//result, err := r.eventsCollection.InsertOne(r.ctx, event)
-	//if err != nil {
-	//	return err
-	//}
-	////fmt.Println(result.InsertedID)
-	//if result.InsertedID == nil {
-	//	return errors.New("event not created")
-	//}
-	//return nil
 }
 func (r *eventRepositoryImpl) EventLeave(event *MemberEventImpl) error {
 	panic("implement me")

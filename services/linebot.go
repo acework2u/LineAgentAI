@@ -18,6 +18,7 @@ type LineBotService interface {
 	GetEventJoin(eventId string, userId string) (*MemberJoinEvent, error)
 	CheckInEvent(eventCheckIn *EventCheckIn) (bool, error)
 	MyEvents(userId string) ([]*EventResponse, error)
+	ReportFlexCarouselMessage(replyToken string) error
 }
 type SourceHook struct {
 	Type   string `json:"type"`

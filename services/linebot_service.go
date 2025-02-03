@@ -752,6 +752,99 @@ func (s *lineBotService) MyEvents(userId string) ([]*EventResponse, error) {
 	//}
 	//return memberJoinEvents, nil
 }
+func (s *lineBotService) ReportFlexCarouselMessage(replyToken string) error {
+
+	//baseUrl := "https://dca3a8ac633b.ngrok.app"
+	enventImg := "https://hostpital-sd.s3.ap-southeast-7.amazonaws.com/events-report.png"
+	memberImg := "https://hostpital-sd.s3.ap-southeast-7.amazonaws.com/members-report.png"
+	eventReportLink := "https://dca3a8ac633b.ngrok.app/api/v1/reports/events/excel"
+	memberReportLink := "https://dca3a8ac633b.ngrok.app/api/v1/reports/events/excel"
+	//
+	//reportFlexCarouselMessage := messaging_api.CarouselTemplate{
+	//	Columns: []messaging_api.CarouselColumn{
+	//		{ThumbnailImageUrl: enventImg,
+	//			Title: "Events Report",
+	//			Text:  "Download Events Report",
+	//			DefaultAction: &messaging_api.UriAction{
+	//				Label: "Download",
+	//				Uri:   enventReportLink,
+	//			},
+	//			Actions: []messaging_api.ActionInterface{
+	//				messaging_api.UriAction{
+	//					Label: "Download",
+	//					Uri:   enventReportLink,
+	//				},
+	//			}}, {
+	//			ThumbnailImageUrl: memberImg,
+	//			Title:             "Member Report",
+	//			Text:              "Download Member Report",
+	//			DefaultAction: &messaging_api.UriAction{
+	//				Label: "Download",
+	//				Uri:   memberReportLink,
+	//			},
+	//			Actions: []messaging_api.ActionInterface{
+	//				messaging_api.UriAction{
+	//					Label: "Download",
+	//					Uri:   memberReportLink,
+	//				},
+	//			},
+	//		},
+	//	},
+	//}
+
+	reportFlexCarouselMessage := messaging_api.FlexMessage{}
+	reportFlexCarouselMessage.AltText = "Report"
+	reportFlexCarouselMessage.Contents = messaging_api.FlexCarousel{
+		Contents: []messaging_api.FlexBubble{
+			{
+				Body: &messaging_api.FlexBox{
+					Layout: messaging_api.FlexBoxLAYOUT_VERTICAL,
+					Contents: []messaging_api.FlexComponentInterface{
+						&messaging_api.FlexImage{
+							Url:         memberImg,
+							Size:        "full",
+							AspectRatio: "1.9:1",
+							Action: &messaging_api.UriAction{
+								Uri:   memberReportLink,
+								Label: "Member Report download",
+							},
+						},
+						&messaging_api.FlexImage{
+							Url:         enventImg,
+							Size:        "full",
+							AspectRatio: "1.9:1",
+							Action: &messaging_api.UriAction{
+								Uri:   eventReportLink,
+								Label: "Events Report download",
+							},
+						},
+						&messaging_api.FlexImage{
+							Url:         "https://www.linefriends.com/img/img_sec.jpg",
+							Size:        "full",
+							AspectRatio: "1.9:1",
+							Action: &messaging_api.UriAction{
+								Uri:   "https://www.linefriends.com",
+								Label: "https://www.linefriends.com",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	_, err := s.bot.ReplyMessage(&messaging_api.ReplyMessageRequest{
+		ReplyToken: replyToken,
+		Messages:   []messaging_api.MessageInterface{&reportFlexCarouselMessage},
+	})
+	if err != nil {
+		log.Println("error")
+		log.Println(err)
+		return err
+	}
+
+	return nil
+}
 func validation(member *Member) error {
 	if member.Name == "" {
 		return errors.New("name is required")

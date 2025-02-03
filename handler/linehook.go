@@ -92,6 +92,11 @@ func (h *LineWebhookHandler) LineHookHandle(c *gin.Context) {
 				case "ติดต่อเรา":
 					//h.lineService.SendFlexJsonMessage(e.ReplyToken, "")
 					//h.lineService.SendQuickReplyMessage(e.ReplyToken)
+				case "report":
+				case "Report":
+				case "รายงาน":
+					h.lineService.ReportFlexCarouselMessage(e.ReplyToken)
+					//h.lineService.SendFlexCarouselMessage(e.ReplyToken)
 
 				case "custom":
 					log.Printf("custom: %v", msg["text"])
