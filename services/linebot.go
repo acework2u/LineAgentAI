@@ -118,9 +118,9 @@ type MemberJoinEvent struct {
 	Course         string          `json:"course" binding:"required"`
 	LineId         string          `json:"lineId" binding:"required"`
 	LineName       string          `json:"lineName" binding:"required"`
-	Tel            string          `json:"tel" binding:"required" validate:"required,numeric,min=10,max=10"`
-	ReferenceName  string          `json:"referenceName" binding:"required" validate:"required,min=3,max=20"`
-	ReferencePhone string          `json:"referencePhone" binding:"required" validate:"required,numeric,min=10,max=10"`
+	Tel            string          `json:"tel" binding:"required"`
+	ReferenceName  string          `json:"referenceName"`
+	ReferencePhone string          `json:"referencePhone"`
 	Clinic         string          `json:"clinic" binding:"required"`
 	EventCheckIn   []*EventCheckIn `json:"eventCheckIn"`
 }

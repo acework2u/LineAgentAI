@@ -144,12 +144,13 @@
                 <input id="member-course" class="form-control me-2" type="hidden" placeholder="Enter your course" aria-label="Enter your course" />
             </div>
             <div class="mb-2 mr-sm-2 mb-sm-0">
-                <input id="reference-name" class="form-control me-2" type="text" placeholder="ระบุ ชื่อ - นามสกุล (บุคคลที่แนะนำ)" aria-label="Enter your reference name" required />
+                <input id="reference-name" class="form-control me-2" type="text" placeholder="ระบุ ชื่อ - นามสกุล (บุคคลที่แนะนำ)" aria-label="Enter your reference name" />
             </div>
             <div class="mb-2 mr-sm-2 mb-sm-0">
-                <input id="reference-phone" class="form-control me-2" type="text" placeholder="ระบุ เบอร์โทรศัพท์ (บุคคลที่แนะนำ)" aria-label="Enter your reference phone number" required />
+                <input id="reference-phone" class="form-control me-2" type="text" placeholder="ระบุ เบอร์โทรศัพท์ (บุคคลที่แนะนำ)" aria-label="Enter your reference phone number" />
             </div>
             <div class="mb-2 mr-sm-2 mb-sm-0">
+                <label for="clinic-select" class="sr-only">กรุณาเลือกคลินิก ที่ท่านต้องการ</label>
                 <select id="clinic-select" class="form-select" aria-label="Default select example">
                     <option selected>กรุณาเลือกคลินิก ที่ท่านต้องการ</option>
                 </select>
@@ -205,7 +206,7 @@
 <script>
 
     const LIff_ID = "2006793268-nJZqYeWE";
-    const baseUrl = " https://dca3a8ac633b.ngrok.app";
+    const baseUrl = " https://3d763a596bb8.ngrok.app";
     const GET_PROFILE_API = `${baseUrl}/api/v1/profile`; // Replace with actual API endpoint
     const CHECK_REGISTRATION_API = `${baseUrl}/api/v1/check-registration`; // Replace with actual API endpoint
     const JOIN_EVENT_API = `${baseUrl}/api/v1/join-event`;
@@ -525,33 +526,30 @@
             const referenceName = document.getElementById("reference-name").value;
             const referencePhone = document.getElementById("reference-phone").value;
 
-
-            if (!referenceName || !referencePhone) {
-                isValid = false;
-
-                if (referenceName.length < 1) {
-                    document.getElementById("reference-name").focus();
-                    document.getElementById("reference-name").classList.add("is-invalid");
-                }
-                if (referencePhone.length < 1) {
-                    document.getElementById("reference-phone").focus();
-                    document.getElementById("reference-phone").classList.add("is-invalid");
-                }
-
-            }
+            //
+            // if (!referenceName || !referencePhone) {
+            //     isValid = false;
+            //
+            //     if (referenceName.length < 1) {
+            //         document.getElementById("reference-name").focus();
+            //         document.getElementById("reference-name").classList.add("is-invalid");
+            //     }
+            //     if (referencePhone.length < 1) {
+            //         document.getElementById("reference-phone").focus();
+            //         document.getElementById("reference-phone").classList.add("is-invalid");
+            //     }
+            //
+            // }
             if (isValid) {
 
                 const result = await joinEvent();
-                // console.log(result);
-                // alert(result.message);
-                // showSuccessModal(result.message);
-                // // setTimeout(() => {
-                // //     location.reload();
-                // }, 2000);
+                console.log(result);
+                alert(result.message);
+
                 location.reload();
 
                 try {}catch (error) {
-                    // console.log(error);
+                    console.log(error);
                     alert(error.error);
                 }
 
