@@ -522,3 +522,36 @@ func (r *eventRepositoryImpl) EventsList() ([]*Event, error) {
 	}
 	return events, nil
 }
+func (r *eventRepositoryImpl) EventsByClinic(eventId string) ([]*ClinicGroup, error) {
+
+	// Define the aggregate pipe line
+	pipeline := []bson.M{
+		{"$match": bson.M{"eventId": eventId}}, {
+			"$unwind": "$members",
+		}, {
+			"$group": bson.M{
+				"_id":     "$members.clinic",
+				"members": bson.M{"$push": "$members"},
+				"count":   bson.M{"$sum": 1},
+			},
+		},
+		{"$sort": bson.M{"_id": 1}},
+	}
+
+	cursor, err := r.eventsCollection.Aggregate(r.ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(r.ctx)
+	clinics := []*ClinicGroup{}
+	for cursor.Next(r.ctx) {
+		var clinic ClinicGroup
+		err := cursor.Decode(&clinic)
+		if err != nil {
+			return nil, err
+		}
+		clinics = append(clinics, &clinic)
+	}
+
+	return clinics, nil
+}

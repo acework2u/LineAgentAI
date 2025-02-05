@@ -50,6 +50,26 @@ type Member struct {
 	UpdatedDate  int64  `json:"updatedDate,omitempty"`
 	Status       bool   `json:"status"`
 }
+type MemberResponseReport struct {
+	Title        string `json:"title"`
+	Name         string `json:"name" binding:"required" validate:"required,min=3,max=20"`
+	LastName     string `json:"lastName" binding:"required" validate:"required,min=3,max=20"`
+	Email        string `json:"email" binding:"required" validate:"required,email"`
+	Phone        string `json:"phone" binding:"required" validate:"required,numeric,min=10,max=10"`
+	Med          string `json:"med" binding:"required"`
+	MedExtraInfo string `json:"medExtraInfo"`
+	Organization string `json:"organization" binding:"required"`
+	Position     string `json:"position" binding:"required"`
+	Course       string `json:"course" binding:"required"`
+	LineId       string `json:"lineId" binding:"required"`
+	LineName     string `json:"lineName"`
+	FoodAllergy  string `json:"foodAllergy"`
+	Religion     string `json:"religion"`
+	RegisterDate int64  `json:"registerDate,omitempty"`
+	Status       bool   `json:"status"`
+	JoinTime     string `json:"jointime,omitempty"`
+}
+
 type UserInfo struct {
 	UserID     string `json:"userId"`
 	Name       string `json:"name"`

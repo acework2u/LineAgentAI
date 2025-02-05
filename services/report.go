@@ -3,7 +3,7 @@ package services
 type ReportService interface {
 	ExportMemberReport() ([]*MemberReport, error)
 	ExportEventReport() ([]*EventReport, error)
-	ExportClinicReport() ([]*ClinicReport, error)
+	ExportClinicReport(eventId string) ([]*ClinicReport, error)
 }
 
 type ReportType string
@@ -54,16 +54,12 @@ type EventReport struct {
 	CountMember int       `json:"countMember"`
 }
 type ClinicReport struct {
-	ClinicId    string `json:"clinicId"`
-	ClinicName  string `json:"clinicName"`
-	CountEvent  int    `json:"countEvent"`
-	CountMember int    `json:"countMember"`
-	Status      bool   `json:"status"`
-	Date        string `json:"date"`
-	LineId      string `json:"lineId"`
-	LineName    string `json:"lineName"`
-	Event       string `json:"event"`
-	Member      string `json:"member"`
+	ClinicId    string   `json:"_id" bson:"_id"`
+	ClinicName  string   `json:"clinic"`
+	CountEvent  int      `json:"countEvent"`
+	CountMember int      `json:"countMember"`
+	Status      bool     `json:"status"`
+	Member      []Member `json:"member"`
 }
 
 type MemberReport struct {
@@ -85,4 +81,24 @@ type MemberReport struct {
 	LineId         string `json:"lineId"`
 	ClinicName     string `json:"clinicName"`
 	Status         bool   `json:"status"`
+}
+type MemberJoinEventReport struct {
+	MemberId     string `json:"memberId"`
+	Name         string `json:"name"`
+	LastName     string `json:"lastName"`
+	Phone        string `json:"phone"`
+	Email        string `json:"email"`
+	Position     string `json:"position"`
+	Organization string `json:"organization"`
+	Course       string `json:"course"`
+	Med          string `json:"med"`
+	ExtraInfo    string `json:"extraInfo"`
+	EventId      string `json:"eventId"`
+	EventTitle   string `json:"eventTitle"`
+	JoinTime     string `json:"joinTime"`
+	LineName     string `json:"lineName"`
+	EventName    string `json:"eventName"`
+	LineId       string `json:"lineId"`
+	ClinicName   string `json:"clinicName"`
+	Status       bool   `json:"status"`
 }

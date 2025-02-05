@@ -125,6 +125,69 @@ func (s *reportService) ExportEventReport() ([]*EventReport, error) {
 	return eventList, nil
 
 }
-func (s *reportService) ExportClinicReport() ([]*ClinicReport, error) {
-	return nil, nil
+func (s *reportService) ExportClinicReport(eventId string) ([]*ClinicReport, error) {
+
+	res, err := s.eventRepo.EventsByClinic(eventId)
+	if err != nil {
+		return nil, err
+	}
+	memberList, err := s.memberRepo.MemberList()
+	if err != nil {
+		return nil, err
+	}
+
+	// binding result
+	clinicReport := []*ClinicReport{}
+	for _, clinic := range res {
+		members := []Member{}
+		for _, member := range clinic.Members {
+
+			for _, memberMap := range memberList {
+				if memberMap.LineId == member.LineId {
+					member.Title = memberMap.Title
+					member.Name = memberMap.Name
+					member.LastName = memberMap.LastName
+					member.Email = memberMap.Email
+					member.Phone = memberMap.Phone
+					member.Med = memberMap.Med
+					member.MedExtraInfo = memberMap.MedExtraInfo
+					member.Organization = memberMap.Organization
+					member.Position = memberMap.Position
+					member.Course = memberMap.Course
+					member.LineName = memberMap.LineName
+					member.Status = memberMap.Status
+					member.RegisterDate = memberMap.RegisterDate
+
+				}
+
+			}
+
+			members = append(members, Member{
+				Title:        member.Title,
+				Name:         member.Name,
+				LastName:     member.LastName,
+				Email:        member.Email,
+				Phone:        member.Phone,
+				Med:          member.Med,
+				MedExtraInfo: member.MedExtraInfo,
+				Organization: member.Organization,
+				Position:     member.Position,
+				Course:       member.Course,
+				LineName:     member.LineName,
+				LineId:       member.LineId,
+				Status:       member.Status,
+			})
+		}
+
+		clinicReport = append(clinicReport, &ClinicReport{
+			ClinicId:    "",
+			ClinicName:  clinic.Clinic,
+			CountEvent:  clinic.Count,
+			CountMember: clinic.Count,
+			Status:      false,
+			Member:      members,
+		})
+	}
+
+	return clinicReport, nil
 }

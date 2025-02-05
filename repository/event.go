@@ -14,6 +14,7 @@ type EventsRepository interface {
 	DeleteEvent(eventId string) error
 	EventByEventId(eventId string) (*Event, error)
 	EventsList() ([]*Event, error)
+	EventsByClinic(eventId string) ([]*ClinicGroup, error)
 }
 
 type Event struct {
@@ -101,4 +102,11 @@ type EventCheckIn struct {
 type CertificateEvent struct {
 	EventId string `bson:"eventId"`
 	UserId  string `bson:"userId"`
+}
+
+// ClinicGroup represents the result of grouping members by clinic
+type ClinicGroup struct {
+	Clinic  string   `bson:"_id" json:"clinic"`
+	Members []Member `bson:"members" json:"members"`
+	Count   int      `bson:"count" json:"count"`
 }
