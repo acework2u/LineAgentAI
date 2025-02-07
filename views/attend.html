@@ -157,10 +157,7 @@
             </div>
             <button class="btn btn-line btn-lg w-100" id="joinEventBtn">Join the Event</button>
         </form>
-
-
         </div>
-
     </div>
 
     <!-- Error Modal -->
@@ -331,7 +328,11 @@
         const eventInfo = data.message
         if (eventInfo.eventCheckIn[0]){
         const memberCheckin = eventInfo.eventCheckIn[0];
+
+        console.log("memberCheckin")
         console.log(memberCheckin.checkIn);
+
+
         if (memberCheckin.checkIn){
             const checkInBtn  = document.getElementById("EventCheckInBtn");
             checkInBtn.disabled = true;
@@ -339,7 +340,9 @@
             checkInBtn.innerHTML = `latest checkin :<p>${memberCheckInTime.toLocaleDateString()} ${memberCheckInTime.toLocaleTimeString()}</p>`
             // convert data time to YYYY-MM-DD HH:MM
 
-        }
+             }
+
+
         }
 
         // console.log(eventInfo);
@@ -523,8 +526,10 @@
            return liff.login();
         } else {
             let isValid = true;
-            const referenceName = document.getElementById("reference-name").value;
-            const referencePhone = document.getElementById("reference-phone").value;
+            const context = liff.getContext();
+            console.log(context);
+            // const referenceName = document.getElementById("reference-name").value;
+            // const referencePhone = document.getElementById("reference-phone").value;
 
             //
             // if (!referenceName || !referencePhone) {
@@ -544,9 +549,9 @@
 
                 const result = await joinEvent();
                 console.log(result);
-                alert(result.message);
+                //alert(result.message);
 
-                location.reload();
+              //  location.reload();
 
                 try {}catch (error) {
                     console.log(error);
@@ -559,9 +564,15 @@
 
         }
     });
-    document.getElementById("EventCheckInBtn").addEventListener("click", async () => {
-        window.location.href = "https://liff.line.me/2006793268-Bp72Z8Lj";
-    })
+    const button = document.getElementById("EventCheckInBtn");
+    if (button) {
+        button.addEventListener("click", () => {
+            window.location.href = "https://liff.line.me/2006793268-Bp72Z8Lj";
+        });
+    } else {
+        console.error("Element 'EventCheckInBtn' not found.");
+    }
+
     document.getElementById('reference-phone').addEventListener('keydown', function () {
         const phoneNumber = this.value.trim();
         const errorElement = document.getElementById('reference-phone');

@@ -466,8 +466,9 @@ func (s *lineBotService) GetLineProfile(userId string) (*UserInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Println("user: getLineProfile")
-	log.Println(user)
+
+	//log.Println("user: getLineProfile")
+	//log.Println(user)
 
 	rs, err := s.memberRepo.GetMemberByLineId(userId)
 	if err != nil {

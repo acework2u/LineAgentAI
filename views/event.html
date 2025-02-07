@@ -74,10 +74,10 @@
 <div class="container">
     <div class="header">
         <h1>Event Check-in</h1>
-        <p>Scan the QR Code to Check-in</p>
+        <p>Scan the QR Code to Check In</p>
     </div>
 
-    <button class="btn btn-line btn-lg w-100" id="scanQrBtn">Scan QR Code</button>
+<!--    <button class="btn btn-line btn-lg w-100" id="scanQrBtn" onclick="window.location='https://line.me/R/nv/QRCodeReader'">Scan QR Code</button>-->
 
     <div id="qrcode">
         <!-- QR Code will be rendered here -->
@@ -97,138 +97,121 @@
     const CALLBACK_URL = "https://3d763a596bb8.ngrok.app/api/v1/event-check-in";
     const REGISTER_URL = "https://liff.line.me/2006793268-7rZrb1Kw";
 
-    function liffInitApp(){
+    function liffInitApp() {
         liff.init({ liffId: LIFF_ID }).then(async () => {
             console.log("LIFF initialized");
+
             if (!liff.isLoggedIn()) {
                 console.log("User is not logged in");
                 liff.login();
-            }else {
-               console.log("User is logged in");
-                await qrCheckinEvent();
+            } else {
+                console.log("User is logged in");
+
+                const profile = await liff.getProfile();
+                const userId = profile.userId;
+                const qrCode = []
+                const timestamp = new Date().toISOString();
+
+
+                const iOs = liff.getOS();
+                const buttonText = iOs === "iOS" ? "Scan QR Code" : "your Scan QR Code";
+
+                // Create QR Scan Button
+                const qrScanBtn = document.createElement("button");
+                qrScanBtn.setAttribute("class", "btn btn-line btn-lg w-100");
+                qrScanBtn.setAttribute("id", "scanQrBtn");
+                qrScanBtn.setAttribute("onclick", "window.location='https://line.me/R/nv/QRCodeReader'");
+                qrScanBtn.innerHTML = buttonText;
+
+                const qrcodeElement = document.getElementById("qrcode");
+                if (qrcodeElement) {
+                    qrcodeElement.appendChild(qrScanBtn);
+                } else {
+                    console.warn("qrcode element is not found in the DOM.");
+                }
+
+                // Parse query string
+                const queryString = decodeURIComponent(window.location.search);
+                if (queryString) {
+                    const params = new URLSearchParams(queryString);
+                    const scanResultElement = document.getElementById("scanResult");
+                        let event = ""
+                        let clinic = ""
+                    if (scanResultElement) {
+                        if (params.get("event")) {
+                            scanResultElement.innerHTML += `<p>${params.get("event")}</p>`;
+                            event = params.get("event")
+                        }
+                        if (params.get("clinic")) {
+                            scanResultElement.innerHTML += `<p>${params.get("clinic")}</p>`;
+                            clinic = params.get("clinic")
+                        }
+
+                        // set data to json format
+                        const qrData = {
+                            "eventId": event,
+                            "clinicNo": clinic
+                        }
+                       const qrString = JSON.stringify(qrData);
+
+                       // const qrData = {
+                       //    "qrCode": {
+                       //        "eventId": event,
+                       //        "clinicNo": clinic
+                       //    }}
+                        console.log(qrData);
+                       const res = await checkIn(userId, qrString, timestamp);
+                       console.log(res);
+                       if (res.isCheckIn == true){
+                           scanResultElement.innerHTML = `<p>Check-in successful!</p>`;
+                       }else if(res.isCheckIn == false){
+                           scanResultElement.innerHTML = `<p>Check-in failed. Please check QR Code</p>`;
+                       }else{
+                           console.log("Register");
+                       }
+
+
+                    } else {
+                        console.warn("scanResult element is not found in the DOM.");
+                    }
+                }
             }
-        }
-        ).catch(err => {
+        }).catch(err => {
             console.error("LIFF initialization failed", err);
         });
     }
-
-   async function qrCheckinEvent() {
-        const scanQrBtn = document.getElementById("scanQrBtn");
-        const scanResult = document.getElementById("scanResult");
-        const profile = await liff.getProfile();
-               const userId = profile.userId;
-
-               scanQrBtn.addEventListener("click", () => {
-                   if (liff.isInClient()) {
-                       liff.scanCode().then(result => {
-                           const qrCodeData = result.value;
-                           scanResult.innerHTML = `<p>QR Code Scanned: ${qrCodeData}</p>`;
-                           const checkInData = {
-                               "qrCode": qrCodeData,
-                               "userId": userId,
-                               "timestamp":new Date().toISOString(),
-                           }
-                           fetch(CALLBACK_URL, {
-                               method: "POST",
-                               headers: {
-                                   "Content-Type": "application/json",
-                               },
-                               body: JSON.stringify(checkInData),
-                           }).then(response => {
-                               if (response.ok) {
-                                   return response.json();
-                               }}).then(data => {
-                                   if (data.isCheckIn == true){
-                                       scanResult.innerHTML = `<p>Check-in successful!</p>`;
-                                   }else if(data.isCheckIn == false){
-                                       scanResult.innerHTML = `<p>Check-in failed. Please check QR Code</p>`;
-                                   }else{
-                                      window.location.href = REGISTER_URL;
-                                   }
-                           })
-                               .catch(err => {
-                                   console.error("Error fetching check-in data:", err);
-                                   scanResult.innerHTML = `<p>Error fetching check-in data. Please try again.</p>`;
-                               });
-
-                           // Handle check-in logic (e.g., send QR data to server)
-                           console.log("Scanned QR Code:", qrCodeData);
-
-                       }).catch(err => {
-                           scanResult.innerHTML = `<p>Error scanning QR Code. Please try again.</p>`;
-                           console.error("Error scanning QR Code:", err);
-                       });
-                   } else {
-                       scanResult.innerHTML = `<p>QR Code scanning is only available in the LINE app.</p>`;
-                   }
-               });
-    }
-
     document.addEventListener('DOMContentLoaded', liffInitApp);
 
-    // document.addEventListener('DOMContentLoaded', () => {
-    //     liff.init({ liffId: LIFF_ID }).then(async () => {
-    //         console.log("LIFF initialized");
-    //
-    //         const scanQrBtn = document.getElementById("scanQrBtn");
-    //         const scanResult = document.getElementById("scanResult");
-    //         const instructions = document.getElementById("instructions");
-    //         const profile = await liff.getProfile();
-    //         const userId = profile.userId;
-    //
-    //         scanQrBtn.addEventListener("click", () => {
-    //             if (liff.isInClient()) {
-    //                 liff.scanCode().then(result => {
-    //
-    //
-    //
-    //                     const qrCodeData = result.value;
-    //                     scanResult.innerHTML = `<p>QR Code Scanned: ${qrCodeData}</p>`;
-    //                     const checkInData = {
-    //                         "qrCode": qrCodeData,
-    //                         "userId": userId,
-    //                         "timestamp":new Date().toISOString(),
-    //                     }
-    //                     fetch(CALLBACK_URL, {
-    //                         method: "POST",
-    //                         headers: {
-    //                             "Content-Type": "application/json",
-    //                         },
-    //                         body: JSON.stringify(checkInData),
-    //                     }).then(response => {
-    //                         if (response.ok) {
-    //                             return response.json();
-    //                         }}).then(data => {
-    //                             if (data.isCheckIn == true){
-    //                                 scanResult.innerHTML = `<p>Check-in successful!</p>`;
-    //                             }else if(data.isCheckIn == false){
-    //                                 scanResult.innerHTML = `<p>Check-in failed. Please check QR Code</p>`;
-    //                             }else{
-    //                                window.location.href = REGISTER_URL;
-    //                             }
-    //                     })
-    //                         .catch(err => {
-    //                             console.error("Error fetching check-in data:", err);
-    //                             scanResult.innerHTML = `<p>Error fetching check-in data. Please try again.</p>`;
-    //                         });
-    //
-    //                     // Handle check-in logic (e.g., send QR data to server)
-    //                     console.log("Scanned QR Code:", qrCodeData);
-    //
-    //                 }).catch(err => {
-    //                     scanResult.innerHTML = `<p>Error scanning QR Code. Please try again.</p>`;
-    //                     console.error("Error scanning QR Code:", err);
-    //                 });
-    //             } else {
-    //                 scanResult.innerHTML = `<p>QR Code scanning is only available in the LINE app.</p>`;
-    //             }
-    //         });
-    //
-    //     }).catch(err => {
-    //         console.error("LIFF initialization failed", err);
-    //     });
-    // });
+    async function checkIn(userId, qrCode, timestamp) {
+
+        const checkInData = {
+            "qrCode": qrCode,
+            "userId": userId,
+            "timestamp":timestamp,
+        }
+      // Post to send check in data
+      const response = await fetch(CALLBACK_URL, {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json",
+          },
+          body: JSON.stringify(checkInData),
+      });
+      const data = await response.json();
+
+      console.log(data);
+      if (data.isCheckIn == true){
+          scanResult.innerHTML = `<p>Check-in successful!</p>`;
+      }else if(data.isCheckIn == false){
+          scanResult.innerHTML = `<p>Check-in failed. Please check QR Code</p>`;
+      }else{
+         // window.location.href = REGISTER_URL;
+          console.log("Register");
+
+      }
+
+
+    }
 
 
 

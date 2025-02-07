@@ -349,6 +349,8 @@ func (h *LineWebhookHandler) PostCheckInEvent(c *gin.Context) {
 	err := c.ShouldBindJSON(&qrcode)
 
 	if err != nil {
+		log.Println("In CheckInEvent: error")
+		log.Println(err)
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
@@ -361,6 +363,7 @@ func (h *LineWebhookHandler) PostCheckInEvent(c *gin.Context) {
 
 	if err != nil {
 		log.Println("In CheckInEvent: error")
+		log.Println(err)
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
