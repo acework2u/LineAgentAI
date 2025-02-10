@@ -85,7 +85,7 @@ func (r *eventRepositoryImpl) EventLeave(event *MemberEventImpl) error {
 func (r *eventRepositoryImpl) GetEvent(eventId string) (*MemberEventImpl, error) {
 	panic("implement me")
 }
-func (r *eventRepositoryImpl) GetEvents(filter Filter) ([]*MemberEventImpl, error) {
+func (r *eventRepositoryImpl) GetEvents(filter Fillter) ([]*MemberEventImpl, error) {
 	panic("implement me")
 }
 func (r *eventRepositoryImpl) CheckJoinEvent(eventId string, userId string) (bool, error) {

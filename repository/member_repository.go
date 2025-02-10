@@ -85,50 +85,6 @@ func (r *memberRepositoryImpl) UpdateMember(lineId string, member *Member) error
 func (r *memberRepositoryImpl) DeleteMember(id string) error {
 	return nil
 }
-func (r *memberRepositoryImpl) GetMembers(filter Filter) ([]*Member, error) {
-	if filter.Limit <= 0 {
-		filter.Limit = 100
-	}
-	if filter.Page <= 0 {
-		filter.Page = 1
-	}
-	if filter.Sort == "" {
-		filter.Sort = "desc"
-	}
-	limit := int64(filter.Limit)
-	skip := int64((filter.Page - 1) * filter.Limit)
-	sort := int64(1)
-	if filter.Sort == "desc" {
-		sort = -1
-	}
-	query := bson.D{}
-	if filter.Keyword != "" {
-		kwFilter := bson.D{{"$regex", filter.Keyword}, {"$options", "i"}}
-		query = append(query, bson.E{"$or", bson.A{"", bson.D{{"name", kwFilter}}, bson.D{{"lastname", kwFilter}}, bson.D{{"email", kwFilter}}}})
-	}
-	opts := options.Find().SetSort(bson.D{{"updatedDate", sort}}).SetLimit(limit).SetSkip(skip)
-	cursor, err := r.memberCollection.Find(r.ctx, query, opts)
-	if err != nil {
-		return nil, err
-	}
-	defer cursor.Close(r.ctx)
-	members := []*Member{}
-	for cursor.Next(r.ctx) {
-		var member Member
-		err := cursor.Decode(&member)
-		if err != nil {
-			return nil, err
-		}
-		members = append(members, &member)
-	}
-	//memberCount, err := r.memberCollection.CountDocuments(r.ctx, query)
-	//if err := cursor.Err(); err != nil {
-	//	return nil, err
-	//}
-
-	return members, nil
-}
-
 func (r *memberRepositoryImpl) CreateJoinEvent(event *JoinEventImpl) error {
 
 	panic("implement me")
@@ -155,6 +111,45 @@ func (r *memberRepositoryImpl) MemberList() ([]*Member, error) {
 			return nil, err
 		}
 		members = append(members, &member)
+	}
+
+	return members, nil
+
+}
+func (r *memberRepositoryImpl) GetMembers(filter Filter) ([]*Member, error) {
+	if filter.Limit <= 0 {
+		filter.Limit = 100
+	}
+	if filter.Page <= 0 {
+		filter.Page = 1
+	}
+	if filter.Sort == "" {
+		filter.Sort = "desc"
+	}
+	limit := int64(filter.Limit)
+	skip := int64((filter.Page - 1) * filter.Limit)
+	sort := int64(1)
+	if filter.Sort == "desc" {
+		sort = -1
+	}
+	query := bson.D{}
+	if filter.Keyword != "" {
+		keyFilter := bson.D{{"$regex", filter.Keyword}, {"$options", "i"}}
+		query = append(query, bson.E{Key: "$or", Value: bson.A{"", bson.D{{"name", keyFilter}}, bson.D{{"lastname", keyFilter}}, bson.D{{"email", keyFilter}}}})
+	}
+	opts := options.Find().SetSort(bson.D{{"updatedDate", sort}}).SetLimit(limit).SetSkip(skip)
+	cursor, err := r.memberCollection.Find(r.ctx, query, opts)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(r.ctx)
+	members := []*Member{}
+	for cursor.Next(r.ctx) {
+		var member Member
+		err := cursor.Decode(&member)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return members, nil

@@ -18,6 +18,7 @@ import (
 const (
 	MemberCollectionName = "members"
 	EventsCollectionName = "events"
+	StaffCollectionName  = "staffs"
 )
 
 var (
@@ -40,6 +41,10 @@ var (
 	reportService  services.ReportService
 	reportHandler  *handler.ReportHandler
 	reportRouter   *router.ReportRouter
+	staffRepo      repository.StaffRepository
+	staffService   services.StaffService
+	staffHandler   *handler.StaffHandler
+	staffRouter    *router.StaffRouter
 )
 
 func init() {
@@ -53,6 +58,7 @@ func init() {
 	client = conf.ConnectionDB()
 	memberCollection = conf.GetCollection(client, MemberCollectionName)
 	eventsCollection := conf.GetCollection(client, EventsCollectionName)
+	staffCollection := conf.GetCollection(client, StaffCollectionName)
 
 	// Service
 
@@ -71,6 +77,12 @@ func init() {
 	reportHandler = handler.NewReportHandler(reportService)
 	reportRouter = router.NewReportRouter(reportHandler)
 
+	// Staff
+	staffRepo = repository.NewStaffRepository(ctx, staffCollection)
+	staffService = services.NewStaffService(staffRepo)
+	staffHandler = handler.NewStaffHandler(staffService)
+	staffRouter = router.NewStaffRouter(staffHandler)
+
 	// Set server
 	server = gin.Default()
 }
@@ -87,7 +99,7 @@ func StartServer() {
 	server.Use(cors.New(corsConfig))
 	server.Use(gin.Recovery())
 	server.Use(gin.Logger())
-
+	//server.Use(middleware.AuthMiddleware())
 	// default page not found
 	server.NoRoute(func(c *gin.Context) {
 		c.JSON(404, gin.H{"message": "Not Found"})
@@ -120,6 +132,7 @@ func StartServer() {
 	LineRouter.LineHookRouter(routers)
 	eventRouter.EventRouter(routers)
 	reportRouter.ReportRouter(routers)
+	staffRouter.StaffRouter(routers)
 
 	//server.Run(appConfig.App.Port)
 	log.Fatal(server.Run(":" + appConfig.App.Port + ""))
