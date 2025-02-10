@@ -31,13 +31,15 @@
             margin-top: 20px;
         }
         .event-item {
-            background: #fff;
+            background: #f6f7f7;
+            /*background: #fff;*/
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 10px;
             box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
             display: flex;
             align-items: center;
+
         }
         .event-time {
             font-size: 14px;
@@ -54,8 +56,8 @@
             color: #555;
         }
         .event-img {
-            width: 50px;
-            height: 50px;
+            width: 90px;
+            height: 90px;
             border-radius: 5px;
             margin-right: 10px;
         }
@@ -94,9 +96,15 @@
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
+    const BASE_URL  = "https://3d763a596bb8.ngrok.app"
+    const EVENTS_APIS = `${BASE_URL}/api/v1/events`
+
+
+
+
+    document.addEventListener("DOMContentLoaded", async function () {
         let selectedDate = null;
-        let eventsData = [
+        let eventsData2 = [
             {
                 title: "Alumni Golf Classic",
                 date: "2025-02-07",
@@ -119,6 +127,11 @@
                 img: "https://via.placeholder.com/50"
             }
         ];
+
+        let eventsData = await getEvents()
+        console.log(eventsData)
+
+
 
         let calendarEl = document.getElementById("calendar");
         let calendar = new FullCalendar.Calendar(calendarEl, {
@@ -160,6 +173,35 @@
             });
         }
     });
+
+    async function getEvents() {
+
+        const response = await fetch(EVENTS_APIS,{
+            method: "GET",
+            headers: {
+                "Content-Type":"application/json"
+            },
+        });
+        if (!response.ok){
+            return console.error("Error fetching joined events:",response.statusText)
+        }
+        // Formatting event for fullCalendar
+        let eventList = await response.json()
+        eventList = eventList.events
+        console.log(eventList)
+        // let event formating
+        let eventsResponse = eventList.map(event => ({
+            title:event.title,
+            date:event.startDate,
+            time:event.startTime,
+            location:event.location,
+            img:event.banner[0].img
+        }));
+
+        return  eventsResponse
+
+    }
+
 </script>
 
 </body>
