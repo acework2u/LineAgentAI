@@ -608,7 +608,7 @@ func (s *lineBotService) CheckEventJoin(eventId string, userId string) (bool, er
 	}
 	rs, err := s.eventRepo.CheckJoinEvent(eventId, userId)
 	if err != nil {
-		return false, errors.New("error")
+		return false, err
 	}
 	if rs {
 		return true, nil

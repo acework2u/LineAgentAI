@@ -91,7 +91,7 @@ func (r *eventRepositoryImpl) GetEvents(filter Filter) ([]*MemberEventImpl, erro
 func (r *eventRepositoryImpl) CheckJoinEvent(eventId string, userId string) (bool, error) {
 
 	// Check Event
-
+	log.Println("eventId:", eventId)
 	count, err := r.eventsCollection.CountDocuments(r.ctx, bson.M{"eventId": eventId})
 	if err != nil {
 		return false, fmt.Errorf("failed to check event membership: %w", err)
@@ -110,7 +110,11 @@ func (r *eventRepositoryImpl) CheckJoinEvent(eventId string, userId string) (boo
 	}
 	// check member is a join the event
 	res := r.eventsCollection.FindOne(r.ctx, filter)
+	log.Println("res:", res)
 	if res.Err() != nil {
+
+		log.Println("res.Err():", res.Err())
+
 		if res.Err() == mongo.ErrNoDocuments {
 			return false, nil
 		}

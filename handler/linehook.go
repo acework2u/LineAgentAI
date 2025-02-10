@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/v8/linebot/messaging_api"
 	"github.com/line/line-bot-sdk-go/v8/linebot/webhook"
@@ -318,8 +319,15 @@ func (h *LineWebhookHandler) GetCheckEventJoin(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "eventId is required"})
 		return
 	}
+
+	// convert eventId to string
+	eventID = fmt.Sprintf("%v", eventID)
+	userId = fmt.Sprintf("%v", userId)
+
 	eventJoin, err := h.lineService.CheckEventJoin(eventID, userId)
 	if err != nil {
+		log.Println("In CheckEventJoin: error")
+		log.Println(err)
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}

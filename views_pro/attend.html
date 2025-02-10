@@ -139,13 +139,13 @@
                 <input id="member-position" class="form-control me-2" type="hidden" placeholder="Enter your position" aria-label="Enter your position" />
                 <input id="member-organization" class="form-control me-2" type="hidden" placeholder="Enter your organization" aria-label="Enter your organization" />
             </div>
-            <div class="mb-2 mr-sm-2 mb-sm-0">
+            <div class="mb-2 mr-sm-2 mb-sm-0 d-none">
                 <input id="member-course" class="form-control me-2" type="hidden" placeholder="Enter your course" aria-label="Enter your course" />
             </div>
-            <div class="mb-2 mr-sm-2 mb-sm-0">
+            <div class="mb-2 mr-sm-2 mb-sm-0 d-none">
                 <input id="reference-name" class="form-control me-2" type="text" placeholder="ระบุ ชื่อ - นามสกุล (บุคคลที่แนะนำ)" aria-label="Enter your reference name" />
             </div>
-            <div class="mb-2 mr-sm-2 mb-sm-0">
+            <div class="mb-2 mr-sm-2 mb-sm-0 d-none">
                 <input id="reference-phone" class="form-control me-2" type="text" placeholder="ระบุ เบอร์โทรศัพท์ (บุคคลที่แนะนำ)" aria-label="Enter your reference phone number" />
             </div>
             <div class="mb-2 mr-sm-2 mb-sm-0">
@@ -330,7 +330,11 @@
         const eventInfo = data.message
         if (eventInfo.eventCheckIn[0]){
         const memberCheckin = eventInfo.eventCheckIn[0];
+
+        console.log("memberCheckin")
         console.log(memberCheckin.checkIn);
+
+
         if (memberCheckin.checkIn){
             const checkInBtn  = document.getElementById("EventCheckInBtn");
             checkInBtn.disabled = true;
@@ -338,7 +342,9 @@
             checkInBtn.innerHTML = `latest checkin :<p>${memberCheckInTime.toLocaleDateString()} ${memberCheckInTime.toLocaleTimeString()}</p>`
             // convert data time to YYYY-MM-DD HH:MM
 
-        }
+             }
+
+
         }
 
         // console.log(eventInfo);
@@ -522,8 +528,10 @@
            return liff.login();
         } else {
             let isValid = true;
-            const referenceName = document.getElementById("reference-name").value;
-            const referencePhone = document.getElementById("reference-phone").value;
+            const context = liff.getContext();
+            console.log(context);
+            // const referenceName = document.getElementById("reference-name").value;
+            // const referencePhone = document.getElementById("reference-phone").value;
 
             //
             // if (!referenceName || !referencePhone) {
@@ -542,10 +550,10 @@
             if (isValid) {
 
                 const result = await joinEvent();
-                // console.log(result);
-                // alert(result.message);
+                console.log(result);
+                alert(result.message);
 
-                location.reload();
+               location.reload();
 
                 try {}catch (error) {
                     console.log(error);
@@ -566,6 +574,7 @@
     } else {
         console.error("Element 'EventCheckInBtn' not found.");
     }
+
     document.getElementById('reference-phone').addEventListener('keydown', function () {
         const phoneNumber = this.value.trim();
         const errorElement = document.getElementById('reference-phone');
