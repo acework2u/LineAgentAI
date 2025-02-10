@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"linechat/repository"
-	"linechat/utils"
 	"log"
 	"time"
 )
@@ -104,18 +103,28 @@ func (s *eventsService) CreateEvent(event *EventImpl) error {
 	}
 
 	// convert string datetime to Time
+	// join date and time string to Time format
+	eventStdStr := event.StartDate + " " + event.StartTime
+	eventEndStr := event.StartDate + " " + event.StartTime
+	bangKok, ok := time.LoadLocation("Asia/Bangkok")
+	if ok != nil {
+		fmt.Println("Error loading location:", ok)
+	}
+	timeLayout := "2006-01-02 15:04"
+	eventStart, _ := time.ParseInLocation(timeLayout, eventStdStr, bangKok)
+	eventEnd, _ := time.ParseInLocation(timeLayout, eventEndStr, bangKok)
 
 	// Insert to repo
 	err := s.eventRepo.CreateEvent(&repository.Event{
 		EventId:     event.EventId,
 		Title:       event.Title,
 		Description: event.Description,
-		StartDate:   utils.DateToTime(event.StartDate).Unix(),
-		EndDate:     utils.DateToTime(event.EndDate).Unix(),
+		StartDate:   eventStart.Unix(),
+		EndDate:     eventEnd.Unix(),
 		Place:       event.Place,
-		StartTime:   utils.TimeToTime(event.StartTime).Unix(),
+		StartTime:   eventStart.Unix(),
 		Banner:      bannerImpl,
-		EndTime:     utils.TimeToTime(event.EndTime).Unix(),
+		EndTime:     eventEnd.Unix(),
 		Location:    event.Location,
 		Status:      true,
 		CreatedDate: now.Unix(),
