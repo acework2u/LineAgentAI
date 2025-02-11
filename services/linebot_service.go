@@ -91,7 +91,7 @@ func (s lineBotService) SendImageMessage(replyToken string, imageURL string) err
 			ImageUrl: imageURL,
 			Action: messaging_api.UriAction{
 				Label: "View detail",
-				Uri:   "https://liff.line.me/2006793268-nJZqYeWE",
+				Uri:   "https://liff.line.me/2006793268-Rw1az8qr",
 			},
 		},
 	}
