@@ -35,7 +35,20 @@ func NewLineWebhookHandler(lineService services.LineBotService) *LineWebhookHand
 		lineService: lineService,
 	}
 }
-
+func (h *LineWebhookHandler) LineWebhook(c *gin.Context) {
+	cb, err := webhook.ParseRequest(h.cfg.SdApp.ChannelSecret, c.Request)
+	if err != nil {
+		if err == webhook.ErrInvalidSignature {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid signature"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
+		}
+		return
+	}
+	for _, event := range cb.Events {
+		log.Printf("Event: %v", event)
+	}
+}
 func (h *LineWebhookHandler) LineHookHandle(c *gin.Context) {
 	cb, err := webhook.ParseRequest(h.cfg.LineApp.ChannelSecret, c.Request)
 	if err != nil {

@@ -85,6 +85,7 @@
     </div>
     <div class="event-details">
         <h3>Event Details:</h3>
+        <p><strong>Title:โครงการแพทย์อาสาตรวจสุขภาพพระสงฆ์ถวายเป็นพระกุศล แด่สมเด็จพระสงฆราช สกลมหาสังฆปริณายก</strong></p>
         <p><strong>Date:</strong> วันอาทิตย์ที่ 9 กุมภาพันธ์ 2568</p>
         <p><strong>Time:</strong> 9:00 AM - 4:00 PM</p>
         <p><strong>Location:</strong> ณ วัดราชบพิธสถิตมหาสีมารามราชวรวิหาร</p>
@@ -109,12 +110,12 @@
             <p id="user-organization" class="card-text"></p>
             <p id="user-course" class="card-text"></p>
             <div class="mb-3 d-none" id="joinEventDisplay">
-                <p id="event-reference-name">ff</p>
-                <p id="event-reference-phone">ff</p>
-                <p id="event-clinic" class="card-text">ff</p>
+                <p id="event-reference-name"></p>
+                <p id="event-reference-phone"></p>
+                <p id="event-clinic" class="card-text"></p>
                 <p id="join-time"></p>
-<!--            <a class="btn" href="https://liff.line.me/2006793268-Bp72Z8Lj" >Check In</a>-->
-                <button class="btn btn-line btn-lg w-100" id="EventCheckInBtn">Press Check-In</button>
+<!--                 <a class="btn " href="https://liff.line.me/2006793268-Bp72Z8Lj" >Check In</a>-->
+               <button class="btn btn-line btn-lg w-100" id="EventCheckInBtn">QRcode Check-In</button>
             </div>
             </div>
 
@@ -139,7 +140,7 @@
                 <input id="member-position" class="form-control me-2" type="hidden" placeholder="Enter your position" aria-label="Enter your position" />
                 <input id="member-organization" class="form-control me-2" type="hidden" placeholder="Enter your organization" aria-label="Enter your organization" />
             </div>
-            <div class="mb-2 mr-sm-2 mb-sm-0 d-none">
+            <div class="mb-2 mr-sm-2 mb-sm-0">
                 <input id="member-course" class="form-control me-2" type="hidden" placeholder="Enter your course" aria-label="Enter your course" />
             </div>
             <div class="mb-2 mr-sm-2 mb-sm-0 d-none">
@@ -156,10 +157,7 @@
             </div>
             <button class="btn btn-line btn-lg w-100" id="joinEventBtn">Join the Event</button>
         </form>
-
-
         </div>
-
     </div>
 
     <!-- Error Modal -->
@@ -238,7 +236,7 @@
         }catch(error){
 
         }finally{
-            console.log("finally");
+            // console.log("finally");
         }
     }
     // Fetch User Profile
@@ -352,8 +350,8 @@
         document.getElementById("joinEventForm").classList.add("d-none");
         document.getElementById("joinEventBtn").classList.add("d-none");
         document.getElementById("joinEventDisplay").classList.remove("d-none");
-        document.getElementById("event-reference-name").innerText = "ผู้แนะนำ: "+eventInfo.referenceName;
-        document.getElementById("event-reference-phone").innerText = "เบอร์โทรผู้แนะนำ: "+eventInfo.referencePhone;
+        // document.getElementById("event-reference-name").innerText = "ผู้แนะนำ: "+eventInfo.referenceName;
+        // document.getElementById("event-reference-phone").innerText = "เบอร์โทรผู้แนะนำ: "+eventInfo.referencePhone;
         document.getElementById("event-clinic").innerText = "คลินิก: "+eventInfo.clinic;
         document.getElementById("join-time").innerText = "ลงทะเบียนเมื่อเวลา: "+joinTime.toLocaleDateString()+" "+joinTime.toLocaleTimeString();
         document.getElementById("event-status").innerHTML = "<b class='green'>ลงทะเบียนกิจกรรมแล้ว</b>";

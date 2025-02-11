@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Check-In</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+<body>
+<h2>Event Check-In</h2>
+<button id="scanQrCode">Scan QR Code</button>
+<p id="result">Scan result will appear here...</p>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const liffId = "2006793268-1b3pQ02m"; // Replace with your LIFF ID
+
+        liff.init({ liffId }).then(() => {
+            console.log("LIFF initialized");
+        }).catch(err => {
+            console.error("LIFF Initialization failed", err);
+        });
+    });
+
+    document.getElementById("scanQrCode").addEventListener("click", function () {
+        if (!liff.isInClient()) {
+            alert("Please open this in the LINE app");
+            return;
+        }
+
+        liff.scanCodeV2().then(result => {
+
+
+
+            document.getElementById("result").innerText = "Scanned Data: " + result.value;
+
+            const checkInData = {
+                "qrCode": result.value,
+                "userId": liff.getDecodedIDToken()?.sub,
+                "timestamp":new Date().toISOString(),
+            }
+
+
+
+            // Send the data to the backend
+            fetch("https://deepai.acework.info/api/v1/event-check-in", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({checkInData})
+            }).then(response => response.json()).then(data => {
+                alert("Check-in successful!");
+            }).catch(error => {
+                console.error("Error in check-in", error);
+                alert("Check-in failed");
+            });
+        }).catch(err => {
+            console.error("QR Code scan failed", err);
+        });
+
+
+
+    });
+</script>
+</body>
+</html>

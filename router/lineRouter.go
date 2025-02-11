@@ -22,6 +22,7 @@ func (r *LineRouter) LineHookRouter(rg *gin.RouterGroup) {
 	rg.POST("/event-check-in", r.lineHandler.PostCheckInEvent)
 	rg.POST("/my-event", r.lineHandler.PostMyEvents)
 	rg.POST("/linehook", r.lineHandler.LineHookHandle)
+	rg.POST("/webhook", r.lineHandler.LineWebhook)
 	rg.POST("/callback", r.lineHandler.LineCallback)
 	rg.POST("/register", r.lineHandler.LineRegister)
 	rg.POST("/login", r.lineHandler.LineLogin)

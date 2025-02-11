@@ -29,6 +29,7 @@ type AppConfig struct {
 	App     App
 	Db      Db
 	LineApp LineApp
+	SdApp   LineApp
 }
 
 func NewAppConfig() (*AppConfig, error) {
