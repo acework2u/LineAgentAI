@@ -5,6 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Event Check-In</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+        }
+        button {
+            padding: 12px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        p {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #555;
+        }
+    </style>
 </head>
 <body>
 <h2>Event Check-In</h2>
@@ -12,8 +46,13 @@
 <p id="result">Scan result will appear here...</p>
 
 <script>
+    const LIFF_ID = "2006793268-pb3LoO6Q"; //2006793268-pb3LoO6Q  //2006793268-1b3pQ02m
+    const BASE_URI = "https://3d763a596bb8.ngrok.app";
+    const CALLBACK_URL = `${BASE_URI}/api/v1/event-check-in`;
+    const REGISTER_URL = "https://liff.line.me/2006793268-7rZrb1Kw";
+
     document.addEventListener("DOMContentLoaded", function () {
-        const liffId = "2006793268-1b3pQ02m"; // Replace with your LIFF ID
+        const liffId = LIFF_ID; // Replace with your LIFF ID
 
         liff.init({ liffId }).then(() => {
             console.log("LIFF initialized");
@@ -28,38 +67,86 @@
             return;
         }
 
-        liff.scanCodeV2().then(result => {
+        //check os client
+        const iOs = liff.getOS();
+        const buttonText = iOs === "iOS" ? "Scan QR Code" : "your Scan QR Code";
+        document.getElementById("scanQrCode").innerText = buttonText;
 
+        if (iOs === "iOS") {
 
+            liff.scanCodeV2().then(async result => {
+                document.getElementById("result").innerText = "Scanned Data: " + result.value;
 
-            document.getElementById("result").innerText = "Scanned Data: " + result.value;
+                // Send the data to the backend
+                const checkInData = {
+                    "qrCode": qrCodeData,
+                    "userId": userId,
+                    "timestamp":timestamp,
+                }
 
-            const checkInData = {
-                "qrCode": result.value,
-                "userId": liff.getDecodedIDToken()?.sub,
-                "timestamp":new Date().toISOString(),
-            }
+                // send data to api
+                await checkIn(userId, qrCodeData, timestamp);
 
-
-
-            // Send the data to the backend
-            fetch("https://deepai.acework.info/api/v1/event-check-in", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({checkInData})
-            }).then(response => response.json()).then(data => {
-                alert("Check-in successful!");
-            }).catch(error => {
-                console.error("Error in check-in", error);
-                alert("Check-in failed");
+            }).catch(err => {
+                console.error("QR Code scan failed", err);
             });
-        }).catch(err => {
-            console.error("QR Code scan failed", err);
-        });
+        }else{
 
+            try {
+                // scan QR Code
+                const response = liff.scanCode();
+                response.then( async function (result) {
+                    document.getElementById("result").innerText = "Scanned Data: " + result.value;
+                    // get value from qrcode
+                    const qrCodeData = result.value;
+                    const userId = liff.getDecodedIDToken()?.sub;
+                    const timestamp = new Date().toISOString();
 
+                    // send data checkin to api
+                    // const res = await checkIn(userId, qrCodeData, timestamp);
+                    const checkInData = {
+                        "qrCode": qrCodeData,
+                        "userId": userId,
+                        "timestamp":timestamp,
+                    }
+
+                    // send data to api
+                   await checkIn(userId, qrCodeData, timestamp);
+                }).catch(function (error) {
+
+                })
+
+            }catch (e) {
+                window.location.href = REGISTER_URL;
+            }
+            // window.location.href = "https://line.me/R/nv/QRCodeReader";
+        }
 
     });
+
+
+    // async function is send data to api
+    async function checkIn(userId, qrCode, timestamp) {
+        const response = await fetch(CALLBACK_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                "qrCode": qrCode,
+                "userId": userId,
+                "timestamp": timestamp,
+            })
+        }).then(response => response.json());
+        if (response.isCheckIn == true){
+            alert("Check-in successful!");
+        }else if(response.isCheckIn == false){
+            alert("Check-in failed. Please check QR Code");
+        }else if(response.isCheckIn == null){
+            window.location.href = REGISTER_URL;
+        }
+    }
+
 </script>
 </body>
 </html>

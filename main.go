@@ -126,6 +126,9 @@ func StartServer() {
 	server.GET("/news-event", func(c *gin.Context) {
 		c.HTML(200, "news-event-calendar.html", nil)
 	})
+	server.GET("/event-check-in", func(c *gin.Context) {
+		c.HTML(200, "event-checkin.html", nil)
+	})
 
 	// router
 	routers := server.Group("/api/v1")
