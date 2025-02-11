@@ -6,6 +6,7 @@ import Attend from "./components/Attend";
 import Calendar from "./components/Calendar";
 import Contact from "./components/Contact";
 import Home from "./components/Home";
+import EventManagement from "./components/EventManagement";
 function App() {
     const [currentPage, setCurrentPage] = useState('home'); // State for tracking the current page
 
@@ -24,6 +25,8 @@ function App() {
                 return <Contact />;
             case 'home':
                 return <Home />;
+            case 'eventManagement':
+                return <EventManagement />;
             default:
                 return <div className="container mt-5"><h1>404 - Page Not Found</h1></div>
         }
@@ -59,6 +62,19 @@ function App() {
                                 Home
                             </a>
                         </li>
+                        {/*event management menu*/}
+                        <li className="nav-item">
+                            {/*<a className="nav-link" href="#register">Register สมัครสมาชิก</a>*/}
+                            <a
+                                className={`nav-link ${currentPage === 'eventManagement' ? 'active' : ''}`}
+                                href="#"
+                                onClick={() => setCurrentPage('eventManagement')}
+                            >
+                                Event Management
+                            </a>
+                        </li>
+
+
                         <li className="nav-item">
                             <a
                                 className={`nav-link ${currentPage === 'register' ? 'active' : ''}`}

@@ -126,7 +126,7 @@ func (s lineBotService) SendImageMessage(replyToken string, imageURL string) err
 	_ = newList
 
 	imageMessage := messaging_api.TemplateMessage{
-		AltText: "Image carousel alt text",
+		AltText: "news event carousel",
 		Template: &messaging_api.ImageCarouselTemplate{
 			Columns: news1,
 		},
