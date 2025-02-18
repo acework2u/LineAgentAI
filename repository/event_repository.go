@@ -511,7 +511,9 @@ func (r *eventRepositoryImpl) EventByEventId(eventId string) (*Event, error) {
 func (r *eventRepositoryImpl) EventsList() ([]*Event, error) {
 	filter := bson.M{}
 	events := []*Event{}
-	cursor, err := r.eventsCollection.Find(r.ctx, filter)
+	// order evnet by id desc
+	opts := options.Find().SetSort(bson.D{{"_id", -1}})
+	cursor, err := r.eventsCollection.Find(r.ctx, filter, opts)
 	if err != nil {
 		return nil, err
 	}

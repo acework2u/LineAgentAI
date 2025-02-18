@@ -34,6 +34,9 @@ var (
 	LineRouter     *router.LineRouter
 	lineBotService services.LineBotService
 	memberRepo     repository.MemberRepository
+	memberService  services.MemberService
+	memberHandler  *handler.MemberHandler
+	memberRouter   *router.MemberRouter
 	eventsRepo     repository.EventsRepository
 	eventsService  services.EventsService
 	eventHandler   *handler.EventHandler
@@ -82,6 +85,10 @@ func init() {
 	staffService = services.NewStaffService(staffRepo)
 	staffHandler = handler.NewStaffHandler(staffService)
 	staffRouter = router.NewStaffRouter(staffHandler)
+	//Members
+	memberService = services.NewMemberService(memberRepo)
+	memberHandler = handler.NewMemberHandler(memberService)
+	memberRouter = router.NewMemberRouter(memberHandler)
 
 	// Set server
 	server = gin.Default()
@@ -139,6 +146,7 @@ func StartServer() {
 	eventRouter.EventRouter(routers)
 	reportRouter.ReportRouter(routers)
 	staffRouter.StaffRouter(routers)
+	memberRouter.MemberRouter(routers)
 
 	//server.Run(appConfig.App.Port)
 	log.Fatal(server.Run(":" + appConfig.App.Port + ""))

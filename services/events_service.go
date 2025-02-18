@@ -203,5 +203,13 @@ func (s *eventsService) UpdateEvent(event *EventImpl) error {
 	return nil
 }
 func (s *eventsService) DeleteEvent(eventId string) error {
+
+	if eventId == "" {
+		return errors.New("event id is required")
+	}
+	err := s.eventRepo.DeleteEvent(eventId)
+	if err != nil {
+		return err
+	}
 	return nil
 }

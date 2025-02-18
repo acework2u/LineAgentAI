@@ -5,6 +5,35 @@ import axios from "axios";
 
 const API_URL = "http://localhost:8081/api/v1/events";
 
+const eventData = [
+    {
+        id: 1,
+        title: 'Community Health Check-Up',
+        date: 'January 20, 2025',
+        location: 'Bangkok Community Center',
+        description: 'Participate in our community health check-up event to provide free medical services.',
+        image: 'https://via.placeholder.com/300x200',
+    },
+    {
+        id: 2,
+        title: 'Free Vaccination Drive',
+        date: 'February 10, 2025',
+        location: 'Chiang Mai Public Hall',
+        description: 'Join us in offering free vaccinations to underserved populations.',
+        image: 'https://via.placeholder.com/300x200',
+    },
+    {
+        id: 3,
+        title: 'Dental Care Outreach',
+        date: 'March 5, 2025',
+        location: 'Phuket Health Clinic',
+        description: 'Help us provide dental care to those in need during this outreach program.',
+        image: 'https://via.placeholder.com/300x200',
+    },
+];
+
+
+
 const EventManagement = () => {
     // application config
     const [events, setEvents] = React.useState([]);

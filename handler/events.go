@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"linechat/services"
 	"linechat/utils"
+	"log"
 	"time"
 )
 
@@ -40,16 +41,21 @@ func (e *EventHandler) CreateEvent(c *gin.Context) {
 	err := c.ShouldBindJSON(event)
 	cusErr := utils.NewCustomErrorHandler(c)
 	if err != nil {
+		log.Println(err.Error())
 		cusErr.ValidateError(err)
 		return
 	}
 
+	log.Println(event)
+
 	err = e.eventService.CreateEvent(event)
 	if err != nil {
+		log.Println("error creating event")
+		log.Println(err.Error())
 		c.JSON(400, gin.H{"message": err.Error()})
 		return
 	}
-	c.JSON(200, gin.H{"message": "creat the event successfully"})
+	c.JSON(201, gin.H{"message": "creat the event successfully"})
 
 }
 func (e *EventHandler) UpdateEvent(c *gin.Context) {
@@ -58,6 +64,7 @@ func (e *EventHandler) UpdateEvent(c *gin.Context) {
 	err := c.ShouldBindJSON(eventUpdate)
 	cusErr := utils.NewCustomErrorHandler(c)
 	if err != nil {
+		log.Println(err.Error())
 		cusErr.ValidateError(err)
 		return
 	}
@@ -86,6 +93,8 @@ func (e *EventHandler) UpdateEvent(c *gin.Context) {
 	}
 	err = e.eventService.UpdateEvent(&dataEvent)
 	if err != nil {
+		log.Println("error updating event")
+		log.Println(err.Error())
 		c.JSON(400, gin.H{"message": err.Error()})
 		return
 	}
@@ -93,4 +102,13 @@ func (e *EventHandler) UpdateEvent(c *gin.Context) {
 	// Success
 	c.JSON(200, gin.H{"message": "update the event successfully"})
 
+}
+func (e *EventHandler) DeleteEvent(c *gin.Context) {
+	eventId := c.Param("eventId")
+	err := e.eventService.DeleteEvent(eventId)
+	if err != nil {
+		c.JSON(400, gin.H{"message": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"message": "delete the event successfully"})
 }

@@ -56,12 +56,12 @@ type EventImpl struct {
 	Title       string             `json:"title" binding:"required" validate:"required,min=3,max=20"`
 	Description string             `json:"description" binding:"required"`
 	StartDate   string             `json:"startDate,omitempty" binding:"required"`
-	EndDate     string             `json:"endDate" binding:"required"`
-	Place       string             `json:"place" binding:"required"`
-	StartTime   string             `json:"startTime" binding:"required"`
-	Banner      []EventBanner      `json:"banner" binding:"required"`
-	EndTime     string             `json:"endTime" binding:"required"`
-	Location    string             `json:"location" binding:"required"`
+	EndDate     string             `json:"endDate"`
+	Place       string             `json:"place"`
+	StartTime   string             `json:"startTime"`
+	Banner      []EventBanner      `json:"banner"`
+	EndTime     string             `json:"endTime"`
+	Location    string             `json:"location"`
 	Status      bool               `json:"status"`
 	CreatedDate int64              `json:"createdDate"`
 	UpdatedDate int64              `json:"updatedDate"`

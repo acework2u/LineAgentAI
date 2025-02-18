@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"linechat/services"
 	"linechat/utils"
@@ -61,12 +62,16 @@ func (s *StaffHandler) LoginStaff(c *gin.Context) {
 		cusErr.ValidateError(err)
 		return
 	}
+
+	fmt.Println(staffLogin)
+
 	// login service
 	token, err := s.staffService.LoginStaff(&staffLogin)
 	if err != nil {
 		cusErr.ValidateError(err)
 		return
 	}
+	// response data token
 	c.JSON(200, gin.H{"token": token})
 
 }

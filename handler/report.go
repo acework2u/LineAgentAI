@@ -12,12 +12,22 @@ type ReportHandler struct {
 	reportService services.ReportService
 }
 
+type reportFilter struct {
+	TypeReport string `json:"typeReport" binding:"required"`
+	StartDate  string `json:"startDate" binding:"required"`
+	EndDate    string `json:"endDate" binding:"required"`
+}
+
 func NewReportHandler(reportService services.ReportService) *ReportHandler {
 	return &ReportHandler{
 		reportService: reportService,
 	}
 }
 
+func (r *ReportHandler) GetReports(c *gin.Context) {
+
+	c.JSON(200, gin.H{"message": "ok"})
+}
 func (r *ReportHandler) GetExportMemberToExcelReport(c *gin.Context) {
 
 	// Create a new Excel file
