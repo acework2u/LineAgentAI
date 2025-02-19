@@ -561,3 +561,42 @@ func (r *eventRepositoryImpl) EventsByClinic(eventId string) ([]*ClinicGroup, er
 
 	return clinics, nil
 }
+func (r *eventRepositoryImpl) EventReport(filter *ReportFilter) ([]*Event, error) {
+	// Define the pipeline with a match stage to filter by startDate and endDate
+	pipeline := []bson.M{
+		{
+			"$match": bson.M{
+				"startDate": bson.M{
+					"$gte": filter.StartDate,
+					"$lte": filter.EndDate,
+				},
+			},
+		},
+		{
+			"$sort": bson.M{"startDate": 1}, // Sort by startDate in ascending order
+		},
+	}
+
+	cursor, err := r.eventsCollection.Aggregate(r.ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(r.ctx)
+
+	// Decode the results into a slice of EventResponse
+	events := []*Event{}
+	for cursor.Next(r.ctx) {
+		var event Event
+		err := cursor.Decode(&event)
+		if err != nil {
+			return nil, err
+		}
+		events = append(events, &event)
+	}
+
+	if err = cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return events, nil
+}

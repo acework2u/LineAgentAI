@@ -98,76 +98,69 @@
 <script>
     const BASE_URL  = "https://deepai.acework.info"
     const EVENTS_APIS = `${BASE_URL}/api/v1/events`
-    const LIFF_ID = "2006793268-9qkzEr2J"
+    const LIFF_ID = "2006793268-V7aWQ21x"
 
 
 
 
     document.addEventListener("DOMContentLoaded", async function () {
+        let selectedDate = null;
+        let eventsData2 = [
+            {
+                title: "Alumni Golf Classic",
+                date: "2025-02-07",
+                time: "08:00 - 10:00 AM",
+                location: "Museum of History",
+                img: "https://via.placeholder.com/50"
+            },
+            {
+                title: "Business Journalism Talk",
+                date: "2025-02-07",
+                time: "02:00 - 05:00 PM",
+                location: "Science Auditorium",
+                img: "https://via.placeholder.com/50"
+            },
+            {
+                title: "Medical Conference",
+                date: "2025-02-20",
+                time: "09:00 - 12:00 PM",
+                location: "Health Center",
+                img: "https://via.placeholder.com/50"
+            }
+        ];
 
-        try {
-
-            await liff.init({liffId: LIFF_ID});
-            if (!liff.isLoggedIn()) {
-                liff.login();
-            }else {
-                let selectedDate = null;
-                let eventsData2 = [
-                    {
-                        title: "Alumni Golf Classic",
-                        date: "2025-02-07",
-                        time: "08:00 - 10:00 AM",
-                        location: "Museum of History",
-                        img: "https://via.placeholder.com/50"
-                    },
-                    {
-                        title: "Business Journalism Talk",
-                        date: "2025-02-07",
-                        time: "02:00 - 05:00 PM",
-                        location: "Science Auditorium",
-                        img: "https://via.placeholder.com/50"
-                    },
-                    {
-                        title: "Medical Conference",
-                        date: "2025-02-20",
-                        time: "09:00 - 12:00 PM",
-                        location: "Health Center",
-                        img: "https://via.placeholder.com/50"
-                    }
-                ];
-
-                let eventsData = await getEvents()
-                console.log(eventsData)
+        let eventsData = await getEvents()
+        console.log(eventsData)
 
 
 
-                let calendarEl = document.getElementById("calendar");
-                let calendar = new FullCalendar.Calendar(calendarEl, {
-                    initialView: "dayGridMonth",
-                    selectable: true,
-                    events: eventsData.map(event => ({ title: event.title, start: event.date })),
-                    dateClick: function (info) {
-                        selectedDate = info.dateStr;
-                        document.getElementById("selected-date").innerText = selectedDate;
-                        displayEvents(selectedDate);
-                    },
-                    themeSystem: 'bootstrap'
-                });
+        let calendarEl = document.getElementById("calendar");
+        let calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: "dayGridMonth",
+            selectable: true,
+            events: eventsData.map(event => ({ title: event.title, start: event.date })),
+            dateClick: function (info) {
+                selectedDate = info.dateStr;
+                document.getElementById("selected-date").innerText = selectedDate;
+                displayEvents(selectedDate);
+            },
+            themeSystem: 'bootstrap'
+        });
 
-                calendar.render();
+        calendar.render();
 
-                function displayEvents(date) {
-                    let eventContainer = document.getElementById("event-container");
-                    let filteredEvents = eventsData.filter(event => event.date === date);
+        function displayEvents(date) {
+            let eventContainer = document.getElementById("event-container");
+            let filteredEvents = eventsData.filter(event => event.date === date);
 
-                    eventContainer.innerHTML = ""; // Clear previous events
-                    if (filteredEvents.length === 0) {
-                        eventContainer.innerHTML = `<p class="text-muted">No events for this date.</p>`;
-                        return;
-                    }
+            eventContainer.innerHTML = ""; // Clear previous events
+            if (filteredEvents.length === 0) {
+                eventContainer.innerHTML = `<p class="text-muted">No events for this date.</p>`;
+                return;
+            }
 
-                    filteredEvents.forEach(event => {
-                        let eventItem = `
+            filteredEvents.forEach(event => {
+                let eventItem = `
                         <div class="event-item">
                             <img src="${event.img}" alt="${event.title}" class="event-img">
                             <div>
@@ -177,20 +170,9 @@
                             </div>
                         </div>
                     `;
-                        eventContainer.innerHTML += eventItem;
-                    });
-                }
-
-            }
-
-
-        }catch (e) {
-            console.log(e)
-            window.location.href = `https://liff.line.me/${LIFF_ID}`
+                eventContainer.innerHTML += eventItem;
+            });
         }
-
-
-
     });
 
     async function getEvents() {

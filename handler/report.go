@@ -25,8 +25,25 @@ func NewReportHandler(reportService services.ReportService) *ReportHandler {
 }
 
 func (r *ReportHandler) GetReports(c *gin.Context) {
+	startDate := c.Query("startDate")
+	endDate := c.Query("endDate")
+	reportType := c.Query("type")
+	if reportType == "event" {
+		eventReports, err := r.reportService.ReportEvents(services.ReportFilter{
+			StartDate: startDate,
+			EndDate:   endDate,
+		})
+		if err != nil {
+			c.JSON(400, gin.H{"message": err.Error()})
+			return
+		}
 
-	c.JSON(200, gin.H{"message": "ok"})
+		c.JSON(200, gin.H{"message": eventReports})
+	}
+	if reportType == "members" {
+		c.JSON(200, gin.H{"message": "members"})
+	}
+
 }
 func (r *ReportHandler) GetExportMemberToExcelReport(c *gin.Context) {
 
@@ -176,6 +193,12 @@ func (r *ReportHandler) GetExportEventToExcelReport(c *gin.Context) {
 }
 func (r *ReportHandler) GetExportEventsToExcelReport(c *gin.Context) {
 
+	eventId := c.Query("eventId")
+	if eventId == "" {
+		c.JSON(400, gin.H{"message": "an event id is required"})
+		return
+	}
+
 	file := xlsx.NewFile()
 
 	eh, err := file.AddSheet("Events")
@@ -224,8 +247,8 @@ func (r *ReportHandler) GetExportEventsToExcelReport(c *gin.Context) {
 	newCol.SetStyle(colStyle)
 	eh.SetColParameters(newCol)
 
-	evenId := "1"
-	clinicReport, err := r.reportService.ExportClinicReport(evenId)
+	//evenId := "1"
+	clinicReport, err := r.reportService.ExportClinicReport(eventId)
 	if err != nil {
 		c.JSON(400, gin.H{"message": err.Error()})
 		return

@@ -4,6 +4,7 @@ type ReportService interface {
 	ExportMemberReport() ([]*MemberReport, error)
 	ExportEventReport() ([]*EventReport, error)
 	ExportClinicReport(eventId string) ([]*ClinicReport, error)
+	ReportEvents(filter ReportFilter) ([]*EventReport, error)
 }
 
 type ReportType string
@@ -15,15 +16,17 @@ const (
 )
 
 type ReportFilter struct {
-	Type    ReportType
-	Date    string
-	Keyword string
-	Page    int
-	Limit   int
-	Sort    string
-	Status  bool
-	LineId  string
-	EventId string
+	Type      ReportType `json:"type"`
+	Date      string     `json:"date"`
+	StartDate string     `json:"startDate"`
+	EndDate   string     `json:"endDate"`
+	Keyword   string     `json:"keyword"`
+	Page      int        `json:"page"`
+	Limit     int        `json:"limit"`
+	Sort      string     `json:"sort"`
+	Status    bool       `json:"status"`
+	LineId    string     `json:"lineId"`
+	EventId   string     `json:"eventId"`
 }
 
 type ReportRequest struct {

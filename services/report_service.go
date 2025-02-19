@@ -191,3 +191,41 @@ func (s *reportService) ExportClinicReport(eventId string) ([]*ClinicReport, err
 
 	return clinicReport, nil
 }
+func (s *reportService) ReportEvents(filter ReportFilter) ([]*EventReport, error) {
+	if filter.StartDate == "" {
+		filter.StartDate = time.Now().Format("2006-01-02")
+	}
+	if filter.EndDate == "" {
+		filter.EndDate = time.Now().Format("2006-01-02")
+	}
+	first, _ := time.Parse("2006-01-02", filter.StartDate)
+	start := first.Unix()
+	last, _ := time.Parse("2006-01-02", filter.EndDate)
+	end := last.Unix()
+
+	// get events from repo
+	resEvents, err := s.eventRepo.EventReport(&repository.ReportFilter{StartDate: start, EndDate: end})
+	if err != nil {
+		return nil, err
+	}
+	events := []*EventReport{}
+	for _, event := range resEvents {
+		// convert time to string
+
+		events = append(events, &EventReport{
+			EventId:     event.EventId,
+			Title:       event.Title,
+			Description: event.Description,
+			StartDate:   time.Unix(event.StartDate, 0).Format("2006-01-02"),
+			EndDate:     time.Unix(event.EndDate, 0).Format("2006-01-02"),
+			StartTime:   time.Unix(event.StartTime, 0).Format("15:04:05"),
+			EndTime:     time.Unix(event.EndTime, 0).Format("15:04:05"),
+			EventType:   "events",
+			Location:    event.Location,
+			Status:      event.Status,
+		})
+	}
+
+	return events, nil
+
+}

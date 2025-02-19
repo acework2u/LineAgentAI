@@ -15,6 +15,7 @@ type EventsRepository interface {
 	EventByEventId(eventId string) (*Event, error)
 	EventsList() ([]*Event, error)
 	EventsByClinic(eventId string) ([]*ClinicGroup, error)
+	EventReport(filter *ReportFilter) ([]*Event, error)
 }
 
 type Fillter struct {
@@ -22,6 +23,15 @@ type Fillter struct {
 	Limit   int    `json:"limit"`
 	Sort    string `json:"sort"`
 	Keyword string `json:"keyword"`
+}
+
+type ReportFilter struct {
+	StartDate int64  `json:"startDate"`
+	EndDate   int64  `json:"endDate"`
+	Keyword   string `json:"keyword"`
+	Page      int    `json:"page"`
+	Limit     int    `json:"limit"`
+	Sort      string `json:"sort"`
 }
 
 type Event struct {
@@ -95,6 +105,7 @@ type EventResponse struct {
 	EventBanner      []EventBanner `json:"eventBanner"`
 	EventEndTime     string        `json:"eventEndTime"`
 	IsJoin           bool          `json:"isJoin"`
+	EventStatus      bool          `json:"eventStatus"`
 }
 
 type EventCheckIn struct {
