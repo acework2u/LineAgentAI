@@ -210,7 +210,18 @@ func (s *reportService) ReportEvents(filter ReportFilter) ([]*EventReport, error
 	}
 	events := []*EventReport{}
 	for _, event := range resEvents {
-		// convert time to string
+		// members append to members service
+		members := []*Member{}
+		for _, member := range event.Members {
+			item := &Member{
+				Name:     member.Name,
+				LastName: member.LastName,
+				Course:   member.Course,
+				LineId:   member.LineId,
+				LineName: member.LineName,
+			}
+			members = append(members, item)
+		}
 
 		events = append(events, &EventReport{
 			EventId:     event.EventId,
@@ -220,9 +231,10 @@ func (s *reportService) ReportEvents(filter ReportFilter) ([]*EventReport, error
 			EndDate:     time.Unix(event.EndDate, 0).Format("2006-01-02"),
 			StartTime:   time.Unix(event.StartTime, 0).Format("15:04:05"),
 			EndTime:     time.Unix(event.EndTime, 0).Format("15:04:05"),
-			EventType:   "events",
+			EventType:   "event",
 			Location:    event.Location,
 			Status:      event.Status,
+			Members:     members,
 		})
 	}
 
