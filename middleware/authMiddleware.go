@@ -50,6 +50,44 @@ func AuthMiddleware() gin.HandlerFunc {
 	}
 }
 
+// TokenAuthMiddleware verifies the token for API service
+func TokenAuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		tokenString := c.GetHeader("Authorization")
+		if tokenString == "" || !strings.HasPrefix(tokenString, "Bearer ") {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			c.Abort()
+			return
+		}
+
+		tokenString = strings.TrimPrefix(tokenString, "Bearer ")
+		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, jwt.ErrSignatureInvalid
+			}
+			return []byte(secretKey), nil
+		})
+		if err != nil || !token.Valid {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			c.Abort()
+			return
+		}
+
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			c.Abort()
+			return
+		}
+
+		c.Set("user_data", map[string]interface{}{
+			"user_id": claims["user_id"],
+			"exp":     claims["ext"],
+		})
+		c.Next()
+	}
+}
+
 //func AuthMiddlewares() gin.HandlerFunc {
 //	return func(c *gin.Context) {
 //		tokenString := c.GetHeader("Authorization")
