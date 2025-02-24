@@ -35,24 +35,26 @@ type ReportFilter struct {
 }
 
 type Event struct {
-	EventId      string            `bson:"eventId"`
-	Title        string            `bson:"title"`
-	Description  string            `bson:"description"`
-	StartDate    int64             `bson:"startDate,omitempty"`
-	EndDate      int64             `bson:"endDate,omitempty"`
-	Place        string            `bson:"place"`
-	StartTime    int64             `bson:"startTime,omitempty"`
-	Banner       []EventBanner     `bson:"banner,omitempty"`
-	EndTime      int64             `bson:"endTime"`
-	Location     string            `bson:"location"`
-	Status       bool              `bson:"status"`
-	CreatedDate  int64             `bson:"createdDate,omitempty"`
-	UpdatedDate  int64             `bson:"updatedDate,omitempty"`
-	LineId       string            `bson:"lineId"`
-	LineName     string            `bson:"lineName"`
-	EventType    string            `bson:"eventType"`
-	Members      []MemberEventImpl `bson:"members,omitempty"`
-	EventCheckIn []*EventCheckIn   `bson:"eventCheckIn,omitempty"`
+	EventId      string             `bson:"eventId"`
+	Title        string             `bson:"title"`
+	Description  string             `bson:"description"`
+	StartDate    int64              `bson:"startDate,omitempty"`
+	EndDate      int64              `bson:"endDate,omitempty"`
+	Place        string             `bson:"place"`
+	StartTime    int64              `bson:"startTime,omitempty"`
+	Banner       []EventBanner      `bson:"banner,omitempty"`
+	EndTime      int64              `bson:"endTime"`
+	Location     string             `bson:"location"`
+	Status       bool               `bson:"status"`
+	CreatedDate  int64              `bson:"createdDate,omitempty"`
+	UpdatedDate  int64              `bson:"updatedDate,omitempty"`
+	LineId       string             `bson:"lineId"`
+	LineName     string             `bson:"lineName"`
+	EventType    string             `bson:"eventType"`
+	Members      []MemberEventImpl  `bson:"members,omitempty"`
+	EventCheckIn []*EventCheckIn    `bson:"eventCheckIn,omitempty"`
+	Public       bool               `bson:"public"`
+	Certificate  []CertificateEvent `bson:"certificate,omitempty"`
 }
 type EventUpdateImpl struct {
 	EventId     string        `bson:"eventId"`
@@ -91,7 +93,7 @@ type MemberEventImpl struct {
 	ReferenceName  string          `bson:"referenceName"`
 	ReferencePhone string          `bson:"referencePhone"`
 	Clinic         string          `bson:"clinic"`
-	EventCheckIn   []*EventCheckIn `bson:"eventCheckIn"`
+	EventCheckIn   []*EventCheckIn `bson:"eventCheckIn,omitempty"`
 }
 
 type EventResponse struct {

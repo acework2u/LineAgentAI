@@ -16,9 +16,10 @@ import (
 )
 
 const (
-	MemberCollectionName = "members"
-	EventsCollectionName = "events"
-	StaffCollectionName  = "staffs"
+	MemberCollectionName   = "members"
+	EventsCollectionName   = "events"
+	StaffCollectionName    = "staffs"
+	SettingsCollectionName = "settings"
 )
 
 var (
@@ -28,26 +29,31 @@ var (
 	appConfig *conf.AppConfig
 
 	// Member Collection
-	memberCollection *mongo.Collection
+	memberCollection   *mongo.Collection
+	settingsCollection *mongo.Collection
 	// LineApp
-	LineHandler    *handler.LineWebhookHandler
-	LineRouter     *router.LineRouter
-	lineBotService services.LineBotService
-	memberRepo     repository.MemberRepository
-	memberService  services.MemberService
-	memberHandler  *handler.MemberHandler
-	memberRouter   *router.MemberRouter
-	eventsRepo     repository.EventsRepository
-	eventsService  services.EventsService
-	eventHandler   *handler.EventHandler
-	eventRouter    *router.EventRouter
-	reportService  services.ReportService
-	reportHandler  *handler.ReportHandler
-	reportRouter   *router.ReportRouter
-	staffRepo      repository.StaffRepository
-	staffService   services.StaffService
-	staffHandler   *handler.StaffHandler
-	staffRouter    *router.StaffRouter
+	LineHandler       *handler.LineWebhookHandler
+	LineRouter        *router.LineRouter
+	lineBotService    services.LineBotService
+	memberRepo        repository.MemberRepository
+	memberService     services.MemberService
+	memberHandler     *handler.MemberHandler
+	memberRouter      *router.MemberRouter
+	eventsRepo        repository.EventsRepository
+	eventsService     services.EventsService
+	eventHandler      *handler.EventHandler
+	eventRouter       *router.EventRouter
+	reportService     services.ReportService
+	reportHandler     *handler.ReportHandler
+	reportRouter      *router.ReportRouter
+	staffRepo         repository.StaffRepository
+	staffService      services.StaffService
+	staffHandler      *handler.StaffHandler
+	staffRouter       *router.StaffRouter
+	settingRepo       repository.AppSettingsRepository
+	appSettingService services.AppSettingsService
+	appSettingHandler *handler.AppSettingHandler
+	appSettingRouter  *router.AppSettingRouter
 )
 
 func init() {
@@ -62,6 +68,7 @@ func init() {
 	memberCollection = conf.GetCollection(client, MemberCollectionName)
 	eventsCollection := conf.GetCollection(client, EventsCollectionName)
 	staffCollection := conf.GetCollection(client, StaffCollectionName)
+	settingsCollection = conf.GetCollection(client, SettingsCollectionName)
 
 	// Service
 
@@ -89,6 +96,11 @@ func init() {
 	memberService = services.NewMemberService(memberRepo)
 	memberHandler = handler.NewMemberHandler(memberService)
 	memberRouter = router.NewMemberRouter(memberHandler)
+	//Settings
+	settingRepo = repository.NewSettingsRepository(ctx, settingsCollection)
+	appSettingService = services.NewAppSettingsService(settingRepo)
+	appSettingHandler = handler.NewAppSettingHandler(appSettingService)
+	appSettingRouter = router.NewAppSettingRouter(appSettingHandler)
 
 	// Set server
 	server = gin.Default()
@@ -147,6 +159,7 @@ func StartServer() {
 	reportRouter.ReportRouter(routers)
 	staffRouter.StaffRouter(routers)
 	memberRouter.MemberRouter(routers)
+	appSettingRouter.AppSettingRouter(routers)
 
 	//server.Run(appConfig.App.Port)
 	log.Fatal(server.Run(":" + appConfig.App.Port + ""))
