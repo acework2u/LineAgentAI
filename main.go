@@ -54,6 +54,8 @@ var (
 	appSettingService services.AppSettingsService
 	appSettingHandler *handler.AppSettingHandler
 	appSettingRouter  *router.AppSettingRouter
+	fileServeHandler  *handler.FileServeHandler
+	fileServeRouter   *router.FileServeRouter
 )
 
 func init() {
@@ -101,6 +103,9 @@ func init() {
 	appSettingService = services.NewAppSettingsService(settingRepo)
 	appSettingHandler = handler.NewAppSettingHandler(appSettingService)
 	appSettingRouter = router.NewAppSettingRouter(appSettingHandler)
+	// File serve
+	fileServeHandler = handler.NewFileServHandler()
+	fileServeRouter = router.NewFileServeRouter(fileServeHandler)
 
 	// Set server
 	server = gin.Default()
@@ -160,6 +165,7 @@ func StartServer() {
 	staffRouter.StaffRouter(routers)
 	memberRouter.MemberRouter(routers)
 	appSettingRouter.AppSettingRouter(routers)
+	fileServeRouter.FileServeRouter(routers)
 
 	//server.Run(appConfig.App.Port)
 	log.Fatal(server.Run(":" + appConfig.App.Port + ""))

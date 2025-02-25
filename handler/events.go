@@ -6,6 +6,7 @@ import (
 	"linechat/services"
 	"linechat/utils"
 	"log"
+	"net/http"
 	"time"
 )
 
@@ -37,13 +38,38 @@ func (e *EventHandler) GetEvent(c *gin.Context) {
 	c.JSON(200, gin.H{"message": res})
 }
 func (e *EventHandler) CreateEvent(c *gin.Context) {
+	//event := &services.EventImpl{}
+	//err := c.ShouldBindJSON(event)
 	event := &services.EventImpl{}
-	err := c.ShouldBindJSON(event)
+	err := c.ShouldBind(event)
+	//err := c.Bind(event)
 	cusErr := utils.NewCustomErrorHandler(c)
 	if err != nil {
+		log.Println("error creating event")
 		log.Println(err.Error())
 		cusErr.ValidateError(err)
 		return
+	}
+	log.Println(event)
+	// upload files
+	form, err := c.MultipartForm()
+	if err == nil {
+		files := form.File["banners"]
+		for _, file := range files {
+			f, err := file.Open()
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			defer f.Close()
+
+			url, err := utils.UploadFile(f, file.Filename)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			event.Banners = append(event.Banners, url)
+		}
 	}
 
 	log.Println(event)

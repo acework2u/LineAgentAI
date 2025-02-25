@@ -89,6 +89,7 @@ func (s *eventsService) GetEventById(eventId string) (*Event, error) {
 
 }
 func (s *eventsService) CreateEvent(event *EventImpl) error {
+	
 	//init the loc
 	loc, _ := time.LoadLocation("Asia/Bangkok")
 	//set timezone,
@@ -134,6 +135,8 @@ func (s *eventsService) CreateEvent(event *EventImpl) error {
 		EventType:    event.EventType,
 		Members:      make([]repository.MemberEventImpl, 0),
 		EventCheckIn: make([]*repository.EventCheckIn, 0),
+		Published:    event.Published,
+		Role:         event.Role,
 	})
 	if err != nil {
 		return err
@@ -160,11 +163,6 @@ func (s *eventsService) UpdateEvent(event *EventImpl) error {
 	eventStartTime, _ := time.ParseInLocation(layout, event.StartTime, bangKok)
 	eventEndDate, _ := time.ParseInLocation(layout, event.EndDate, bangKok)
 	eventEndTime, _ := time.ParseInLocation(layout, event.EndTime, bangKok)
-
-	//eventStart = eventStart.In(bangKok)
-	//eventStartDate = eventStartDate.In(bangKok)
-	//eventStartTime = eventStartTime.In(bangKok)
-	//eventEndDate = eventEndDate.In(bangKok)
 
 	log.Println("Event Start:", event.StartDate, " ", event.EndDate)
 	log.Println(eventStart)

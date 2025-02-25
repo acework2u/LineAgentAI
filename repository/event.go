@@ -46,15 +46,16 @@ type Event struct {
 	EndTime      int64              `bson:"endTime"`
 	Location     string             `bson:"location"`
 	Status       bool               `bson:"status"`
-	CreatedDate  int64              `bson:"createdDate,omitempty"`
-	UpdatedDate  int64              `bson:"updatedDate,omitempty"`
 	LineId       string             `bson:"lineId"`
 	LineName     string             `bson:"lineName"`
 	EventType    string             `bson:"eventType"`
 	Members      []MemberEventImpl  `bson:"members,omitempty"`
 	EventCheckIn []*EventCheckIn    `bson:"eventCheckIn,omitempty"`
-	Public       bool               `bson:"public"`
+	Published    bool               `bson:"Published"`
+	Role         []string           `bson:"role,omitempty"`
 	Certificate  []CertificateEvent `bson:"certificate,omitempty"`
+	CreatedDate  int64              `bson:"createdDate,omitempty"`
+	UpdatedDate  int64              `bson:"updatedDate,omitempty"`
 }
 type EventUpdateImpl struct {
 	EventId     string        `bson:"eventId"`
