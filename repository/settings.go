@@ -27,6 +27,7 @@ type AppSettings struct {
 	UpdatedAt     int64                    `bson:"updated_at,omitempty"`
 }
 type MemberTypeSettingImpl struct {
+	Id     string `bson:"id,omitempty"`
 	Title  string `bson:"title"`
 	Status bool   `bson:"status"`
 }

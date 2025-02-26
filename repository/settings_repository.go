@@ -5,7 +5,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"log"
 )
 
 type settingsRepository struct {
@@ -65,7 +64,6 @@ func (r *settingsRepository) AddMemberType(appId string, memberType *MemberTypeS
 	if err != nil {
 		return err
 	}
-	log.Println(id)
 	// get result app setting
 	appSetting := AppSettings{}
 	res := r.appSettingsCollection.FindOne(r.ctx, bson.D{{"_id", id}})
@@ -74,8 +72,6 @@ func (r *settingsRepository) AddMemberType(appId string, memberType *MemberTypeS
 	}
 	err = res.Decode(&appSetting)
 
-	log.Println("Repo MemberType")
-	log.Println(memberType)
 	appMemberType := []*MemberTypeSettingImpl{}
 	for _, member := range appSetting.MemberType {
 		//if member.Title != memberType.Title {
@@ -88,7 +84,6 @@ func (r *settingsRepository) AddMemberType(appId string, memberType *MemberTypeS
 	}
 
 	appMemberType = append(appMemberType, memberType)
-	//log.Println(appMemberType)
 
 	if err != nil {
 		return err
@@ -122,10 +117,11 @@ func (r *settingsRepository) UpdateMemberType(appId string, memberType *MemberTy
 	if err != nil {
 		return err
 	}
+
 	// update member type in app setting
 	appMemberType := []*MemberTypeSettingImpl{}
 	for _, member := range appSetting.MemberType {
-		if member.Title == memberType.Title {
+		if member.Id == memberType.Id {
 			member.Title = memberType.Title
 			member.Status = memberType.Status
 		}

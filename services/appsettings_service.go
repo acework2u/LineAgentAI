@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"linechat/repository"
 	"time"
@@ -99,9 +100,11 @@ func (s *AppSettingsServiceImpl) AddMemberType(appId string, memberType *MemberT
 	if appId == "" {
 		return errors.New("app id is empty")
 	}
+	memberTypeId, _ := uuid.NewUUID()
 	err := s.appSettingRepo.AddMemberType(appId, &repository.MemberTypeSettingImpl{
+		Id:     memberTypeId.String(),
 		Title:  memberType.Title,
-		Status: memberType.Status,
+		Status: true,
 	})
 	if err != nil {
 		return err
@@ -121,9 +124,11 @@ func (s *AppSettingsServiceImpl) MemberTypesList(appId string) ([]*MemberTypeImp
 		}
 		return nil, err
 	}
+
 	convertMemberType := make([]*MemberTypeImpl, 0, len(res))
 	for _, memberType := range res {
 		convertMemberType = append(convertMemberType, &MemberTypeImpl{
+			Id:     memberType.Id,
 			Title:  memberType.Title,
 			Status: memberType.Status,
 		})
@@ -135,10 +140,14 @@ func (s *AppSettingsServiceImpl) UpdateMemberType(appId string, memberType *Memb
 		return errors.New("app id is empty")
 	}
 	err := s.appSettingRepo.UpdateMemberType(appId, &repository.MemberTypeSettingImpl{
+		Id:     memberType.Id,
 		Title:  memberType.Title,
 		Status: memberType.Status,
 	})
 	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return errors.New("member type not found")
+		}
 		return err
 	}
 	return nil

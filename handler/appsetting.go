@@ -83,6 +83,7 @@ func (h *AppSettingHandler) PutMemberType(c *gin.Context) {
 	if err != nil {
 		cusErr.ValidateError(err)
 	}
+
 	err = h.appSettingServ.UpdateMemberType(appIds, &memberType)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})

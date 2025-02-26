@@ -22,7 +22,7 @@ func (r *AppSettingRouter) AppSettingRouter(rg *gin.RouterGroup) {
 	router.GET("/:id", r.appSettingHandler.GetAppSetting)
 	router.GET("/:id/member-types", r.appSettingHandler.GetMemberType)
 	router.POST("/:id/member-types", r.appSettingHandler.PostMemberType)
-	router.PUT("/:id/member-types/:memberTypeId", r.appSettingHandler.PutMemberType)
+	router.PUT("/:id/member-types", r.appSettingHandler.PutMemberType)
 	router.DELETE("/:id/member-types/:memberTypeId", r.appSettingHandler.DeleteMemberType)
 
 }

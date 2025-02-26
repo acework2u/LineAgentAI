@@ -23,6 +23,7 @@ type AppSettings struct {
 }
 
 type MemberTypeImpl struct {
+	Id     string `json:"id,omitempty"`
 	Title  string `json:"title" binding:"required"`
 	Status bool   `json:"status"`
 }
