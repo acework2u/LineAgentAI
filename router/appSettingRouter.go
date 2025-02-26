@@ -24,5 +24,9 @@ func (r *AppSettingRouter) AppSettingRouter(rg *gin.RouterGroup) {
 	router.POST("/:id/member-types", r.appSettingHandler.PostMemberType)
 	router.PUT("/:id/member-types", r.appSettingHandler.PutMemberType)
 	router.DELETE("/:id/member-types/:memberTypeId", r.appSettingHandler.DeleteMemberType)
+	router.GET("/:id/courses", r.appSettingHandler.GetCourses)
+	router.POST("/:id/courses", r.appSettingHandler.PostAddCourse)
+	router.PUT("/:id/courses", r.appSettingHandler.PutUpdateCourse)
+	router.DELETE("/:id/courses/:courseId", r.appSettingHandler.DeleteCourse)
 
 }

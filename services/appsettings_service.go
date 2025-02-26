@@ -177,3 +177,90 @@ func (s *AppSettingsServiceImpl) DeleteAppSettings(appId string) error {
 	}
 	return nil
 }
+func (s *AppSettingsServiceImpl) AddCourse(appId string, course *Course) error {
+
+	if appId == "" {
+		return errors.New("app id is empty")
+	}
+	err := s.appSettingRepo.AddCourse(appId, &repository.Course{
+		Name:   course.Name,
+		Type:   course.Type,
+		Desc:   course.Desc,
+		Img:    course.Img,
+		Status: true,
+	})
+	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return nil
+		}
+		return err
+	}
+
+	return nil
+}
+func (s *AppSettingsServiceImpl) UpdateCourse(appId string, course *Course) error {
+	if appId == "" {
+		return errors.New("app id is empty")
+	}
+	err := s.appSettingRepo.UpdateCourse(appId, &repository.Course{
+		Id:     course.Id,
+		Name:   course.Name,
+		Type:   course.Type,
+		Desc:   course.Desc,
+		Img:    course.Img,
+		Status: course.Status,
+	})
+	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return errors.New("course not found")
+		}
+		return err
+	}
+
+	return nil
+}
+func (s *AppSettingsServiceImpl) DeleteCourse(appId string, course *Course) error {
+	if appId == "" {
+		return errors.New("app id is empty")
+	}
+	err := s.appSettingRepo.DeleteCourse(appId, &repository.Course{
+		Id:     course.Id,
+		Name:   course.Name,
+		Type:   course.Type,
+		Desc:   course.Desc,
+		Img:    course.Img,
+		Status: course.Status,
+	})
+	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return errors.New("course not found")
+		}
+		return err
+	}
+	return nil
+}
+func (s *AppSettingsServiceImpl) CourseList(appId string) ([]*Course, error) {
+	if appId == "" {
+		return nil, errors.New("app id is empty")
+	}
+
+	courses, err := s.appSettingRepo.CourseListSetting(appId)
+	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return nil, nil
+		}
+		return nil, err
+	}
+	convertCourse := make([]*Course, 0, len(courses))
+	for _, course := range courses {
+		convertCourse = append(convertCourse, &Course{
+			Id:     course.Id,
+			Name:   course.Name,
+			Type:   course.Type,
+			Desc:   course.Desc,
+			Img:    course.Img,
+			Status: course.Status,
+		})
+	}
+	return convertCourse, nil
+}

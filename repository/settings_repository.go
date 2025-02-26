@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -175,7 +176,98 @@ func (r *settingsRepository) AddClinicSetting(appId string, clinicSetting *Clini
 	return nil
 }
 func (r *settingsRepository) AddCourse(appId string, course *Course) error {
+	id, err := primitive.ObjectIDFromHex(appId)
+	if err != nil {
+		return fmt.Errorf("invalid appId: %v", err)
+	}
+	if course.Id == "" {
+		course.Id = primitive.NewObjectID().Hex()
+	}
+	// Add course to Courses array if it doesn't already exist
+	update := bson.M{
+		"$addToSet": bson.M{"courses": course},
+	}
+	res, err := r.appSettingsCollection.UpdateOne(r.ctx, bson.M{"_id": id}, update)
+	if err != nil {
+		return fmt.Errorf("failed to update document: %v", err)
+	}
+
+	if res.MatchedCount == 0 {
+		return fmt.Errorf("no document found with id: %v", appId)
+	}
 	return nil
+}
+func (r *settingsRepository) UpdateCourse(appId string, course *Course) error {
+
+	id, _ := primitive.ObjectIDFromHex(appId)
+	appSetting := AppSettings{}
+	res := r.appSettingsCollection.FindOne(r.ctx, bson.D{{"_id", id}})
+	if res.Err() != nil {
+		if res.Err() == mongo.ErrNoDocuments {
+			return nil
+		}
+		return res.Err()
+	}
+	err := res.Decode(&appSetting)
+	if err != nil {
+		return err
+	}
+	courses := []*Course{}
+	for _, item := range appSetting.Courses {
+		if item.Id == course.Id {
+			item.Name = course.Name
+			item.Status = course.Status
+		}
+	}
+	res = r.appSettingsCollection.FindOneAndUpdate(r.ctx, bson.D{{"_id", id}}, bson.M{"$set": bson.D{{"courses", courses}}})
+	if res.Err() != nil {
+		return res.Err()
+	}
+	return nil
+}
+func (r *settingsRepository) DeleteCourse(appId string, course *Course) error {
+	if course == nil {
+		return fmt.Errorf("course cannot be nil")
+	}
+
+	// Convert appId to ObjectID
+	id, err := primitive.ObjectIDFromHex(appId)
+	if err != nil {
+		return fmt.Errorf("invalid appId: %s, error: %v", appId, err)
+	}
+
+	// Use MongoDB's $pull operator to atomically remove the course
+	update := bson.M{"$pull": bson.M{"courses": bson.M{"id": course.Id}}}
+	res, err := r.appSettingsCollection.UpdateOne(r.ctx, bson.M{"_id": id}, update)
+	if err != nil {
+		return fmt.Errorf("failed to update app settings: %v", err)
+	}
+
+	// Check if the document was found
+	if res.MatchedCount == 0 {
+		return fmt.Errorf("no app settings found with id %s", appId)
+	}
+
+	// Check if the course was removed
+	if res.ModifiedCount == 0 {
+		return fmt.Errorf("course with id %s not removed (not found in courses array)", course.Id)
+	}
+
+	return nil
+}
+func (r *settingsRepository) CourseListSetting(appId string) ([]*Course, error) {
+
+	id, _ := primitive.ObjectIDFromHex(appId)
+	appSetting := AppSettings{}
+	res := r.appSettingsCollection.FindOne(r.ctx, bson.D{{"_id", id}})
+	if res.Err() != nil {
+		return nil, res.Err()
+	}
+	err := res.Decode(&appSetting)
+	if err != nil {
+		return nil, err
+	}
+	return appSetting.Courses, nil
 }
 func (r *settingsRepository) AddCourseType(appId string, courseType string) error {
 	return nil

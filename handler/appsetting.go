@@ -16,7 +16,6 @@ func NewAppSettingHandler(appSettingServ services.AppSettingsService) *AppSettin
 		appSettingServ: appSettingServ,
 	}
 }
-
 func (h *AppSettingHandler) GetAppSetting(c *gin.Context) {
 	appSettingInfo, err := h.appSettingServ.GetAppSettings()
 	if err != nil {
@@ -25,7 +24,6 @@ func (h *AppSettingHandler) GetAppSetting(c *gin.Context) {
 	}
 	c.JSON(200, gin.H{"appSetting": appSettingInfo})
 }
-
 func (h *AppSettingHandler) PostAppSetting(c *gin.Context) {
 
 	setttingInfo := services.AppSettings{}
@@ -43,7 +41,6 @@ func (h *AppSettingHandler) PostAppSetting(c *gin.Context) {
 
 	c.JSON(200, gin.H{"appSetting": "ok"})
 }
-
 func (h *AppSettingHandler) GetMemberType(c *gin.Context) {
 	id := c.Param("id")
 	memberType, err := h.appSettingServ.MemberTypesList(id)
@@ -106,7 +103,6 @@ func (h *AppSettingHandler) DeleteMemberType(c *gin.Context) {
 	}
 	c.JSON(200, gin.H{"message": "delete memberType successfully"})
 }
-
 func (h *AppSettingHandler) DeleteAppSetting(c *gin.Context) {
 	appIds := c.Param("id")
 	if appIds == "" {
@@ -120,4 +116,53 @@ func (h *AppSettingHandler) DeleteAppSetting(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{"message": "delete appSetting successfully"})
+}
+func (h *AppSettingHandler) GetCourses(c *gin.Context) {
+	appIds := c.Param("id")
+	if appIds == "" {
+		c.JSON(400, gin.H{"error": "Invalid app id"})
+		return
+	}
+	courses, err := h.appSettingServ.CourseList(appIds)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+	}
+	c.JSON(200, gin.H{"message": courses})
+}
+func (h *AppSettingHandler) PostAddCourse(c *gin.Context) {
+	appId := c.Param("id")
+	course := services.Course{}
+	err := c.ShouldBindJSON(&course)
+	cusErr := utils.NewCustomErrorHandler(c)
+	if err != nil {
+		cusErr.ValidateError(err)
+		return
+	}
+	err = h.appSettingServ.AddCourse(appId, &course)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "add course successfully"})
+}
+func (h *AppSettingHandler) PutUpdateCourse(c *gin.Context) {
+	c.JSON(200, gin.H{"message": "put update course"})
+}
+func (h *AppSettingHandler) DeleteCourse(c *gin.Context) {
+	appId := c.Param("id")
+	course := services.Course{}
+	err := c.ShouldBindJSON(&course)
+	cusErr := utils.NewCustomErrorHandler(c)
+	if err != nil {
+		cusErr.ValidateError(err)
+		return
+	}
+	err = h.appSettingServ.DeleteCourse(appId, &course)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "delete course successfully"})
 }

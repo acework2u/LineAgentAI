@@ -9,6 +9,10 @@ type AppSettingsService interface {
 	UpdateMemberType(appId string, memberType *MemberTypeImpl) error
 	DeleteMemberType(appId string, memberType *MemberTypeImpl) error
 	MemberTypesList(appId string) ([]*MemberTypeImpl, error)
+	AddCourse(appId string, course *Course) error
+	UpdateCourse(appId string, course *Course) error
+	DeleteCourse(appId string, course *Course) error
+	CourseList(appId string) ([]*Course, error)
 }
 
 type AppSettings struct {
@@ -35,8 +39,8 @@ type ClinicSettingImpl struct {
 }
 type Course struct {
 	Id     string `json:"id,omitempty"`
-	Name   string `json:"name"`
-	Type   string `json:"type"`
+	Name   string `json:"name" binding:"required"`
+	Type   string `json:"type" binding:"required"`
 	Desc   string `json:"desc"`
 	Img    string `json:"img"`
 	Status bool   `json:"status"`
