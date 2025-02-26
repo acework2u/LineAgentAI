@@ -57,6 +57,9 @@ func (s *AppSettingsServiceImpl) GetAppSettings() (*AppSettings, error) {
 
 	res, err := s.appSettingRepo.GetAppSettings()
 	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return nil, nil
+		}
 		return nil, err
 	}
 
@@ -92,5 +95,76 @@ func (s *AppSettingsServiceImpl) UpdateAppSettings(settings *AppSettings) error 
 	return nil
 }
 func (s *AppSettingsServiceImpl) AddMemberType(appId string, memberType *MemberTypeImpl) error {
+
+	if appId == "" {
+		return errors.New("app id is empty")
+	}
+	err := s.appSettingRepo.AddMemberType(appId, &repository.MemberTypeSettingImpl{
+		Title:  memberType.Title,
+		Status: memberType.Status,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+func (s *AppSettingsServiceImpl) MemberTypesList(appId string) ([]*MemberTypeImpl, error) {
+	if appId == "" {
+		return nil, errors.New("app id is empty")
+	}
+	res, err := s.appSettingRepo.MemberTypesetting(appId)
+	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return nil, nil
+		}
+		return nil, err
+	}
+	convertMemberType := make([]*MemberTypeImpl, 0, len(res))
+	for _, memberType := range res {
+		convertMemberType = append(convertMemberType, &MemberTypeImpl{
+			Title:  memberType.Title,
+			Status: memberType.Status,
+		})
+	}
+	return convertMemberType, nil
+}
+func (s *AppSettingsServiceImpl) UpdateMemberType(appId string, memberType *MemberTypeImpl) error {
+	if appId == "" {
+		return errors.New("app id is empty")
+	}
+	err := s.appSettingRepo.UpdateMemberType(appId, &repository.MemberTypeSettingImpl{
+		Title:  memberType.Title,
+		Status: memberType.Status,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func (s *AppSettingsServiceImpl) DeleteMemberType(appId string, memberType *MemberTypeImpl) error {
+	if appId == "" {
+		return errors.New("app id is empty")
+	}
+	err := s.appSettingRepo.DeleteMemberType(appId, &repository.MemberTypeSettingImpl{
+		Title:  memberType.Title,
+		Status: memberType.Status,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+
+}
+func (s *AppSettingsServiceImpl) DeleteAppSettings(appId string) error {
+	if appId == "" {
+		return errors.New("app id is empty")
+	}
+	// delete app setting
+	err := s.appSettingRepo.DeleteAppSettings(appId)
+	if err != nil {
+		return err
+	}
 	return nil
 }
