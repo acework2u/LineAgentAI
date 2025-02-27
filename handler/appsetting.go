@@ -147,7 +147,20 @@ func (h *AppSettingHandler) PostAddCourse(c *gin.Context) {
 	c.JSON(200, gin.H{"message": "add course successfully"})
 }
 func (h *AppSettingHandler) PutUpdateCourse(c *gin.Context) {
-	c.JSON(200, gin.H{"message": "put update course"})
+	appId := c.Param("id")
+	course := services.Course{}
+	err := c.ShouldBindJSON(&course)
+	cusErr := utils.NewCustomErrorHandler(c)
+	if err != nil {
+		cusErr.ValidateError(err)
+		return
+	}
+	err = h.appSettingServ.UpdateCourse(appId, &course)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"message": "Update course successfully"})
 }
 func (h *AppSettingHandler) DeleteCourse(c *gin.Context) {
 	appId := c.Param("id")

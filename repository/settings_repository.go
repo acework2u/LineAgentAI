@@ -198,31 +198,56 @@ func (r *settingsRepository) AddCourse(appId string, course *Course) error {
 	return nil
 }
 func (r *settingsRepository) UpdateCourse(appId string, course *Course) error {
+	if course == nil {
+		return fmt.Errorf("course cannot be nil")
+	}
 
-	id, _ := primitive.ObjectIDFromHex(appId)
+	id, err := primitive.ObjectIDFromHex(appId)
+	if err != nil {
+		return fmt.Errorf("invalid appId: %v", err)
+	}
+
 	appSetting := AppSettings{}
 	res := r.appSettingsCollection.FindOne(r.ctx, bson.D{{"_id", id}})
 	if res.Err() != nil {
 		if res.Err() == mongo.ErrNoDocuments {
-			return nil
+			return fmt.Errorf("no app settings found with id: %s", appId)
 		}
 		return res.Err()
 	}
-	err := res.Decode(&appSetting)
+
+	err = res.Decode(&appSetting)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to decode app settings: %v", err)
 	}
+
 	courses := []*Course{}
+	found := false
 	for _, item := range appSetting.Courses {
 		if item.Id == course.Id {
 			item.Name = course.Name
+			item.Desc = course.Desc
+			item.Type = course.Type
+			item.Img = course.Img
 			item.Status = course.Status
+			found = true
 		}
+		courses = append(courses, item)
 	}
-	res = r.appSettingsCollection.FindOneAndUpdate(r.ctx, bson.D{{"_id", id}}, bson.M{"$set": bson.D{{"courses", courses}}})
-	if res.Err() != nil {
-		return res.Err()
+
+	if !found {
+		return fmt.Errorf("course with id %s not found", course.Id)
 	}
+
+	updateResult, err := r.appSettingsCollection.UpdateOne(r.ctx, bson.D{{"_id", id}}, bson.M{"$set": bson.D{{"courses", courses}}})
+	if err != nil {
+		return err
+	}
+
+	if updateResult.MatchedCount == 0 {
+		return fmt.Errorf("no matching document found with id: %s", appId)
+	}
+
 	return nil
 }
 func (r *settingsRepository) DeleteCourse(appId string, course *Course) error {
