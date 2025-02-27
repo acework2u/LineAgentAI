@@ -81,12 +81,22 @@ func (s *AppSettingsServiceImpl) GetAppSettings() (*AppSettings, error) {
 			Status: memberType.Status,
 		})
 	}
-
+	courses := make([]*Course, 0, len(res.Courses))
+	for _, course := range res.Courses {
+		courses = append(courses, &Course{
+			Name:   course.Name,
+			Type:   course.Type,
+			Desc:   course.Desc,
+			Img:    course.Img,
+			Status: course.Status,
+		})
+	}
 	appSettings := &AppSettings{
 		Id:            res.Id.Hex(),
 		Title:         res.Name,
 		MemberType:    convertMemberType,
 		ClinicSetting: convertClinic,
+		Courses:       courses,
 	}
 
 	return appSettings, nil
@@ -263,4 +273,74 @@ func (s *AppSettingsServiceImpl) CourseList(appId string) ([]*Course, error) {
 		})
 	}
 	return convertCourse, nil
+}
+func (s *AppSettingsServiceImpl) AddCourseType(appId string, courseType *CourseType) error {
+	if appId == "" {
+		return errors.New("app id is empty")
+	}
+	courseTypeId, _ := uuid.NewUUID()
+	if courseType.Name == "" {
+		return errors.New("course type name is empty")
+	}
+	err := s.appSettingRepo.AddCourseType(appId, &repository.CourseType{
+		Id:   courseTypeId.String(),
+		Name: courseType.Name,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+
+}
+func (s *AppSettingsServiceImpl) CourseTypeList(appId string) ([]*CourseType, error) {
+	if appId == "" {
+		return nil, errors.New("app id is empty")
+	}
+	result, err := s.appSettingRepo.CourseTypeList(appId)
+	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return nil, nil
+		}
+	}
+	convertCourseType := make([]*CourseType, 0, len(result))
+	for _, courseType := range result {
+		convertCourseType = append(convertCourseType, &CourseType{
+			Id:   courseType.Id,
+			Name: courseType.Name,
+		})
+	}
+	return convertCourseType, nil
+}
+func (s *AppSettingsServiceImpl) UpdateCourseType(appId string, courseType *CourseType) error {
+	if appId == "" {
+		return errors.New("app id is empty")
+	}
+	err := s.appSettingRepo.UpdateCourseType(appId, &repository.CourseType{
+		Id:   courseType.Id,
+		Name: courseType.Name,
+	})
+	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return errors.New("course type not found")
+		}
+		return err
+	}
+	return nil
+
+}
+func (s *AppSettingsServiceImpl) DeleteCourseType(appId string, courseType *CourseType) error {
+	if appId == "" {
+		return errors.New("app id is empty")
+	}
+	err := s.appSettingRepo.DeleteCourseType(appId, &repository.CourseType{
+		Id:   courseType.Id,
+		Name: courseType.Name,
+	})
+	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return errors.New("course type not found")
+		}
+		return err
+	}
+	return nil
 }

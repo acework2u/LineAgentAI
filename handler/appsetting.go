@@ -179,3 +179,60 @@ func (h *AppSettingHandler) DeleteCourse(c *gin.Context) {
 
 	c.JSON(200, gin.H{"message": "delete course successfully"})
 }
+func (h *AppSettingHandler) GetCourseTypeList(c *gin.Context) {
+	appIds := c.Param("id")
+	if appIds == "" {
+		c.JSON(400, gin.H{"error": "Invalid app id"})
+		return
+	}
+	courseTypes, err := h.appSettingServ.CourseTypeList(appIds)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+	}
+	c.JSON(200, gin.H{"message": courseTypes})
+}
+func (h *AppSettingHandler) PostAddCourseType(c *gin.Context) {
+	appId := c.Param("id")
+	courseType := services.CourseType{}
+	err := c.ShouldBindJSON(&courseType)
+	cusErr := utils.NewCustomErrorHandler(c)
+	if err != nil {
+		cusErr.ValidateError(err)
+		return
+	}
+	err = h.appSettingServ.AddCourseType(appId, &courseType)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+	}
+	c.JSON(200, gin.H{"message": "add course type successfully"})
+}
+func (h *AppSettingHandler) PutUpdateCourseType(c *gin.Context) {
+	appId := c.Param("id")
+	courseType := services.CourseType{}
+	err := c.ShouldBindJSON(&courseType)
+	cusErr := utils.NewCustomErrorHandler(c)
+	if err != nil {
+		cusErr.ValidateError(err)
+		return
+	}
+	err = h.appSettingServ.UpdateCourseType(appId, &courseType)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+	}
+	c.JSON(200, gin.H{"message": "update course type successfully"})
+}
+func (h *AppSettingHandler) DeleteCourseType(c *gin.Context) {
+	appId := c.Param("id")
+	courseType := services.CourseType{}
+	err := c.ShouldBindJSON(&courseType)
+	cusErr := utils.NewCustomErrorHandler(c)
+	if err != nil {
+		cusErr.ValidateError(err)
+		return
+	}
+	err = h.appSettingServ.DeleteCourseType(appId, &courseType)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+	}
+	c.JSON(200, gin.H{"message": "delete course type successfully"})
+}

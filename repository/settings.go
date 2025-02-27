@@ -16,7 +16,10 @@ type AppSettingsRepository interface {
 	UpdateCourse(appId string, course *Course) error
 	DeleteCourse(appId string, course *Course) error
 	CourseListSetting(appId string) ([]*Course, error)
-	AddCourseType(appId string, courseType string) error
+	AddCourseType(appId string, courseType *CourseType) error
+	CourseTypeList(appId string) ([]*CourseType, error)
+	UpdateCourseType(appId string, courseType *CourseType) error
+	DeleteCourseType(appId string, courseType *CourseType) error
 }
 
 type AppSettings struct {
@@ -25,6 +28,7 @@ type AppSettings struct {
 	MemberType    []*MemberTypeSettingImpl `bson:"members_type,omitempty"`
 	ClinicSetting []*ClinicSettingImpl     `bson:"clinic_setting,omitempty"`
 	Courses       []*Course                `bson:"courses,omitempty"`
+	CourseType    []*CourseType            `bson:"course_type,omitempty"`
 	Status        bool                     `bson:"status"`
 	CreatedAt     int64                    `bson:"created_at,omitempty"`
 	UpdatedAt     int64                    `bson:"updated_at,omitempty"`
@@ -47,4 +51,8 @@ type Course struct {
 	Desc   string `bson:"desc"`
 	Img    string `bson:"img"`
 	Status bool   `bson:"status"`
+}
+type CourseType struct {
+	Id   string `bson:"id,omitempty"`
+	Name string `bson:"name"`
 }

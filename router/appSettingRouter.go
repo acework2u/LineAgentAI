@@ -28,5 +28,8 @@ func (r *AppSettingRouter) AppSettingRouter(rg *gin.RouterGroup) {
 	router.POST("/:id/courses", r.appSettingHandler.PostAddCourse)
 	router.PUT("/:id/courses", r.appSettingHandler.PutUpdateCourse)
 	router.DELETE("/:id/courses/:courseId", r.appSettingHandler.DeleteCourse)
-
+	router.GET("/:id/course-types", r.appSettingHandler.GetCourseTypeList)
+	router.POST("/:id/course-types", r.appSettingHandler.PostAddCourseType)
+	router.PUT("/:id/course-types", r.appSettingHandler.PutUpdateCourseType)
+	router.DELETE("/:id/course-types/:courseTypeId", r.appSettingHandler.DeleteCourseType)
 }

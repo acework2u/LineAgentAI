@@ -6,6 +6,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type settingsRepository struct {
@@ -294,6 +295,132 @@ func (r *settingsRepository) CourseListSetting(appId string) ([]*Course, error) 
 	}
 	return appSetting.Courses, nil
 }
-func (r *settingsRepository) AddCourseType(appId string, courseType string) error {
+func (r *settingsRepository) AddCourseType(appId string, courseType *CourseType) error {
+	if appId == "" {
+		return fmt.Errorf("appId cannot be empty")
+	}
+
+	id, err := primitive.ObjectIDFromHex(appId)
+	if err != nil {
+		return fmt.Errorf("invalid appId: %s", appId)
+	}
+
+	// Validate course type name and prepare ID
+	courseType.Id = primitive.NewObjectID().Hex()
+
+	// Use $addToSet to ensure uniqueness and atomic update
+	update := bson.M{
+		"$addToSet": bson.M{"course_type": courseType},
+	}
+	opts := options.FindOneAndUpdate().SetUpsert(false).SetReturnDocument(options.After)
+	res := r.appSettingsCollection.FindOneAndUpdate(r.ctx, bson.M{"_id": id}, update, opts)
+	if res.Err() != nil {
+		if res.Err() == mongo.ErrNoDocuments {
+			return fmt.Errorf("no app settings found with id: %s", appId)
+		}
+		return fmt.Errorf("failed to update app settings: %w", res.Err())
+	}
+	return nil
+}
+func (r *settingsRepository) CourseTypeList(appId string) ([]*CourseType, error) {
+	if appId == "" {
+		return nil, fmt.Errorf("appId cannot be empty")
+	}
+	id, err := primitive.ObjectIDFromHex(appId)
+	if err != nil {
+		return nil, err
+	}
+	appSetting := AppSettings{}
+	res := r.appSettingsCollection.FindOne(r.ctx, bson.D{{"_id", id}})
+	if res.Err() != nil {
+		return nil, res.Err()
+	}
+	err = res.Decode(&appSetting)
+	if err != nil {
+		return nil, err
+	}
+	return appSetting.CourseType, nil
+
+}
+func (r *settingsRepository) UpdateCourseType(appId string, courseType *CourseType) error {
+	if appId == "" {
+		return fmt.Errorf("appId cannot be empty")
+	}
+	id, err := primitive.ObjectIDFromHex(appId)
+	if err != nil {
+		return err
+	}
+	appSetting := AppSettings{}
+	res := r.appSettingsCollection.FindOne(r.ctx, bson.D{{"_id", id}})
+	if res.Err() != nil {
+		if res.Err() == mongo.ErrNoDocuments {
+			return fmt.Errorf("no app settings found with id: %s", appId)
+		}
+	}
+	err = res.Decode(&appSetting)
+	if err != nil {
+		return err
+	}
+	found := false
+	for _, course := range appSetting.CourseType {
+		if course.Id == courseType.Id {
+			found = true
+			course = courseType
+		}
+		appSetting.CourseType = append(appSetting.CourseType, course)
+	}
+	if !found {
+		return fmt.Errorf("course type with id %s not found", courseType.Id)
+	}
+	update := bson.M{
+		"$set": bson.D{{"course_type", appSetting.CourseType}},
+	}
+	updateResult, err := r.appSettingsCollection.UpdateOne(r.ctx, bson.M{"_id": id}, update)
+	if err != nil {
+		return err
+	}
+	if updateResult.MatchedCount == 0 {
+		return fmt.Errorf("no matching document found with id: %s", appId)
+	}
+	return nil
+
+}
+func (r *settingsRepository) DeleteCourseType(appId string, courseType *CourseType) error {
+	if appId == "" {
+		return fmt.Errorf("appId cannot be empty")
+	}
+	id, err := primitive.ObjectIDFromHex(appId)
+	if err != nil {
+		return err
+	}
+	appSetting := AppSettings{}
+	res := r.appSettingsCollection.FindOne(r.ctx, bson.D{{"_id", id}})
+	if res.Err() != nil {
+		if res.Err() == mongo.ErrNoDocuments {
+			return fmt.Errorf("no app settings found with id: %s", appId)
+		}
+		return res.Err()
+	}
+	err = res.Decode(&appSetting)
+	if err != nil {
+		return err
+	}
+	courseType.Id = ""
+	for _, course := range appSetting.CourseType {
+		if course.Id == courseType.Id {
+			course.Id = ""
+		}
+		appSetting.CourseType = append(appSetting.CourseType, course)
+	}
+	update := bson.M{
+		"$set": bson.D{{"course_type", appSetting.CourseType}},
+	}
+	deleteResult, err := r.appSettingsCollection.UpdateOne(r.ctx, bson.M{"_id": id}, update)
+	if err != nil {
+		return err
+	}
+	if deleteResult.MatchedCount == 0 {
+		return fmt.Errorf("no matching document found with id: %s", appId)
+	}
 	return nil
 }
