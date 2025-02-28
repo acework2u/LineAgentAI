@@ -236,3 +236,79 @@ func (h *AppSettingHandler) DeleteCourseType(c *gin.Context) {
 	}
 	c.JSON(200, gin.H{"message": "delete course type successfully"})
 }
+func (h *AppSettingHandler) GetClinics(c *gin.Context) {
+	appId := c.Param("id")
+	if appId == "" {
+		c.JSON(400, gin.H{"error": "Invalid app id"})
+		return
+	}
+	clinics, err := h.appSettingServ.ClinicSettingList(appId)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"message": clinics})
+}
+func (h *AppSettingHandler) PostAddClinic(c *gin.Context) {
+	appId := c.Param("id")
+	if appId == "" {
+		c.JSON(400, gin.H{"error": "Invalid app id"})
+		return
+	}
+	clinicImpl := services.ClinicSettingImpl{}
+	err := c.ShouldBindJSON(&clinicImpl)
+	cusErr := utils.NewCustomErrorHandler(c)
+	if err != nil {
+		cusErr.ValidateError(err)
+		return
+	}
+	err = h.appSettingServ.AddClinicSetting(appId, &clinicImpl)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"message": "add clinic successfully"})
+
+}
+func (h *AppSettingHandler) PutUpdateClinic(c *gin.Context) {
+	appId := c.Param("id")
+	if appId == "" {
+		c.JSON(400, gin.H{"error": "Invalid app id"})
+		return
+	}
+	clinicImpl := services.ClinicSettingImpl{}
+	err := c.ShouldBindJSON(&clinicImpl)
+	cusErr := utils.NewCustomErrorHandler(c)
+	if err != nil {
+		cusErr.ValidateError(err)
+		return
+	}
+	err = h.appSettingServ.UpdateClinicSetting(appId, &clinicImpl)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"message": "update clinic successfully"})
+
+}
+func (h *AppSettingHandler) DeleteClinic(c *gin.Context) {
+	appId := c.Param("id")
+	if appId == "" {
+		c.JSON(400, gin.H{"error": "Invalid app id"})
+		return
+	}
+	clinicImpl := services.ClinicSettingImpl{}
+	err := c.ShouldBindJSON(&clinicImpl)
+	cusErr := utils.NewCustomErrorHandler(c)
+	if err != nil {
+		cusErr.ValidateError(err)
+		return
+	}
+	err = h.appSettingServ.DeleteClinicSetting(appId, &clinicImpl)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"message": "delete clinic successfully"})
+
+}

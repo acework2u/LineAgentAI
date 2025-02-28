@@ -76,9 +76,6 @@ func (r *settingsRepository) AddMemberType(appId string, memberType *MemberTypeS
 
 	appMemberType := []*MemberTypeSettingImpl{}
 	for _, member := range appSetting.MemberType {
-		//if member.Title != memberType.Title {
-		//	appMemberType = append(appMemberType, member)
-		//}
 		if member.Title == memberType.Title {
 			return nil
 		}
@@ -174,6 +171,128 @@ func (r *settingsRepository) DeleteAppSettings(appId string) error {
 	return nil
 }
 func (r *settingsRepository) AddClinicSetting(appId string, clinicSetting *ClinicSettingImpl) error {
+	id, err := primitive.ObjectIDFromHex(appId)
+	if err != nil {
+		return fmt.Errorf("invalid appId: %v", err)
+	}
+	if clinicSetting.Id == "" {
+		clinicSetting.Id = primitive.NewObjectID().Hex()
+	}
+	appSetting := AppSettings{}
+	res := r.appSettingsCollection.FindOne(r.ctx, bson.D{{"_id", id}})
+	if res.Err() != nil {
+		return fmt.Errorf("failed to find app settings: %v", res.Err())
+	}
+	err = res.Decode(&appSetting)
+	if err != nil {
+		return fmt.Errorf("failed to decode app settings: %v", err)
+	}
+	// Set Clinic setting
+	appSetting.ClinicSetting = append(appSetting.ClinicSetting, clinicSetting)
+	result := r.appSettingsCollection.FindOneAndUpdate(r.ctx, bson.D{{"_id", id}}, bson.M{"$set": bson.D{{"clinic_setting", appSetting.ClinicSetting}}})
+	if result.Err() != nil {
+		return fmt.Errorf("failed to update app settings: %v", result.Err())
+	}
+	return nil
+}
+func (r *settingsRepository) ClinicSettingList(appId string) ([]*ClinicSettingImpl, error) {
+	if appId == "" {
+		return nil, fmt.Errorf("appId cannot be empty")
+	}
+	id, err := primitive.ObjectIDFromHex(appId)
+	if err != nil {
+		return nil, err
+	}
+	appSetting := AppSettings{}
+	res := r.appSettingsCollection.FindOne(r.ctx, bson.D{{"_id", id}})
+	if res.Err() != nil {
+		return nil, res.Err()
+	}
+	err = res.Decode(&appSetting)
+	if err != nil {
+		return nil, err
+	}
+	return appSetting.ClinicSetting, nil
+}
+func (r *settingsRepository) UpdateClinicSetting(appId string, clinicSetting *ClinicSettingImpl) error {
+	if clinicSetting == nil {
+		return fmt.Errorf("clinicSetting cannot be nil")
+	}
+	id, err := primitive.ObjectIDFromHex(appId)
+	if err != nil {
+		return fmt.Errorf("invalid appId: %v", err)
+	}
+	appSetting := AppSettings{}
+	res := r.appSettingsCollection.FindOne(r.ctx, bson.D{{"_id", id}})
+	if res.Err() != nil {
+		if res.Err() == mongo.ErrNoDocuments {
+			return fmt.Errorf("no app settings found with id: %s", appId)
+		}
+		return res.Err()
+	}
+	err = res.Decode(&appSetting)
+	if err != nil {
+		return fmt.Errorf("failed to decode app settings: %v", err)
+	}
+	clinics := []*ClinicSettingImpl{}
+	found := false
+	for _, item := range appSetting.ClinicSetting {
+		if item.Id == clinicSetting.Id {
+			item.Title = clinicSetting.Title
+			item.Status = clinicSetting.Status
+			found = true
+		}
+		clinics = append(clinics, item)
+	}
+	if !found {
+		return fmt.Errorf("clinic with id %s not found", clinicSetting.Id)
+	}
+	// update clinic
+	res = r.appSettingsCollection.FindOneAndUpdate(r.ctx, bson.D{{"_id", id}}, bson.M{"$set": bson.D{{"clinic_setting", clinics}}})
+	if res.Err() != nil {
+		return fmt.Errorf("failed to update app settings: %v", res.Err())
+	}
+	return nil
+}
+func (r *settingsRepository) DeleteClinicSetting(appId string, clinicSetting *ClinicSettingImpl) error {
+	if clinicSetting == nil {
+		return fmt.Errorf("clinicSetting cannot be nil")
+	}
+	id, err := primitive.ObjectIDFromHex(appId)
+	if err != nil {
+		return fmt.Errorf("invalid appId: %v", err)
+	}
+	appSetting := AppSettings{}
+	res := r.appSettingsCollection.FindOne(r.ctx, bson.D{{"_id", id}})
+	if res.Err() != nil {
+		if res.Err() == mongo.ErrNoDocuments {
+			return fmt.Errorf("no app settings found with id: %s", appId)
+		}
+		return res.Err()
+	}
+	err = res.Decode(&appSetting)
+	if err != nil {
+		return fmt.Errorf("failed to decode app settings: %v", err)
+	}
+	clinics := []*ClinicSettingImpl{}
+	found := false
+	for _, item := range appSetting.ClinicSetting {
+		if item.Id == clinicSetting.Id {
+			found = true
+		}
+		clinics = append(clinics, item)
+	}
+	if !found {
+		return fmt.Errorf("clinic with id %s not found", clinicSetting.Id)
+	}
+	update := bson.M{"$set": bson.M{"clinic_setting": clinics}}
+	if res.Err() != nil {
+		return fmt.Errorf("failed to update app settings: %v", res.Err())
+	}
+	res = r.appSettingsCollection.FindOneAndUpdate(r.ctx, bson.D{{"_id", id}}, update)
+	if res.Err() != nil {
+		return fmt.Errorf("failed to update app settings: %v", res.Err())
+	}
 	return nil
 }
 func (r *settingsRepository) AddCourse(appId string, course *Course) error {
@@ -299,15 +418,12 @@ func (r *settingsRepository) AddCourseType(appId string, courseType *CourseType)
 	if appId == "" {
 		return fmt.Errorf("appId cannot be empty")
 	}
-
 	id, err := primitive.ObjectIDFromHex(appId)
 	if err != nil {
 		return fmt.Errorf("invalid appId: %s", appId)
 	}
-
 	// Validate course type name and prepare ID
 	courseType.Id = primitive.NewObjectID().Hex()
-
 	// Use $addToSet to ensure uniqueness and atomic update
 	update := bson.M{
 		"$addToSet": bson.M{"course_type": courseType},

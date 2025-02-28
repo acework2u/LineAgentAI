@@ -344,3 +344,75 @@ func (s *AppSettingsServiceImpl) DeleteCourseType(appId string, courseType *Cour
 	}
 	return nil
 }
+func (s *AppSettingsServiceImpl) AddClinicSetting(appId string, clinicSetting *ClinicSettingImpl) error {
+	if appId == "" {
+		return errors.New("app id is empty")
+	}
+	clinicSettingId, _ := uuid.NewUUID()
+	err := s.appSettingRepo.AddClinicSetting(appId, &repository.ClinicSettingImpl{
+		Id:     clinicSettingId.String(),
+		Title:  clinicSetting.Title,
+		Status: true,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func (s *AppSettingsServiceImpl) ClinicSettingList(appId string) ([]*ClinicSettingImpl, error) {
+	if appId == "" {
+		return nil, errors.New("app id is empty")
+	}
+	res, err := s.appSettingRepo.ClinicSettingList(appId)
+	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return nil, nil
+		}
+		return nil, err
+	}
+	convertClinic := make([]*ClinicSettingImpl, 0, len(res))
+	for _, clinic := range res {
+		item := &ClinicSettingImpl{
+			Id:     clinic.Id,
+			Title:  clinic.Title,
+			Status: clinic.Status,
+		}
+		convertClinic = append(convertClinic, item)
+	}
+
+	return convertClinic, nil
+}
+func (s *AppSettingsServiceImpl) UpdateClinicSetting(appId string, clinicSetting *ClinicSettingImpl) error {
+	if appId == "" {
+		return errors.New("app id is empty")
+	}
+	err := s.appSettingRepo.UpdateClinicSetting(appId, &repository.ClinicSettingImpl{
+		Id:     clinicSetting.Id,
+		Title:  clinicSetting.Title,
+		Status: clinicSetting.Status,
+	})
+	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return errors.New("clinic setting not found")
+		}
+		return err
+	}
+	return nil
+}
+func (s *AppSettingsServiceImpl) DeleteClinicSetting(appId string, clinicSetting *ClinicSettingImpl) error {
+	if appId == "" {
+		return errors.New("app id is empty")
+	}
+	err := s.appSettingRepo.DeleteClinicSetting(appId, &repository.ClinicSettingImpl{
+		Id:     clinicSetting.Id,
+		Title:  clinicSetting.Title,
+		Status: clinicSetting.Status,
+	})
+	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return errors.New("clinic setting not found")
+		}
+		return err
+	}
+	return nil
+}

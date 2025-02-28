@@ -12,6 +12,9 @@ type AppSettingsRepository interface {
 	DeleteMemberType(appId string, memberType *MemberTypeSettingImpl) error
 	MemberTypesetting(appId string) ([]*MemberTypeSettingImpl, error)
 	AddClinicSetting(appId string, clinicSetting *ClinicSettingImpl) error
+	ClinicSettingList(appId string) ([]*ClinicSettingImpl, error)
+	UpdateClinicSetting(appId string, clinicSetting *ClinicSettingImpl) error
+	DeleteClinicSetting(appId string, clinicSetting *ClinicSettingImpl) error
 	AddCourse(appId string, course *Course) error
 	UpdateCourse(appId string, course *Course) error
 	DeleteCourse(appId string, course *Course) error
@@ -21,7 +24,6 @@ type AppSettingsRepository interface {
 	UpdateCourseType(appId string, courseType *CourseType) error
 	DeleteCourseType(appId string, courseType *CourseType) error
 }
-
 type AppSettings struct {
 	Id            primitive.ObjectID       `bson:"_id,omitempty"`
 	Name          string                   `bson:"name"`
@@ -38,7 +40,6 @@ type MemberTypeSettingImpl struct {
 	Title  string `bson:"title"`
 	Status bool   `bson:"status"`
 }
-
 type ClinicSettingImpl struct {
 	Id     string `bson:"id,omitempty"`
 	Title  string `bson:"title"`
