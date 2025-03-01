@@ -21,6 +21,10 @@ type AppSettingsService interface {
 	ClinicSettingList(appId string) ([]*ClinicSettingImpl, error)
 	UpdateClinicSetting(appId string, clinicSetting *ClinicSettingImpl) error
 	DeleteClinicSetting(appId string, clinicSetting *ClinicSettingImpl) error
+	AddBanner(appId string, banner *Banner) error
+	UpdateBanner(appId string, banner *Banner) error
+	DeleteBanner(appId string, bannerId string) error
+	BannerList(appId string) ([]*Banner, error)
 }
 
 type AppSettings struct {
@@ -30,6 +34,7 @@ type AppSettings struct {
 	ClinicSetting []*ClinicSettingImpl `json:"clinic_setting"`
 	Courses       []*Course            `json:"courses"`
 	CourseType    []*CourseType        `json:"course_type"`
+	Banners       []*Banner            `json:"banners"`
 	Status        bool                 `json:"status"`
 	CreatedAt     int64                `json:"created_at,omitempty"`
 	UpdatedAt     int64                `json:"updated_at,omitempty"`
@@ -57,4 +62,9 @@ type Course struct {
 type CourseType struct {
 	Id   string `json:"id,omitempty"`
 	Name string `json:"name" binding:"required"`
+}
+type Banner struct {
+	Id    string `json:"id,omitempty"`
+	Title string `json:"title" binding:"required"`
+	Url   string `json:"url" binding:"required"`
 }

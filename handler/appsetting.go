@@ -218,6 +218,7 @@ func (h *AppSettingHandler) PutUpdateCourseType(c *gin.Context) {
 	err = h.appSettingServ.UpdateCourseType(appId, &courseType)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
+		return
 	}
 	c.JSON(200, gin.H{"message": "update course type successfully"})
 }
@@ -311,4 +312,71 @@ func (h *AppSettingHandler) DeleteClinic(c *gin.Context) {
 	}
 	c.JSON(200, gin.H{"message": "delete clinic successfully"})
 
+}
+func (h *AppSettingHandler) GetBanners(c *gin.Context) {
+	appId := c.Param("id")
+	if appId == "" {
+		c.JSON(400, gin.H{"error": "Invalid app id"})
+		return
+	}
+	banners, err := h.appSettingServ.BannerList(appId)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"message": banners})
+}
+func (h *AppSettingHandler) PostBanners(c *gin.Context) {
+	appId := c.Param("id")
+	if appId == "" {
+		c.JSON(400, gin.H{"error": "Invalid app id"})
+		return
+	}
+	banner := services.Banner{}
+	err := c.ShouldBindJSON(&banner)
+	cusErr := utils.NewCustomErrorHandler(c)
+	if err != nil {
+		cusErr.ValidateError(err)
+		return
+	}
+	err = h.appSettingServ.AddBanner(appId, &banner)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"message": "add banner successfully"})
+}
+func (h *AppSettingHandler) PutBanners(c *gin.Context) {
+	appId := c.Param("id")
+	if appId == "" {
+		c.JSON(400, gin.H{"error": "Invalid app id"})
+		return
+	}
+	banner := services.Banner{}
+	err := c.ShouldBindJSON(&banner)
+	cusErr := utils.NewCustomErrorHandler(c)
+	if err != nil {
+		cusErr.ValidateError(err)
+		return
+	}
+	err = h.appSettingServ.UpdateBanner(appId, &banner)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"message": "update banner successfully"})
+}
+func (h *AppSettingHandler) DeleteBanner(c *gin.Context) {
+	appId := c.Param("id")
+	if appId == "" {
+		c.JSON(400, gin.H{"error": "Invalid app id"})
+		return
+	}
+	bannerId := c.Param("bannerId")
+	err := h.appSettingServ.DeleteBanner(appId, bannerId)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"message": "delete banner successfully"})
 }

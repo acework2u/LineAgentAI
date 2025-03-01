@@ -91,12 +91,30 @@ func (s *AppSettingsServiceImpl) GetAppSettings() (*AppSettings, error) {
 			Status: course.Status,
 		})
 	}
+	banners := make([]*Banner, 0, len(res.Banners))
+	for _, banner := range res.Banners {
+
+		banners = append(banners, &Banner{
+			Id:    banner.Id,
+			Title: banner.Title,
+			Url:   banner.Url,
+		})
+	}
+	courseType := make([]*CourseType, 0, len(res.CourseType))
+	for _, cType := range res.CourseType {
+		courseType = append(courseType, &CourseType{
+			Id:   cType.Id,
+			Name: cType.Name,
+		})
+	}
 	appSettings := &AppSettings{
 		Id:            res.Id.Hex(),
 		Title:         res.Name,
 		MemberType:    convertMemberType,
 		ClinicSetting: convertClinic,
 		Courses:       courses,
+		Banners:       banners,
+		CourseType:    courseType,
 	}
 
 	return appSettings, nil
@@ -415,4 +433,82 @@ func (s *AppSettingsServiceImpl) DeleteClinicSetting(appId string, clinicSetting
 		return err
 	}
 	return nil
+}
+func (s *AppSettingsServiceImpl) AddBanner(appId string, banner *Banner) error {
+	if banner == nil {
+		return errors.New("banner is empty")
+	}
+	if banner.Id == "" {
+		id, _ := uuid.NewUUID()
+		banner.Id = id.String()
+	}
+	err := s.appSettingRepo.AddBanners(appId, &repository.Banner{
+		Id:    banner.Id,
+		Title: banner.Title,
+		Url:   banner.Url,
+	})
+	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return errors.New("banner not found")
+		}
+		return err
+	}
+	return nil
+}
+func (s *AppSettingsServiceImpl) UpdateBanner(appId string, banner *Banner) error {
+	if appId == "" {
+		return errors.New("app id is empty")
+	}
+	if banner.Id == "" {
+		return errors.New("banner id is empty")
+	}
+	err := s.appSettingRepo.UpdateBanners(appId, &repository.Banner{
+		Id:    banner.Id,
+		Title: banner.Title,
+		Url:   banner.Url,
+	})
+	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return errors.New("banner not found")
+		}
+		return err
+	}
+	return nil
+
+}
+func (s *AppSettingsServiceImpl) DeleteBanner(appId string, bannerId string) error {
+	if appId == "" {
+		return errors.New("app id is empty")
+	}
+	if bannerId == "" {
+		return errors.New("banner id is empty")
+	}
+	err := s.appSettingRepo.DeleteBanners(appId, bannerId)
+	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return errors.New("banner not found")
+		}
+		return err
+	}
+	return nil
+}
+func (s *AppSettingsServiceImpl) BannerList(appId string) ([]*Banner, error) {
+	if appId == "" {
+		return nil, errors.New("app id is empty")
+	}
+	banners, err := s.appSettingRepo.BannerListSetting(appId)
+	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return nil, nil
+		}
+	}
+	bannerList := make([]*Banner, 0, len(banners))
+	for _, banner := range banners {
+		bannerList = append(bannerList, &Banner{
+			Id:    banner.Id,
+			Title: banner.Title,
+			Url:   banner.Url,
+		})
+	}
+	return bannerList, nil
 }

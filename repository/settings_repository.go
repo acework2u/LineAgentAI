@@ -478,12 +478,13 @@ func (r *settingsRepository) UpdateCourseType(appId string, courseType *CourseTy
 		return err
 	}
 	found := false
+	//courses := []*CourseType{}
 	for _, course := range appSetting.CourseType {
 		if course.Id == courseType.Id {
 			found = true
-			course = courseType
+			course.Name = courseType.Name
 		}
-		appSetting.CourseType = append(appSetting.CourseType, course)
+		//appSetting.CourseType = append(appSetting.CourseType, course)
 	}
 	if !found {
 		return fmt.Errorf("course type with id %s not found", courseType.Id)
@@ -521,15 +522,15 @@ func (r *settingsRepository) DeleteCourseType(appId string, courseType *CourseTy
 	if err != nil {
 		return err
 	}
-	courseType.Id = ""
-	for _, course := range appSetting.CourseType {
-		if course.Id == courseType.Id {
-			course.Id = ""
+	course_type := []*CourseType{}
+	for _, itemType := range appSetting.CourseType {
+		if itemType.Id != courseType.Id {
+			course_type = append(course_type, itemType)
 		}
-		appSetting.CourseType = append(appSetting.CourseType, course)
 	}
+
 	update := bson.M{
-		"$set": bson.D{{"course_type", appSetting.CourseType}},
+		"$set": bson.D{{"course_type", course_type}},
 	}
 	deleteResult, err := r.appSettingsCollection.UpdateOne(r.ctx, bson.M{"_id": id}, update)
 	if err != nil {
@@ -539,4 +540,132 @@ func (r *settingsRepository) DeleteCourseType(appId string, courseType *CourseTy
 		return fmt.Errorf("no matching document found with id: %s", appId)
 	}
 	return nil
+}
+func (r *settingsRepository) AddBanners(appId string, banner *Banner) error {
+	if appId == "" {
+		return fmt.Errorf("appId cannot be empty")
+	}
+	id, err := primitive.ObjectIDFromHex(appId)
+	if err != nil {
+		return err
+	}
+	appSetting := AppSettings{}
+	res := r.appSettingsCollection.FindOne(r.ctx, bson.D{{"_id", id}})
+	if res.Err() != nil {
+		if res.Err() == mongo.ErrNoDocuments {
+			return fmt.Errorf("no app settings found with id: %s", appId)
+		}
+		return res.Err()
+	}
+	err = res.Decode(&appSetting)
+	if err != nil {
+		return err
+	}
+
+	update := bson.M{
+		"$addToSet": bson.M{
+			"banners": banner,
+		},
+	}
+	updateResult, err := r.appSettingsCollection.UpdateOne(r.ctx, bson.M{"_id": id}, update)
+	if err != nil {
+		return err
+	}
+	if updateResult.MatchedCount == 0 {
+		return fmt.Errorf("no matching document found with id: %s", appId)
+	}
+
+	return nil
+}
+func (r *settingsRepository) UpdateBanners(appId string, banner *Banner) error {
+	if appId == "" {
+		return fmt.Errorf("appId cannot be empty")
+	}
+	id, err := primitive.ObjectIDFromHex(appId)
+	if err != nil {
+		return err
+	}
+	appSetting := AppSettings{}
+	res := r.appSettingsCollection.FindOne(r.ctx, bson.D{{"_id", id}})
+	if res.Err() != nil {
+		if res.Err() == mongo.ErrNoDocuments {
+			return fmt.Errorf("no app settings found with id: %s", appId)
+		}
+		return res.Err()
+	}
+	err = res.Decode(&appSetting)
+	if err != nil {
+		return err
+	}
+	found := false
+	for _, item := range appSetting.Banners {
+		if item.Id == banner.Id {
+			found = true
+			item = banner
+		}
+	}
+	if !found {
+		return fmt.Errorf("banner with id %s not found", banner.Id)
+	}
+	update := bson.M{
+		"$addToSet": bson.D{{"banners", banner}},
+	}
+	updateResult, err := r.appSettingsCollection.UpdateOne(r.ctx, bson.M{"_id": id}, update)
+	if err != nil {
+		return err
+	}
+	if updateResult.MatchedCount == 0 {
+		return fmt.Errorf("no matching document found with id: %s", appId)
+	}
+	return nil
+}
+func (r *settingsRepository) DeleteBanners(appId string, bannerId string) error {
+	if appId == "" {
+		return fmt.Errorf("appId cannot be empty")
+	}
+	id, err := primitive.ObjectIDFromHex(appId)
+	if err != nil {
+		return err
+	}
+	appSetting := AppSettings{}
+	res := r.appSettingsCollection.FindOne(r.ctx, bson.D{{"_id", id}})
+	if res.Err() != nil {
+		if res.Err() == mongo.ErrNoDocuments {
+			return fmt.Errorf("no app settings found with id: %s", appId)
+		}
+		return res.Err()
+	}
+	err = res.Decode(&appSetting)
+	if err != nil {
+		return err
+	}
+	found := false
+	for _, item := range appSetting.Banners {
+		if item.Id == bannerId {
+			found = true
+		}
+	}
+	if !found {
+		return fmt.Errorf("banner with id %s not found", bannerId)
+	}
+	delQuery := bson.M{
+		"$pull": bson.M{
+			"banners": bson.M{
+				"id": bannerId,
+			},
+		},
+	}
+	deleteResult, err := r.appSettingsCollection.UpdateOne(r.ctx, bson.M{"_id": id}, delQuery)
+	if err != nil {
+		return err
+	}
+	if deleteResult.MatchedCount == 0 {
+		return fmt.Errorf("no matching document found with id: %s", appId)
+	}
+
+	return nil
+
+}
+func (r *settingsRepository) BannerListSetting(appId string) ([]*Banner, error) {
+	return nil, nil
 }

@@ -36,4 +36,8 @@ func (r *AppSettingRouter) AppSettingRouter(rg *gin.RouterGroup) {
 	router.POST("/:id/clinics", r.appSettingHandler.PostAddClinic)
 	router.PUT("/:id/clinics", r.appSettingHandler.PutUpdateClinic)
 	router.DELETE("/:id/clinics/:clinicId", r.appSettingHandler.DeleteClinic)
+	router.GET("/:id/banners", r.appSettingHandler.GetBanners)
+	router.POST("/:id/banners", r.appSettingHandler.PostBanners)
+	router.PUT("/:id/banners", r.appSettingHandler.PutBanners)
+	router.DELETE("/:id/banners/:bannerId", r.appSettingHandler.DeleteBanner)
 }

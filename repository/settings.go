@@ -23,6 +23,10 @@ type AppSettingsRepository interface {
 	CourseTypeList(appId string) ([]*CourseType, error)
 	UpdateCourseType(appId string, courseType *CourseType) error
 	DeleteCourseType(appId string, courseType *CourseType) error
+	AddBanners(appId string, banner *Banner) error
+	UpdateBanners(appId string, banner *Banner) error
+	DeleteBanners(appId string, bannerId string) error
+	BannerListSetting(appId string) ([]*Banner, error)
 }
 type AppSettings struct {
 	Id            primitive.ObjectID       `bson:"_id,omitempty"`
@@ -31,6 +35,7 @@ type AppSettings struct {
 	ClinicSetting []*ClinicSettingImpl     `bson:"clinic_setting,omitempty"`
 	Courses       []*Course                `bson:"courses,omitempty"`
 	CourseType    []*CourseType            `bson:"course_type,omitempty"`
+	Banners       []*Banner                `bson:"banners,omitempty"`
 	Status        bool                     `bson:"status"`
 	CreatedAt     int64                    `bson:"created_at,omitempty"`
 	UpdatedAt     int64                    `bson:"updated_at,omitempty"`
@@ -56,4 +61,9 @@ type Course struct {
 type CourseType struct {
 	Id   string `bson:"id,omitempty"`
 	Name string `bson:"name"`
+}
+type Banner struct {
+	Id    string `bson:"id,omitempty"`
+	Title string `bson:"title"`
+	Url   string `bson:"url"`
 }
