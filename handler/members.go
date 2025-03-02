@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"linechat/services"
+	"net/http"
 )
 
 type MemberHandler struct {
@@ -28,14 +29,14 @@ func (h *MemberHandler) GetMembers(c *gin.Context) {
 	c.JSON(200, gin.H{"members": result})
 }
 func (h *MemberHandler) GetMember(c *gin.Context) {
-	linedId := c.Param("linedId")
+	linedId := c.Param("id")
 	if linedId == "" {
 		c.JSON(400, gin.H{"error": "Invalid linedId"})
 		return
 	}
 	result, er := h.memberService.GetMemberByLineId(linedId)
 	if er != nil {
-		c.JSON(500, gin.H{"error": er.Error()})
+		c.JSON(http.StatusNotFound, gin.H{"error": er.Error()})
 		return
 	}
 	if result == nil {

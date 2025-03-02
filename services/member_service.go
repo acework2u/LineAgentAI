@@ -20,6 +20,9 @@ func (s *memberService) GetMemberByLineId(lineId string) (member *Member, err er
 
 	res, err := s.memberRepo.GetMemberByLineId(lineId)
 	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return nil, errors.New("member not found")
+		}
 		return nil, err
 	}
 	member = &Member{

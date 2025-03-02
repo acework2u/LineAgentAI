@@ -197,13 +197,17 @@ func (h *LineWebhookHandler) LineRegister(c *gin.Context) {
 	cusErr := utils.NewCustomErrorHandler(c)
 
 	if err != nil {
-
+		log.Println("In Register: error")
+		log.Println(err)
 		cusErr.ValidateError(err)
 		//c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 	err = h.lineService.RegisterMember(member)
 	if err != nil {
+
+		log.Println("In Register: error service ")
+		log.Println(err)
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}

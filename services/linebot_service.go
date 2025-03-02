@@ -850,9 +850,6 @@ func validation(member *Member) error {
 	if member.Name == "" {
 		return errors.New("name is required")
 	}
-	if member.LastName == "" {
-		return errors.New("lastname is required")
-	}
 	if member.Email == "" {
 		return errors.New("email is required")
 	}
