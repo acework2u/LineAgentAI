@@ -34,22 +34,30 @@ type Event struct {
 	Members     []MemberJoinEvent `json:"members"`
 }
 type EventResponse struct {
-	EventId     string        `json:"eventId"`
-	Title       string        `json:"title"`
-	Description string        `json:"description"`
-	StartDate   string        `json:"startDate,omitempty"`
-	EndDate     string        `json:"endDate"`
-	Place       string        `json:"place"`
-	StartTime   string        `json:"startTime"`
-	Banner      []EventBanner `json:"banner"`
-	EndTime     string        `json:"endTime"`
-	Location    string        `json:"location"`
-	Status      bool          `json:"status"`
-	CreatedDate int64         `json:"createdDate"`
-	UpdatedDate int64         `json:"updatedDate"`
-	LineId      string        `json:"lineId"`
-	LineName    string        `json:"lineName"`
-	EventType   string        `json:"eventType"`
+	EventId     string                     `json:"eventId"`
+	Title       string                     `json:"title"`
+	Description string                     `json:"description"`
+	StartDate   string                     `json:"startDate,omitempty"`
+	EndDate     string                     `json:"endDate"`
+	Place       string                     `json:"place"`
+	StartTime   string                     `json:"startTime"`
+	Banner      []EventBanner              `json:"banner"`
+	EndTime     string                     `json:"endTime"`
+	Location    string                     `json:"location"`
+	Status      bool                       `json:"status"`
+	CreatedDate int64                      `json:"createdDate"`
+	UpdatedDate int64                      `json:"updatedDate"`
+	LineId      string                     `json:"lineId"`
+	LineName    string                     `json:"lineName"`
+	EventType   string                     `json:"eventType"`
+	Members     []*MemberJoinEventResponse `json:"members"`
+}
+type MemberJoinEventResponse struct {
+	EventId  string `json:"eventId"`
+	UserId   string `json:"userId"`
+	Clinic   string `json:"clinic"`
+	JoinTime int64  `json:"joinTime,omitempty"`
+	IsJoined bool   `json:"isJoined"`
 }
 type EventImpl struct {
 	EventId      string             `json:"eventId" form:"eventId" binding:"required" validate:"required,min=3,max=20"`

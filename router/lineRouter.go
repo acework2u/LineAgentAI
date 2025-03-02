@@ -19,6 +19,7 @@ func (r *LineRouter) LineHookRouter(rg *gin.RouterGroup) {
 	rg.GET("/profile", r.lineHandler.GetLineProfile)
 	rg.GET("/check-join-event", r.lineHandler.GetCheckEventJoin)
 	rg.GET("/join-event", r.lineHandler.GetEventJoin)
+	rg.POST("/join-event", r.lineHandler.PostJoinEvent)
 	rg.POST("/event-check-in", r.lineHandler.PostCheckInEvent)
 	rg.POST("/my-event", r.lineHandler.PostMyEvents)
 	rg.POST("/linehook", r.lineHandler.LineHookHandle)
@@ -30,7 +31,7 @@ func (r *LineRouter) LineHookRouter(rg *gin.RouterGroup) {
 	rg.POST("/chat", r.lineHandler.LineChat)
 	rg.POST("/check-registration", r.lineHandler.CheckMemberRegister)
 	rg.POST("/member-update", r.lineHandler.PostUpdateMember)
-	rg.POST("/join-event", r.lineHandler.PostJoinEvent)
+
 	rg.PUT("/profile", r.lineHandler.PutLineProfile)
 
 }

@@ -33,10 +33,7 @@ func (s *eventsService) GetEvents() ([]*EventResponse, error) {
 
 	for _, event := range resEvent {
 		banners := []EventBanner{}
-		//startDate := time.Unix(event.StartDate, 0).In(loc).Format("2006-01-02")
-		//startTime := time.Unix(event.StartTime, 0).In(loc).Format("15:04")
-		//endDate := time.Unix(event.EndDate, 0).In(loc).Format("2006-01-02")
-		//endTime := time.Unix(event.EndTime, 0).In(loc).Format("15:04")
+
 		startDate := time.Unix(event.StartDate, 0).Format("2006-01-02")
 		startTime := time.Unix(event.StartTime, 0).Format("15:04")
 		endDate := time.Unix(event.EndDate, 0).Format("2006-01-02")
@@ -47,6 +44,18 @@ func (s *eventsService) GetEvents() ([]*EventResponse, error) {
 				Url: banner.Url,
 				Img: banner.Img,
 			})
+		}
+		// members join on this event
+		memberJoined := []*MemberJoinEventResponse{}
+		for _, member := range event.Members {
+			memberJoined = append(memberJoined, &MemberJoinEventResponse{
+				EventId:  member.EventId,
+				UserId:   member.UserId,
+				JoinTime: member.JoinTime,
+				Clinic:   member.Clinic,
+				IsJoined: true,
+			})
+
 		}
 
 		item := EventResponse{
@@ -61,6 +70,7 @@ func (s *eventsService) GetEvents() ([]*EventResponse, error) {
 			Banner:      banners,
 			Location:    event.Location,
 			Status:      event.Status,
+			Members:     memberJoined,
 		}
 		eventList = append(eventList, &item)
 	}
@@ -89,7 +99,7 @@ func (s *eventsService) GetEventById(eventId string) (*Event, error) {
 
 }
 func (s *eventsService) CreateEvent(event *EventImpl) error {
-	
+
 	//init the loc
 	loc, _ := time.LoadLocation("Asia/Bangkok")
 	//set timezone,

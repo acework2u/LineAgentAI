@@ -563,13 +563,13 @@ func (s *lineBotService) CheckMemberRegister(userId string) (bool, error) {
 	}
 	return false, nil
 }
-func (s *lineBotService) EventJoin(event *MemberJoinEvent) error {
+func (s *lineBotService) EventJoin(event *JoinEventImpl) error {
 	if len(event.EventId) == 0 {
 		return errors.New("event id is required")
 	}
-	if len(event.Name) == 0 || len(event.LastName) == 0 {
-		return errors.New("name and lastname is required")
-	}
+	//if len(event.Name) == 0 || len(event.LastName) == 0 {
+	//	return errors.New("name and lastname is required")
+	//}
 
 	//init the loc
 	loc, _ := time.LoadLocation("Asia/Bangkok")
@@ -577,20 +577,17 @@ func (s *lineBotService) EventJoin(event *MemberJoinEvent) error {
 	now := time.Now().In(loc)
 
 	err := s.eventRepo.EventJoin(&repository.MemberEventImpl{
-		EventId:        event.EventId,
-		UserId:         event.UserId,
-		JoinTime:       now.Unix(),
-		Name:           event.Name,
-		LastName:       event.LastName,
-		Organization:   event.Organization,
-		Position:       event.Position,
-		Course:         event.Course,
-		LineId:         event.LineId,
-		LineName:       event.LineName,
-		Tel:            event.Tel,
-		ReferenceName:  event.ReferenceName,
-		ReferencePhone: event.ReferencePhone,
-		Clinic:         event.Clinic,
+		EventId:      event.EventId,
+		UserId:       event.UserId,
+		JoinTime:     now.Unix(),
+		Name:         event.Name,
+		LastName:     event.LastName,
+		Organization: event.Organization,
+		Position:     event.Position,
+		Course:       event.Course,
+		LineId:       event.LineId,
+		Tel:          event.Phone,
+		Clinic:       event.Clinic,
 	})
 
 	if err != nil {

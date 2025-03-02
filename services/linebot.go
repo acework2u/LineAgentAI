@@ -13,7 +13,7 @@ type LineBotService interface {
 	GetLineProfile(userId string) (*UserInfo, error)
 	UpdateMemberProfile(userId string, member *Member) error
 	CheckMemberRegister(userId string) (bool, error)
-	EventJoin(event *MemberJoinEvent) error
+	EventJoin(event *JoinEventImpl) error
 	CheckEventJoin(eventId string, userId string) (bool, error)
 	GetEventJoin(eventId string, userId string) (*MemberJoinEvent, error)
 	CheckInEvent(eventCheckIn *EventCheckIn) (bool, error)
@@ -124,6 +124,21 @@ type ReplyMessage struct {
 type Text struct {
 	Type string `json:"type"`
 	Text string `json:"text"`
+}
+
+type JoinEventImpl struct {
+	EventId      string `json:"eventId" binding:"required" validate:"required,min=3,max=20"`
+	TitleEvent   string `json:"titleEvent"`
+	UserId       string `json:"userId" binding:"required"`
+	LineId       string `json:"lineId" binding:"required"`
+	JoinTime     string `json:"joinTime,omitempty"`
+	Name         string `json:"name"`
+	LastName     string `json:"lastName"`
+	Organization string `json:"organization"`
+	Position     string `json:"position"`
+	Course       string `json:"course"`
+	Clinic       string `json:"clinic"`
+	Phone        string `json:"phone"`
 }
 
 type MemberJoinEvent struct {
