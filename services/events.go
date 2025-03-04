@@ -15,23 +15,25 @@ type FilterEvent struct {
 	Keyword string `json:"keyword"`
 }
 type Event struct {
-	EventId     string            `json:"eventId"`
-	Title       string            `json:"title"`
-	Description string            `json:"description"`
-	StartDate   int64             `json:"startDate,omitempty"`
-	EndDate     int64             `json:"endDate"`
-	Place       string            `json:"place"`
-	StartTime   int64             `json:"startTime"`
-	Banner      []EventBanner     `json:"banner"`
-	EndTime     int64             `json:"endTime"`
-	Location    string            `json:"location"`
-	Status      bool              `json:"status"`
-	CreatedDate int64             `json:"createdDate"`
-	UpdatedDate int64             `json:"updatedDate"`
-	LineId      string            `json:"lineId"`
-	LineName    string            `json:"lineName"`
-	EventType   string            `json:"eventType"`
-	Members     []MemberJoinEvent `json:"members"`
+	EventId     string             `json:"eventId"`
+	Title       string             `json:"title"`
+	Description string             `json:"description"`
+	StartDate   int64              `json:"startDate,omitempty"`
+	EndDate     int64              `json:"endDate"`
+	Place       string             `json:"place"`
+	StartTime   int64              `json:"startTime"`
+	Banner      []EventBanner      `json:"banner"`
+	EndTime     int64              `json:"endTime"`
+	Location    string             `json:"location"`
+	Status      bool               `json:"status"`
+	CreatedDate int64              `json:"createdDate"`
+	UpdatedDate int64              `json:"updatedDate"`
+	LineId      string             `json:"lineId"`
+	LineName    string             `json:"lineName"`
+	EventType   string             `json:"eventType"`
+	Members     []*MemberJoinEvent `json:"members,omitempty"`
+	Role        []string           `json:"role,omitempty"`
+	Published   bool               `json:"published"`
 }
 type EventResponse struct {
 	EventId     string                     `json:"eventId"`
@@ -51,6 +53,8 @@ type EventResponse struct {
 	LineName    string                     `json:"lineName"`
 	EventType   string                     `json:"eventType"`
 	Members     []*MemberJoinEventResponse `json:"members"`
+	Role        []string                   `json:"role,omitempty"`
+	Published   bool                       `json:"published"`
 }
 type MemberJoinEventResponse struct {
 	EventId  string `json:"eventId"`
@@ -81,6 +85,7 @@ type EventImpl struct {
 	EventCheckIn []*EventCheckIn    `json:"eventCheckIn,omitempty" form:"eventCheckIn"`
 	Published    bool               `json:"Published" form:"Published"`
 	Role         []string           `json:"role,omitempty" form:"role"`
+	Clinics      []string           `json:"clinics" form:"clinics"`
 }
 
 type EventBanner struct {

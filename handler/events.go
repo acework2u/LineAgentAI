@@ -115,6 +115,8 @@ func (e *EventHandler) UpdateEvent(c *gin.Context) {
 		LineId:      eventUpdate.LineId,
 		LineName:    eventUpdate.LineName,
 		EventType:   eventUpdate.EventType,
+		Role:        eventUpdate.Role,
+		Published:   eventUpdate.Published,
 		UpdatedDate: time.Now().Local().Unix(),
 	}
 	err = e.eventService.UpdateEvent(&dataEvent)

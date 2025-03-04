@@ -95,6 +95,7 @@ type MemberEventImpl struct {
 	ReferencePhone string          `bson:"referencePhone"`
 	Clinic         string          `bson:"clinic"`
 	EventCheckIn   []*EventCheckIn `bson:"eventCheckIn,omitempty"`
+	Role           []string        `bson:"role,omitempty"`
 }
 
 type EventResponse struct {

@@ -71,6 +71,8 @@ func (s *eventsService) GetEvents() ([]*EventResponse, error) {
 			Location:    event.Location,
 			Status:      event.Status,
 			Members:     memberJoined,
+			Role:        event.Role,
+			Published:   event.Published,
 		}
 		eventList = append(eventList, &item)
 	}
@@ -205,6 +207,8 @@ func (s *eventsService) UpdateEvent(event *EventImpl) error {
 		LineId:      event.LineId,
 		LineName:    event.LineName,
 		EventType:   event.EventType,
+		Role:        event.Role,
+		Published:   event.Published,
 	})
 	if err != nil {
 		return err
