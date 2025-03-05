@@ -20,4 +20,5 @@ func (r *FileServeRouter) FileServeRouter(rg *gin.RouterGroup) {
 
 	router.GET("/:id", r.fileServeHandler.GetFile)
 	router.POST("/", r.fileServeHandler.PostFile)
+	router.POST("", r.fileServeHandler.PostFile)
 }
