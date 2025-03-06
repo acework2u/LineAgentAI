@@ -17,4 +17,5 @@ func (r *MemberRouter) MemberRouter(rg *gin.RouterGroup) {
 	router := rg.Group("/members")
 	router.GET("", r.memberHandler.GetMembers)
 	router.GET("/:id", r.memberHandler.GetMember)
+	router.PUT("/:id/status", r.memberHandler.UpdateStatus)
 }

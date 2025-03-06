@@ -1,5 +1,7 @@
 package repository
 
+import "go.mongodb.org/mongo-driver/bson/primitive"
+
 type MemberRepository interface {
 	CreateMember(member *Member) error
 	GetMemberByLineId(id string) (*Member, error)
@@ -10,30 +12,32 @@ type MemberRepository interface {
 	GetJoinEvent(eventId string) (*JoinEventImpl, error)
 	CheckJoinEvent(eventId string, userId string) (bool, error)
 	MemberList() ([]*Member, error)
+	UpdateMemberStatus(id string, status bool) error
 }
 
 type Member struct {
-	Title        string `bson:"title"`
-	Name         string `bson:"name"`
-	LastName     string `bson:"lastname"`
-	PinCode      int    `bson:"pincode"`
-	Email        string `bson:"email"`
-	Phone        string `bson:"phone"`
-	BirthDate    int64  `bson:"birthdate"`
-	Med          string `bson:"med"`
-	MedExtraInfo string `bson:"medextrainfo"`
-	Organization string `bson:"organization"`
-	Position     string `bson:"position"`
-	Course       string `bson:"course"`
-	LineId       string `bson:"lineid"`
-	LineName     string `bson:"lineName"`
-	Facebook     string `bson:"facebook"`
-	Instagram    string `bson:"instagram"`
-	FoodAllergy  string `bson:"foodallergy"`
-	Religion     string `bson:"religion"`
-	RegisterDate int64  `bson:"registerdate"`
-	UpdatedDate  int64  `bson:"updateddate"`
-	Status       bool   `bson:"status"`
+	Id           primitive.ObjectID `bson:"_id,omitempty"`
+	Title        string             `bson:"title"`
+	Name         string             `bson:"name"`
+	LastName     string             `bson:"lastname"`
+	PinCode      int                `bson:"pincode"`
+	Email        string             `bson:"email"`
+	Phone        string             `bson:"phone"`
+	BirthDate    int64              `bson:"birthdate"`
+	Med          string             `bson:"med"`
+	MedExtraInfo string             `bson:"medextrainfo"`
+	Organization string             `bson:"organization"`
+	Position     string             `bson:"position"`
+	Course       string             `bson:"course"`
+	LineId       string             `bson:"lineid"`
+	LineName     string             `bson:"lineName"`
+	Facebook     string             `bson:"facebook"`
+	Instagram    string             `bson:"instagram"`
+	FoodAllergy  string             `bson:"foodallergy"`
+	Religion     string             `bson:"religion"`
+	RegisterDate int64              `bson:"registerdate"`
+	UpdatedDate  int64              `bson:"updateddate"`
+	Status       bool               `bson:"status"`
 }
 
 type Filter struct {

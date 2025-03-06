@@ -46,3 +46,21 @@ func (h *MemberHandler) GetMember(c *gin.Context) {
 	c.JSON(200, gin.H{"member": result})
 
 }
+func (h *MemberHandler) UpdateStatus(c *gin.Context) {
+	id := c.Param("id")
+	member := services.MemberStatus{}
+	err := c.ShouldBind(&member)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	// service member update status
+	err = h.memberService.UpdateMemberStatus(id, member.Status)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "update member status successfully"})
+
+}

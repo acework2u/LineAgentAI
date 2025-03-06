@@ -58,7 +58,9 @@ func (s *memberService) GetMembers() ([]*Member, error) {
 	}
 	members := []*Member{}
 	for _, member := range res {
+
 		members = append(members, &Member{
+			Id:           member.Id.Hex(),
 			Title:        member.Title,
 			Name:         member.Name,
 			LastName:     member.LastName,
@@ -84,4 +86,14 @@ func (s *memberService) GetMembers() ([]*Member, error) {
 	}
 
 	return members, nil
+}
+func (s *memberService) UpdateMemberStatus(uid string, status bool) error {
+	if uid == "" {
+		return errors.New("id is empty")
+	}
+	err := s.memberRepo.UpdateMemberStatus(uid, status)
+	if err != nil {
+		return err
+	}
+	return nil
 }

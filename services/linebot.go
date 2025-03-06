@@ -28,6 +28,7 @@ type SourceHook struct {
 	} `json:"source"`
 }
 type Member struct {
+	Id           string `json:"id"`
 	Title        string `json:"title"`
 	Name         string `json:"name" binding:"required" validate:"required,min=3,max=20"`
 	LastName     string `json:"lastName"`

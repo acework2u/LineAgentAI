@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -153,5 +154,22 @@ func (r *memberRepositoryImpl) GetMembers(filter Filter) ([]*Member, error) {
 	}
 
 	return members, nil
+
+}
+func (r *memberRepositoryImpl) UpdateMemberStatus(id string, status bool) error {
+
+	uid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	res, err := r.memberCollection.UpdateOne(r.ctx, bson.M{"_id": uid}, bson.M{"$set": bson.M{"status": status}})
+	if err != nil {
+		return err
+	}
+	if res.MatchedCount == 0 {
+		return errors.New("member not found")
+	}
+
+	return nil
 
 }
