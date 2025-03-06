@@ -378,36 +378,36 @@ func (h *LineWebhookHandler) PostCheckInEvent(c *gin.Context) {
 	err := c.ShouldBindJSON(&qrcode)
 
 	if err != nil {
-		log.Println("In CheckInEvent: error")
+		log.Println("In CheckInEvent1: error")
 		log.Println(err)
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
-	log.Println("In CheckInEvent: ")
-	log.Println(qrcode)
-
-	dataQr := services.QrCodeImpl{}
-	err = json.Unmarshal([]byte(qrcode.QrCode), &dataQr)
-
-	if err != nil {
-		log.Println("In CheckInEvent: error")
-		log.Println(err)
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
+	//log.Println("In CheckInEvent: ")
+	//log.Println(qrcode)
+	//
+	//dataQr := services.QrCodeImpl{}
+	//err = json.Unmarshal([]byte(qrcode.QrCode), &dataQr)
+	//
+	//if err != nil {
+	//	log.Println("In CheckInEvent 2: error")
+	//	log.Println(err)
+	//	c.JSON(400, gin.H{"error": err.Error()})
+	//	return
+	//}
 
 	checkInData := services.QrCodeMessage{}
 	_ = checkInData
 
 	dataCheckIn := services.EventCheckIn{
-		EventId:      dataQr.EventId,
+		EventId:      qrcode.EventId,
 		UserId:       qrcode.UserId,
 		CheckIn:      true,
 		CheckOut:     false,
-		CheckInTime:  conTimeStrToInt64(qrcode.Timestamp),
+		CheckInTime:  time.Now().Local().Unix(),
 		CheckOutTime: 0,
-		CheckInPlace: dataQr.ClinicNo,
+		CheckInPlace: qrcode.Clinic,
 	}
 
 	log.Println(dataCheckIn)

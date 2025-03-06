@@ -36,25 +36,26 @@ type Event struct {
 	Published   bool               `json:"published"`
 }
 type EventResponse struct {
-	EventId     string                     `json:"eventId"`
-	Title       string                     `json:"title"`
-	Description string                     `json:"description"`
-	StartDate   string                     `json:"startDate,omitempty"`
-	EndDate     string                     `json:"endDate"`
-	Place       string                     `json:"place"`
-	StartTime   string                     `json:"startTime"`
-	Banner      []EventBanner              `json:"banner"`
-	EndTime     string                     `json:"endTime"`
-	Location    string                     `json:"location"`
-	Status      bool                       `json:"status"`
-	CreatedDate int64                      `json:"createdDate"`
-	UpdatedDate int64                      `json:"updatedDate"`
-	LineId      string                     `json:"lineId"`
-	LineName    string                     `json:"lineName"`
-	EventType   string                     `json:"eventType"`
-	Members     []*MemberJoinEventResponse `json:"members"`
-	Role        []string                   `json:"role,omitempty"`
-	Published   bool                       `json:"published"`
+	EventId      string                     `json:"eventId"`
+	Title        string                     `json:"title"`
+	Description  string                     `json:"description"`
+	StartDate    string                     `json:"startDate,omitempty"`
+	EndDate      string                     `json:"endDate"`
+	Place        string                     `json:"place"`
+	StartTime    string                     `json:"startTime"`
+	Banner       []EventBanner              `json:"banner"`
+	EndTime      string                     `json:"endTime"`
+	Location     string                     `json:"location"`
+	Status       bool                       `json:"status"`
+	CreatedDate  int64                      `json:"createdDate"`
+	UpdatedDate  int64                      `json:"updatedDate"`
+	LineId       string                     `json:"lineId"`
+	LineName     string                     `json:"lineName"`
+	EventType    string                     `json:"eventType"`
+	Members      []*MemberJoinEventResponse `json:"members"`
+	EventCheckIn []*EventCheckIn            `json:"eventCheckIn,omitempty"`
+	Role         []string                   `json:"role,omitempty"`
+	Published    bool                       `json:"published"`
 }
 type MemberJoinEventResponse struct {
 	EventId  string `json:"eventId"`

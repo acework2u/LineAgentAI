@@ -685,6 +685,7 @@ func (s *lineBotService) CheckInEvent(eventCheckIn *EventCheckIn) (bool, error) 
 		CheckInPlace: eventCheckIn.CheckInPlace,
 		CheckOut:     eventCheckIn.CheckOut,
 		CheckOutTime: eventCheckIn.CheckOutTime,
+		Clinic:       eventCheckIn.Clinic,
 	})
 	if err != nil {
 		return false, err

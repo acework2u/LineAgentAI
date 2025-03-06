@@ -164,6 +164,8 @@ type QrCodeMessage struct {
 	QrCode    string `json:"qrCode"`
 	Timestamp string `json:"timestamp"`
 	UserId    string `json:"userId"`
+	EventId   string `json:"eventId"`
+	Clinic    string `json:"clinic"`
 }
 
 type QrCodeImpl struct {
@@ -178,6 +180,7 @@ type EventCheckIn struct {
 	CheckInTime  int64  `json:"checkInTime,omitempty"`
 	CheckOutTime int64  `json:"checkOutTime,omitempty"`
 	CheckInPlace string `json:"checkInPlace"`
+	Clinic       string `json:"clinic"`
 }
 
 type Filter struct {

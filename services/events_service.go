@@ -57,22 +57,37 @@ func (s *eventsService) GetEvents() ([]*EventResponse, error) {
 			})
 
 		}
+		memberCheckin := make([]*EventCheckIn, 0, len(event.EventCheckIn))
+		for _, checkin := range event.EventCheckIn {
+			memberCheckin = append(memberCheckin, &EventCheckIn{
+				EventId:      checkin.EventId,
+				UserId:       checkin.UserId,
+				CheckIn:      checkin.CheckIn,
+				CheckOut:     false,
+				CheckInTime:  checkin.CheckInTime,
+				CheckOutTime: checkin.CheckOutTime,
+				CheckInPlace: checkin.CheckInPlace,
+				Clinic:       checkin.Clinic,
+			})
+		}
 
 		item := EventResponse{
-			EventId:     event.EventId,
-			Title:       event.Title,
-			Description: event.Description,
-			StartDate:   startDate,
-			EndDate:     endDate,
-			Place:       event.Place,
-			StartTime:   startTime,
-			EndTime:     endTime,
-			Banner:      banners,
-			Location:    event.Location,
-			Status:      event.Status,
-			Members:     memberJoined,
-			Role:        event.Role,
-			Published:   event.Published,
+			EventId:      event.EventId,
+			Title:        event.Title,
+			Description:  event.Description,
+			StartDate:    startDate,
+			EndDate:      endDate,
+			Place:        event.Place,
+			StartTime:    startTime,
+			EndTime:      endTime,
+			Banner:       banners,
+			Location:     event.Location,
+			Status:       event.Status,
+			Members:      memberJoined,
+			Role:         event.Role,
+			Published:    event.Published,
+			EventType:    event.EventType,
+			EventCheckIn: memberCheckin,
 		}
 		eventList = append(eventList, &item)
 	}

@@ -120,6 +120,7 @@ type EventCheckIn struct {
 	CheckInTime  int64  `bson:"checkInTime,omitempty"`
 	CheckOutTime int64  `bson:"checkOutTime,omitempty"`
 	CheckInPlace string `bson:"checkInPlace"`
+	Clinic       string `bson:"clinic"`
 }
 type CertificateEvent struct {
 	EventId string `bson:"eventId"`
