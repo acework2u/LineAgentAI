@@ -113,7 +113,7 @@ func init() {
 
 func StartServer() {
 	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowOrigins = []string{"*", "http://localhost:5173", "https://f325fcd7ea2b.ngrok.app"}
+	corsConfig.AllowOrigins = []string{"*", "http://localhost:5173", "https://f325fcd7ea2b.ngrok.app", "https://0023805cb6bc.ngrok.app"}
 	corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	corsConfig.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
 	corsConfig.AllowCredentials = true
