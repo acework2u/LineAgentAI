@@ -50,6 +50,8 @@ type Member struct {
 	RegisterDate int64  `json:"registerDate,omitempty"`
 	UpdatedDate  int64  `json:"updatedDate,omitempty"`
 	Status       bool   `json:"status"`
+	JoinTime     int64  `json:"joinTime,omitempty"`
+	JoinTimeStr  string `json:"joinTimeStr,omitempty"`
 }
 type MemberResponseReport struct {
 	Title        string `json:"title"`

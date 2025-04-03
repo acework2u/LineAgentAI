@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/tealeg/xlsx/v3"
 	"linechat/services"
+	"linechat/utils"
 	"time"
 )
 
@@ -199,6 +200,13 @@ func (r *ReportHandler) GetExportEventsToExcelReport(c *gin.Context) {
 		return
 	}
 
+	eventInfo, err := r.reportService.ReportEvent(eventId)
+
+	if err != nil {
+		c.JSON(400, gin.H{"message": err.Error()})
+		return
+	}
+
 	file := xlsx.NewFile()
 
 	eh, err := file.AddSheet("Events")
@@ -226,13 +234,13 @@ func (r *ReportHandler) GetExportEventsToExcelReport(c *gin.Context) {
 
 	// Set custom detail
 	theCell, _ := eh.Cell(0, 1)
-	theCell.Value = "โครงการแพทย์อาสาตรวจสุขภาพพระสงฆ์ "
+	theCell.Value = eventInfo.Title
 	theCell, _ = eh.Cell(1, 1)
-	theCell.Value = "โครงการแพทย์อาสาตรวจสุขภาพพระสงฆ์ถวายเป็นพระกศล แด่สมเด็จพระสงฆราช สกลมหาสังฆปริณายก"
+	theCell.Value = utils.LimitContent(eventInfo.Description)
 	theCell, _ = eh.Cell(2, 1)
-	theCell.Value = "ในวันอาทิตย์ที่ 9 กุมภาพันธ์ 2568"
+	theCell.Value = eventInfo.StartDate
 	theCell, _ = eh.Cell(3, 1)
-	theCell.Value = "ณ วัดราชบพิธสถิตมหาสีมารามราชวรวิหาร"
+	theCell.Value = eventInfo.Location
 
 	// Set with col
 	newCol := xlsx.NewColForRange(1, 4)
@@ -332,7 +340,10 @@ func (r *ReportHandler) GetExportEventsToExcelReport(c *gin.Context) {
 		for _, item := range eventClinic.Member {
 			row := sh.AddRow()
 			fullName := fmt.Sprintf("%s %s %s", item.Title, item.Name, item.LastName)
-			joinDate := time.Unix(item.RegisterDate, 0).Format("2006-01-02 15:04:05")
+			joinDate := time.Unix(item.JoinTime, 0).Format("2006-01-02 15:04:05")
+			// convert unix time to string
+
+			//joinDate := strconv.FormatInt(item.JoinTime, 10)
 
 			row.AddCell().SetString(item.Course)
 			row.AddCell().SetString(fullName)
@@ -457,6 +468,20 @@ func (r *ReportHandler) GetExportEventsByClinicToExcel(c *gin.Context) {
 	headerRow.AddCell().SetString("Course")
 	headerRow.AddCell().SetString("Member Type")
 
+	c.JSON(200, gin.H{"message": clinicReport})
+
+}
+func (r *ReportHandler) GetExportEventsByClinic(c *gin.Context) {
+	eventId := c.Query("eventId")
+	if eventId == "" {
+		c.JSON(400, gin.H{"message": "event id is required"})
+		return
+	}
+	clinicReport, err := r.reportService.ExportClinicReport(eventId)
+	if err != nil {
+		c.JSON(400, gin.H{"message": err.Error()})
+		return
+	}
 	c.JSON(200, gin.H{"message": clinicReport})
 
 }

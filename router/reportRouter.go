@@ -21,6 +21,7 @@ func (r *ReportRouter) ReportRouter(rg *gin.RouterGroup) {
 	router.GET("/events", r.reportHandler.GetExportEventToExcelReport)
 	router.GET("/event", r.reportHandler.GetExportEventsToExcelReport)
 	router.GET("/event-with-clinic", r.reportHandler.GetExportEventsByClinicToExcel)
+	router.GET("/raw-event-with-clinic", r.reportHandler.GetExportEventsByClinic)
 
 	//rg.GET("")
 	//rg.GET("/reports/members/excel", r.reportHandler.GetExportMemberToExcelReport)

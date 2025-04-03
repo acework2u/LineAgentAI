@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v5"
@@ -148,4 +149,42 @@ func DateToTime(t string) time.Time {
 func TimeToTime(t string) time.Time {
 	toTime, _ := time.Parse("15:04", t)
 	return toTime
+}
+
+func DateToThaiString(t time.Time) string {
+	return t.Format("02/01/2006")
+}
+
+func LimitContent(content string) string {
+	if len(content) > 328 {
+		return content[:328] + "..."
+	}
+	return content
+}
+func ThaiDateTime(t time.Time, mode string) string {
+	// กำหนดชื่อวันและเดือนในภาษาไทย
+	thaiDays := []string{"อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"}
+	thaiMonths := []string{"มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+		"กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"}
+
+	// ดึงข้อมูลวัน, เดือน, ปี, ชั่วโมง, นาที, วินาที
+	day := thaiDays[t.Weekday()]
+	month := thaiMonths[t.Month()-1]
+	year := t.Year() + 543 // แปลงปีเป็น พ.ศ.
+	hour := t.Hour()
+	minute := t.Minute()
+	second := t.Second()
+
+	// สร้างสตริงสำหรับแสดงผลตามโหมดที่เลือก
+	switch mode {
+	case "date":
+		return fmt.Sprintf("วัน%s ที่ %d %s พ.ศ. %d", day, t.Day(), month, year)
+	case "time":
+		return fmt.Sprintf("เวลา %02d:%02d:%02d", hour, minute, second)
+	case "both":
+		return fmt.Sprintf("วัน%s ที่ %d %s พ.ศ. %d เวลา %02d:%02d:%02d",
+			day, t.Day(), month, year, hour, minute, second)
+	default:
+		return "โหมดไม่ถูกต้อง: ใช้ 'date', 'time', หรือ 'both'"
+	}
 }

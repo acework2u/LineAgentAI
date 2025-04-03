@@ -1,7 +1,10 @@
 package services
 
 import (
+	"errors"
 	"linechat/repository"
+	"linechat/utils"
+	"log"
 	"time"
 )
 
@@ -139,8 +142,12 @@ func (s *reportService) ExportClinicReport(eventId string) ([]*ClinicReport, err
 	// binding result
 	clinicReport := []*ClinicReport{}
 	for _, clinic := range res {
+		log.Println(clinic)
+
 		members := []Member{}
 		for _, member := range clinic.Members {
+
+			log.Println(member.JoinTime)
 
 			for _, memberMap := range memberList {
 				if memberMap.LineId == member.LineId {
@@ -157,6 +164,7 @@ func (s *reportService) ExportClinicReport(eventId string) ([]*ClinicReport, err
 					member.LineName = memberMap.LineName
 					member.Status = memberMap.Status
 					member.RegisterDate = memberMap.RegisterDate
+					member.LineId = memberMap.LineId
 
 				}
 
@@ -176,6 +184,8 @@ func (s *reportService) ExportClinicReport(eventId string) ([]*ClinicReport, err
 				LineName:     member.LineName,
 				LineId:       member.LineId,
 				Status:       member.Status,
+				JoinTime:     member.JoinTime,
+				JoinTimeStr:  utils.ThaiDateTime(time.Unix(member.JoinTime, int64(0)), "both"),
 			})
 		}
 
@@ -239,5 +249,41 @@ func (s *reportService) ReportEvents(filter ReportFilter) ([]*EventReport, error
 	}
 
 	return events, nil
+
+}
+func (s *reportService) ReportEvent(eventId string) (*EventReport, error) {
+	if eventId == "" {
+		return nil, errors.New("eventId is empty")
+	}
+	event, err := s.eventRepo.EventByEventId(eventId)
+	if err != nil {
+		return nil, err
+	}
+
+	members := []*Member{}
+	for _, member := range event.Members {
+		item := &Member{
+			Name:     member.Name,
+			LastName: member.LastName,
+			Course:   member.Course,
+		}
+		members = append(members, item)
+	}
+	eventReport := &EventReport{
+		EventId:     event.EventId,
+		Title:       event.Title,
+		Description: event.Description,
+		StartDate:   time.Unix(event.StartDate, 0).Format("2006-01-02"),
+		EndDate:     time.Unix(event.EndDate, 0).Format("2006-01-02"),
+		StartTime:   time.Unix(event.StartTime, 0).Format("15:04:05"),
+		EndTime:     time.Unix(event.EndTime, 0).Format("15:04:05"),
+		EventType:   "event",
+		Location:    event.Location,
+		CountMember: len(event.Members),
+		Status:      event.Status,
+		Members:     members,
+	}
+
+	return eventReport, nil
 
 }

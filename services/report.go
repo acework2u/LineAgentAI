@@ -5,6 +5,7 @@ type ReportService interface {
 	ExportEventReport() ([]*EventReport, error)
 	ExportClinicReport(eventId string) ([]*ClinicReport, error)
 	ReportEvents(filter ReportFilter) ([]*EventReport, error)
+	ReportEvent(eventId string) (*EventReport, error)
 }
 
 type ReportType string

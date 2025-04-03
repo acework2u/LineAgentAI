@@ -38,6 +38,7 @@ type Member struct {
 	RegisterDate int64              `bson:"registerdate"`
 	UpdatedDate  int64              `bson:"updateddate"`
 	Status       bool               `bson:"status"`
+	JoinTime     int64              `bson:"joinTime"`
 }
 
 type Filter struct {
