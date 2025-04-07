@@ -7,6 +7,7 @@ import (
 	"linechat/utils"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -20,7 +21,52 @@ func NewEventHandler(eventService services.EventsService) *EventHandler {
 	}
 }
 func (e *EventHandler) GetEvents(c *gin.Context) {
-	events, err := e.eventService.GetEvents()
+
+	stage := c.Query("stage")
+	log.Println(stage)
+	sort := c.Query("sort")
+	log.Println(sort)
+	keyword := c.Query("keyword")
+	log.Println(keyword)
+	Page := c.Query("page")
+	if Page == "" {
+		Page = "0"
+	}
+
+	offset, _ := strconv.Atoi(Page)
+
+	log.Println(Page)
+	Limit := c.Query("limit")
+	log.Println(Limit)
+	limitInt, _ := strconv.Atoi(Limit)
+	log.Println(limitInt)
+	startDate := c.Query("start_date")
+	if startDate == "" {
+		startDate = time.Now().Format("2006-01-02")
+	}
+	startDate = startDate + " 00:00:00"
+
+	startDateInt64, _ := time.Parse("2006-01-02 15:04:05", startDate)
+	log.Println(startDate)
+	endDate := c.Query("end_date")
+	if endDate == "" {
+		endDate = time.Now().Format("2006-01-02")
+	}
+	endDate = endDate + " 23:59:59"
+	endDateInt64, _ := time.Parse("2006-01-02 15:04:05", endDate)
+
+	log.Println(endDate)
+	//status := c.Query("status")
+
+	events, err := e.eventService.GetEvents(services.FilterEvent{
+		Page:    offset,
+		Limit:   limitInt,
+		Sort:    sort,
+		Keyword: keyword,
+		Stages:  stage,
+		Start:   startDateInt64.Unix(),
+		End:     endDateInt64.Unix(),
+	})
 	if err != nil {
 		c.JSON(400, gin.H{"message": err.Error()})
 		return

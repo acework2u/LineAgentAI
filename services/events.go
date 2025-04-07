@@ -1,7 +1,7 @@
 package services
 
 type EventsService interface {
-	GetEvents() ([]*EventResponse, error)
+	GetEvents(fileterEvent FilterEvent) ([]*EventResponse, error)
 	GetEventById(eventId string) (*Event, error)
 	CreateEvent(event *EventImpl) error
 	UpdateEvent(event *EventImpl) error
@@ -13,6 +13,10 @@ type FilterEvent struct {
 	Limit   int    `json:"limit"`
 	Sort    string `json:"sort"`
 	Keyword string `json:"keyword"`
+	Stages  string `json:"stages"`
+	Status  bool   `json:"status"`
+	Start   int64  `json:"start"`
+	End     int64  `json:"end"`
 }
 type Event struct {
 	EventId     string             `json:"eventId"`

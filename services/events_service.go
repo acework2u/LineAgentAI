@@ -15,22 +15,60 @@ type eventsService struct {
 func NewEventsService(eventsRepository repository.EventsRepository) EventsService {
 	return &eventsService{eventRepo: eventsRepository}
 }
-func (s *eventsService) GetEvents() ([]*EventResponse, error) {
+func (s *eventsService) GetEvents(event FilterEvent) ([]*EventResponse, error) {
+
+	//filter
+	log.Println("filter event in service")
+	log.Println(event)
 
 	//init the loc
 	loc, _ := time.LoadLocation("Asia/Bangkok")
 	_ = loc
-	//set timezone,
-	//now := time.Now().In(loc)
 
-	resEvent, err := s.eventRepo.EventsList()
+	page := 1
+	if event.Page != 0 {
+		page = event.Page
+	}
+	limit := 10
+	if event.Limit != 0 {
+		limit = event.Limit
+	}
+	sort := ""
+	if event.Sort != "" {
+		sort = event.Sort
+	}
+	eventStart := event.Start
+	eventEnd := event.End
+	switch event.Stages {
+	case "all":
+		eventStart = 0
+		eventEnd = 0
+	case "upcoming":
+		now := time.Now()
+		eventStart = now.Add(24 * time.Hour).Unix()
+		eventEnd = now.Add(48 * time.Hour).Unix()
+	case "ongoing":
+		now := time.Now()
+		eventStart = now.Add(-24 * time.Hour).Unix()
+		end := now.Add(24 * time.Hour)
+		eventEnd = end.Unix()
+
+	}
+	resEvent, err := s.eventRepo.EventsList(repository.EventFilter{
+		Page:    page,
+		Limit:   limit,
+		Sort:    sort,
+		Keyword: event.Keyword,
+		Start:   eventStart,
+		End:     eventEnd,
+		Stages:  event.Stages,
+		Status:  event.Status,
+	})
+
 	if err != nil {
 		return nil, err
 	}
 	eventList := []*EventResponse{}
-
-	// banner
-
 	for _, event := range resEvent {
 		banners := []EventBanner{}
 

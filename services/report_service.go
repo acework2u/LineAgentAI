@@ -60,7 +60,8 @@ func (s *reportService) ExportMemberReport() ([]*MemberReport, error) {
 func (s *reportService) ExportEventReport() ([]*EventReport, error) {
 	eventList := []*EventReport{}
 
-	events, err := s.eventRepo.EventsList()
+	filter := repository.EventFilter{}
+	events, err := s.eventRepo.EventsList(filter)
 	if err != nil {
 		return nil, err
 	}

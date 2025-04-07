@@ -4,7 +4,7 @@ type EventsRepository interface {
 	EventJoin(event *MemberEventImpl) error
 	EventLeave(event *MemberEventImpl) error
 	GetEvent(eventId string) (*MemberEventImpl, error)
-	GetEvents(filter Fillter) ([]*MemberEventImpl, error)
+	GetEvents(filter EventFilter) ([]*MemberEventImpl, error)
 	CheckJoinEvent(eventId string, userId string) (bool, error)
 	GetEventJoin(eventId string, userId string) (*MemberEventImpl, error)
 	CheckInEvent(userId string, eventCheckIn *EventCheckIn) (bool, error)
@@ -13,16 +13,20 @@ type EventsRepository interface {
 	UpdateEvent(eventId string, event *Event) error
 	DeleteEvent(eventId string) error
 	EventByEventId(eventId string) (*Event, error)
-	EventsList() ([]*Event, error)
+	EventsList(filter EventFilter) ([]*Event, error)
 	EventsByClinic(eventId string) ([]*ClinicGroup, error)
 	EventReport(filter *ReportFilter) ([]*Event, error)
 }
 
-type Fillter struct {
+type EventFilter struct {
 	Page    int    `json:"page"`
 	Limit   int    `json:"limit"`
 	Sort    string `json:"sort"`
 	Keyword string `json:"keyword"`
+	Start   int64  `json:"start"`
+	End     int64  `json:"end"`
+	Stages  string `json:"stages"`
+	Status  bool   `json:"status"`
 }
 
 type ReportFilter struct {

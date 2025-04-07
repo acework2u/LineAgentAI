@@ -85,7 +85,7 @@ func (r *eventRepositoryImpl) EventLeave(event *MemberEventImpl) error {
 func (r *eventRepositoryImpl) GetEvent(eventId string) (*MemberEventImpl, error) {
 	panic("implement me")
 }
-func (r *eventRepositoryImpl) GetEvents(filter Fillter) ([]*MemberEventImpl, error) {
+func (r *eventRepositoryImpl) GetEvents(filter EventFilter) ([]*MemberEventImpl, error) {
 	panic("implement me")
 }
 func (r *eventRepositoryImpl) CheckJoinEvent(eventId string, userId string) (bool, error) {
@@ -508,25 +508,68 @@ func (r *eventRepositoryImpl) EventByEventId(eventId string) (*Event, error) {
 	return &event, nil
 
 }
-func (r *eventRepositoryImpl) EventsList() ([]*Event, error) {
-	filter := bson.M{}
+func (r *eventRepositoryImpl) EventsList(filter EventFilter) ([]*Event, error) {
+
+	log.Println("filter in repo:", filter)
 	events := []*Event{}
-	// order evnet by id desc
-	opts := options.Find().SetSort(bson.D{{"_id", -1}})
-	cursor, err := r.eventsCollection.Find(r.ctx, filter, opts)
+	// startDate stage
+	// check filter start date
+	pipeline := []bson.M{}
+	startDateStage := bson.M{}
+	endDateStage := bson.M{}
+	if filter.Start > 0 {
+		startDateStage = bson.M{
+			"$match": bson.M{
+				"startDate": bson.M{
+					"$gte": filter.Start,
+				},
+			},
+		}
+	}
+
+	if filter.End > 0 {
+		endDateStage = bson.M{
+			"$match": bson.M{
+				"endDate": bson.M{
+					"$lte": filter.End,
+				},
+			},
+		}
+	}
+	pipeline = append(pipeline, startDateStage, endDateStage)
+
+	curr, err := r.eventsCollection.Aggregate(r.ctx, pipeline)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(r.ctx)
-	for cursor.Next(r.ctx) {
+	defer curr.Close(r.ctx)
+	for curr.Next(r.ctx) {
 		var event Event
-		err := cursor.Decode(&event)
+		err := curr.Decode(&event)
 		if err != nil {
 			return nil, err
 		}
 		events = append(events, &event)
 	}
 	return events, nil
+
+	// order evnet by id desc
+	//opts := options.Find().SetSort(bson.D{{"_id", -1}})
+	//cursor, err := r.eventsCollection.Find(r.ctx, filter, opts)
+	//
+	//if err != nil {
+	//	return nil, err
+	//}
+	//defer cursor.Close(r.ctx)
+	//for cursor.Next(r.ctx) {
+	//	var event Event
+	//	err := cursor.Decode(&event)
+	//	if err != nil {
+	//		return nil, err
+	//	}
+	//	events = append(events, &event)
+	//}
+	//return events, nil
 }
 func (r *eventRepositoryImpl) EventsByClinic(eventId string) ([]*ClinicGroup, error) {
 
