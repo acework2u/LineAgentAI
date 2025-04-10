@@ -517,6 +517,7 @@ func (r *eventRepositoryImpl) EventsList(filter EventFilter) ([]*Event, error) {
 	pipeline := []bson.M{}
 	startDateStage := bson.M{}
 	endDateStage := bson.M{}
+
 	if filter.Start > 0 {
 		startDateStage = bson.M{
 			"$match": bson.M{
@@ -525,6 +526,7 @@ func (r *eventRepositoryImpl) EventsList(filter EventFilter) ([]*Event, error) {
 				},
 			},
 		}
+		pipeline = append(pipeline, startDateStage)
 	}
 
 	if filter.End > 0 {
@@ -535,8 +537,43 @@ func (r *eventRepositoryImpl) EventsList(filter EventFilter) ([]*Event, error) {
 				},
 			},
 		}
+		pipeline = append(pipeline, endDateStage)
 	}
-	pipeline = append(pipeline, startDateStage, endDateStage)
+
+	// and match status is true or false
+	statusStage := bson.M{
+		"$match": bson.M{
+			"status": filter.Status,
+		},
+	}
+	//limit stage
+	if filter.Limit > 0 {
+		limitStage := bson.M{
+			"$limit": filter.Limit,
+		}
+		pipeline = append(pipeline, limitStage)
+	}
+	// sort stage
+	if filter.Sort == "asc" {
+		sortStage := bson.M{
+			"$sort": bson.M{
+				"startDate": 1,
+			},
+		}
+		pipeline = append(pipeline, sortStage)
+	} else if filter.Sort == "desc" {
+		sortStage := bson.M{
+			"$sort": bson.M{
+				"startDate": -1,
+			},
+		}
+		pipeline = append(pipeline, sortStage)
+	}
+
+	pipeline = append(pipeline, statusStage)
+
+	log.Println("pipeline:", pipeline, statusStage)
+	//pipeline = append(pipeline, startDateStage, endDateStage)
 
 	curr, err := r.eventsCollection.Aggregate(r.ctx, pipeline)
 	if err != nil {

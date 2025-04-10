@@ -18,8 +18,6 @@ func NewEventsService(eventsRepository repository.EventsRepository) EventsServic
 func (s *eventsService) GetEvents(event FilterEvent) ([]*EventResponse, error) {
 
 	//filter
-	log.Println("filter event in service")
-	log.Println(event)
 
 	//init the loc
 	loc, _ := time.LoadLocation("Asia/Bangkok")
@@ -41,12 +39,17 @@ func (s *eventsService) GetEvents(event FilterEvent) ([]*EventResponse, error) {
 	eventEnd := event.End
 	switch event.Stages {
 	case "all":
-		eventStart = 0
-		eventEnd = 0
+		// first month
+		//now := time.Now()
+		//eventStart = now.Add(-30 * 24 * time.Hour).Unix()
+		//eventEnd = now.Add(30 * 24 * time.Hour).Unix()
+		eventStart = -1
+		eventEnd = -1
+
 	case "upcoming":
 		now := time.Now()
-		eventStart = now.Add(24 * time.Hour).Unix()
-		eventEnd = now.Add(48 * time.Hour).Unix()
+		eventStart = now.Add(-24 * time.Hour).Unix()
+		eventEnd = now.Add(30 * 24 * time.Hour).Unix()
 	case "ongoing":
 		now := time.Now()
 		eventStart = now.Add(-24 * time.Hour).Unix()

@@ -32,6 +32,17 @@ func (e *EventHandler) GetEvents(c *gin.Context) {
 	if Page == "" {
 		Page = "0"
 	}
+	status := c.Query("status")
+	if status == "" {
+		status = "1"
+	}
+	eventStatus := true
+	if status == "0" || status == "false" || status == "False" || status == "FALSE" {
+		eventStatus = false
+	}
+	if status == "1" || status == "true" || status == "True" || status == "TRUE" {
+		eventStatus = true
+	}
 
 	offset, _ := strconv.Atoi(Page)
 
@@ -66,6 +77,7 @@ func (e *EventHandler) GetEvents(c *gin.Context) {
 		Stages:  stage,
 		Start:   startDateInt64.Unix(),
 		End:     endDateInt64.Unix(),
+		Status:  eventStatus,
 	})
 	if err != nil {
 		c.JSON(400, gin.H{"message": err.Error()})
