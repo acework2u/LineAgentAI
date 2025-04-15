@@ -6,6 +6,8 @@ type EventsService interface {
 	CreateEvent(event *EventImpl) error
 	UpdateEvent(event *EventImpl) error
 	DeleteEvent(eventId string) error
+	CountEvent(fileterEvent FilterEvent) (int, error)
+	CountMemberJoinEvents(fileterEvent FilterEvent) (int, error)
 }
 
 type FilterEvent struct {

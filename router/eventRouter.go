@@ -16,6 +16,8 @@ func NewEventRouter(eventHandler *handler.EventHandler) *EventRouter {
 func (r *EventRouter) EventRouter(rg *gin.RouterGroup) {
 	rg.GET("/events", r.eventHandler.GetEvents)
 	rg.GET("/event/:eventId", r.eventHandler.GetEvent)
+	rg.GET("/events/count", r.eventHandler.CountEvent)
+	rg.GET("/events/members", r.eventHandler.CountMemberJoinEvent)
 	rg.POST("/event", r.eventHandler.CreateEvent)
 	rg.POST("/events", r.eventHandler.CreateEvent)
 	rg.PUT("/event", r.eventHandler.UpdateEvent)

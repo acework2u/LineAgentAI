@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
+	"strings"
 )
 
 type eventRepositoryImpl struct {
@@ -541,11 +542,32 @@ func (r *eventRepositoryImpl) EventsList(filter EventFilter) ([]*Event, error) {
 	}
 
 	// and match status is true or false
+	//log.Println("filter Stage:", filter.Stages)
+
 	statusStage := bson.M{
 		"$match": bson.M{
 			"status": filter.Status,
 		},
 	}
+	if strings.Compare(filter.Stages, "all") == 0 {
+		//log.Println("filter Stage is:", filter.Stages)
+		// status is true or false
+		statusStage = bson.M{
+			"$match": bson.M{
+				"status": bson.M{
+					"$exists": true,
+					"$type":   "bool",
+				},
+			},
+		}
+
+	}
+	//
+	//if strings.Compare(filter.Stages, "all") == 0 {
+	//	log.Println("filter Stage is:", filter.Stages)
+	//
+	//}
+
 	//limit stage
 	if filter.Limit > 0 {
 		limitStage := bson.M{
@@ -679,4 +701,111 @@ func (r *eventRepositoryImpl) EventReport(filter *ReportFilter) ([]*Event, error
 	}
 
 	return events, nil
+}
+func (r *eventRepositoryImpl) CountEvent(filter EventFilter) (int, error) {
+	// count all event with filter
+	query := bson.M{}
+	if filter.Start > 0 {
+		query["startDate"] = bson.M{
+			"$gte": filter.Start,
+		}
+	}
+	if filter.End > 0 {
+		query["endDate"] = bson.M{
+			"$lte": filter.End,
+		}
+	}
+	if filter.Status {
+		query["status"] = filter.Status
+	}
+	if filter.Keyword != "" {
+		query["$text"] = bson.M{
+			"$search": filter.Keyword,
+		}
+	}
+	if filter.Sort == "asc" {
+		query["startDate"] = 1
+	} else if filter.Sort == "desc" {
+		query["startDate"] = -1
+	}
+
+	count, err := r.eventsCollection.CountDocuments(r.ctx, query)
+	if err != nil {
+		return 0, err
+	}
+	return int(count), nil
+}
+func (r *eventRepositoryImpl) CountMemberJoinEvents(filter EventFilter) (int, error) {
+	query := bson.M{}
+	if filter.Start > 0 {
+		query["startDate"] = bson.M{
+			"$gte": filter.Start,
+		}
+	}
+	if filter.End > 0 {
+		query["endDate"] = bson.M{
+			"$lte": filter.End,
+		}
+	}
+	if filter.Status {
+		query["status"] = filter.Status
+	}
+	if filter.Keyword != "" {
+		query["$text"] = bson.M{
+			"$search": filter.Keyword,
+		}
+	}
+	if filter.Sort == "asc" {
+		query["startDate"] = 1
+	}
+	if filter.Sort == "desc" {
+		query["startDate"] = -1
+	}
+	if filter.Stages == "all" {
+		query["status"] = bson.M{
+			"$exists": true,
+			"$type":   "bool",
+		}
+	}
+	if filter.Stages == "active" {
+		query["status"] = true
+	}
+	if filter.Stages == "inactive" {
+		query["status"] = false
+	}
+	limit := 10
+	if filter.Limit > 0 {
+		limit = filter.Limit
+	}
+	_ = limit
+
+	_ = query
+	pipeline := []bson.M{}
+	pipeline = append(pipeline, bson.M{"$match": query})
+	pipeline = append(pipeline, bson.M{"$unwind": "$members"})
+	// pipeline group ny _id is null
+	//pipeline = append(pipeline, bson.M{"$group": bson.M{"_id": "null", "count": bson.M{"$sum": 1}}})
+	pipeline = append(pipeline, bson.M{"$group": bson.M{"_id": "members.userId", "allMembers": bson.M{"$addToSet": "$members"}}})
+	pipeline = append(pipeline, bson.M{"$unwind": "$allMembers"})
+	//pipeline = append(pipeline, bson.M{"$sort": bson.M{"count": -1}})
+	//pipeline = append(pipeline, bson.M{"$limit": limit})
+	cursor, err := r.eventsCollection.Aggregate(r.ctx, pipeline)
+	if err != nil {
+		return 0, err
+	}
+	defer cursor.Close(r.ctx)
+	count := 0
+	for cursor.Next(r.ctx) {
+		var event Event
+		err := cursor.Decode(&event)
+		if err != nil {
+			return 0, err
+		}
+		count++
+	}
+	if err = cursor.Err(); err != nil {
+		return 0, err
+	}
+	return count, nil
+
 }

@@ -16,11 +16,14 @@ type EventsRepository interface {
 	EventsList(filter EventFilter) ([]*Event, error)
 	EventsByClinic(eventId string) ([]*ClinicGroup, error)
 	EventReport(filter *ReportFilter) ([]*Event, error)
+	CountEvent(filter EventFilter) (int, error)
+	CountMemberJoinEvents(filter EventFilter) (int, error)
 }
 
 type EventFilter struct {
 	Page    int    `json:"page"`
 	Limit   int    `json:"limit"`
+	Total   int    `json:"total"`
 	Sort    string `json:"sort"`
 	Keyword string `json:"keyword"`
 	Start   int64  `json:"start"`

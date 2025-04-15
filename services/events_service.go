@@ -283,3 +283,18 @@ func (s *eventsService) DeleteEvent(eventId string) error {
 	}
 	return nil
 }
+func (s *eventsService) CountEvent(fileterEvent FilterEvent) (int, error) {
+
+	totalEvent, err := s.eventRepo.CountEvent(repository.EventFilter{})
+	if err != nil {
+		return 0, err
+	}
+	return totalEvent, nil
+}
+func (s *eventsService) CountMemberJoinEvents(fileterEvent FilterEvent) (int, error) {
+	totalEvent, err := s.eventRepo.CountMemberJoinEvents(repository.EventFilter{})
+	if err != nil {
+		return 0, err
+	}
+	return totalEvent, nil
+}

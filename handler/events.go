@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -42,6 +43,14 @@ func (e *EventHandler) GetEvents(c *gin.Context) {
 	}
 	if status == "1" || status == "true" || status == "True" || status == "TRUE" {
 		eventStatus = true
+	}
+	isCount := c.Query("count")
+	if isCount == "true" || isCount == "True" || isCount == "TRUE" {
+		isCount = strings.ToLower(isCount)
+	}
+	log.Println(isCount)
+	if isCount == "true" {
+		log.Println("count is true")
 	}
 
 	offset, _ := strconv.Atoi(Page)
@@ -79,10 +88,17 @@ func (e *EventHandler) GetEvents(c *gin.Context) {
 		End:     endDateInt64.Unix(),
 		Status:  eventStatus,
 	})
+
 	if err != nil {
 		c.JSON(400, gin.H{"message": err.Error()})
 		return
 	}
+
+	if isCount == "true" {
+		c.JSON(200, gin.H{"count": len(events)})
+		return
+	}
+
 	c.JSON(200, gin.H{"events": events})
 }
 func (e *EventHandler) GetEvent(c *gin.Context) {
@@ -197,4 +213,18 @@ func (e *EventHandler) DeleteEvent(c *gin.Context) {
 		return
 	}
 	c.JSON(200, gin.H{"message": "delete the event successfully"})
+}
+func (e *EventHandler) CountEvent(c *gin.Context) {
+
+	c.JSON(200, gin.H{"message": "count the event successfully"})
+}
+func (e *EventHandler) CountMemberJoinEvent(c *gin.Context) {
+	filter := services.FilterEvent{}
+	response, err := e.eventService.CountMemberJoinEvents(filter)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"count": response})
+
 }
