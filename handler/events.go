@@ -219,6 +219,12 @@ func (e *EventHandler) CountEvent(c *gin.Context) {
 	c.JSON(200, gin.H{"message": "count the event successfully"})
 }
 func (e *EventHandler) CountMemberJoinEvent(c *gin.Context) {
+	count := c.Query("count")
+	if count == "true" || count == "True" || count == "TRUE" {
+		count = strings.ToLower(count)
+		log.Println(count)
+	}
+
 	filter := services.FilterEvent{}
 	response, err := e.eventService.CountMemberJoinEvents(filter)
 	if err != nil {
@@ -227,4 +233,13 @@ func (e *EventHandler) CountMemberJoinEvent(c *gin.Context) {
 	}
 	c.JSON(200, gin.H{"count": response})
 
+}
+func (e *EventHandler) MemberJoinEvent(c *gin.Context) {
+	filter := services.FilterEvent{}
+	result, err := e.eventService.MembersJoinEvent(filter)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"events": result})
 }

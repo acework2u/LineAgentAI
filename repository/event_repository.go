@@ -787,6 +787,7 @@ func (r *eventRepositoryImpl) CountMemberJoinEvents(filter EventFilter) (int, er
 	//pipeline = append(pipeline, bson.M{"$group": bson.M{"_id": "null", "count": bson.M{"$sum": 1}}})
 	pipeline = append(pipeline, bson.M{"$group": bson.M{"_id": "members.userId", "allMembers": bson.M{"$addToSet": "$members"}}})
 	pipeline = append(pipeline, bson.M{"$unwind": "$allMembers"})
+
 	//pipeline = append(pipeline, bson.M{"$sort": bson.M{"count": -1}})
 	//pipeline = append(pipeline, bson.M{"$limit": limit})
 	cursor, err := r.eventsCollection.Aggregate(r.ctx, pipeline)
@@ -803,9 +804,84 @@ func (r *eventRepositoryImpl) CountMemberJoinEvents(filter EventFilter) (int, er
 		}
 		count++
 	}
-	if err = cursor.Err(); err != nil {
-		return 0, err
-	}
 	return count, nil
 
+}
+func (r *eventRepositoryImpl) MembersJoinEvent(filter EventFilter) ([]*MemberJoinEvent, error) {
+	query := bson.M{}
+	if filter.Start > 0 {
+		query["startDate"] = bson.M{
+			"$gte": filter.Start,
+		}
+	}
+	if filter.End > 0 {
+		query["endDate"] = bson.M{
+			"$lte": filter.End,
+		}
+	}
+	if filter.Status {
+		query["status"] = filter.Status
+	}
+	if filter.Keyword != "" {
+		query["$text"] = bson.M{
+			"$search": filter.Keyword,
+		}
+	}
+	if filter.Sort == "asc" {
+		query["startDate"] = 1
+	}
+	if filter.Sort == "desc" {
+		query["startDate"] = -1
+	}
+	if filter.Stages == "all" {
+		query["status"] = bson.M{
+			"$exists": true,
+			"$type":   "bool",
+		}
+	}
+	if filter.Stages == "active" {
+		query["status"] = true
+	}
+	if filter.Stages == "inactive" {
+		query["status"] = false
+	}
+	limit := 10
+	if filter.Limit > 0 {
+		limit = filter.Limit
+	}
+	_ = limit
+
+	pipeline := []bson.M{}
+	//match stage
+	pipeline = append(pipeline, bson.M{"$match": query})
+	//unwind stage
+	pipeline = append(pipeline, bson.M{"$unwind": "$members"})
+	//group stage
+	pipeline = append(pipeline, bson.M{"$group": bson.M{"_id": "$_id", "allMembers": bson.M{"$addToSet": "$members"}, "eventTitle": bson.M{"$first": "$title"}, "eventDate": bson.M{"$first": "$startDate"}}})
+	//pipeline = append(pipeline, bson.M{"$unwind": "$allMembers"})
+	// project stage
+	pipeline = append(pipeline, bson.M{"$project": bson.M{"_id": 1, "eventTitle": 1, "eventDate": 1, "allMembers": 1}})
+	//add a Field stage
+	pipeline = append(pipeline, bson.M{"$addFields": bson.M{"memberCount": bson.M{"$size": "$allMembers"}}})
+	// sort stage
+	pipeline = append(pipeline, bson.M{"$sort": bson.M{"startDate": -1}})
+	// limit stage
+	pipeline = append(pipeline, bson.M{"$limit": limit})
+	// aggregate stage
+	cursor, err := r.eventsCollection.Aggregate(r.ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+	// close the cursor
+	defer cursor.Close(r.ctx)
+	members := []*MemberJoinEvent{}
+	for cursor.Next(r.ctx) {
+		var event MemberJoinEvent
+		err := cursor.Decode(&event)
+		if err != nil {
+			return nil, err
+		}
+		members = append(members, &event)
+	}
+	return members, nil
 }

@@ -8,6 +8,7 @@ type EventsService interface {
 	DeleteEvent(eventId string) error
 	CountEvent(fileterEvent FilterEvent) (int, error)
 	CountMemberJoinEvents(fileterEvent FilterEvent) (int, error)
+	MembersJoinEvent(fileterEvent FilterEvent) ([]*MemberJoinRepose, error)
 }
 
 type FilterEvent struct {
@@ -98,4 +99,28 @@ type EventImpl struct {
 type EventBanner struct {
 	Url string `json:"url"`
 	Img string `json:"img"`
+}
+
+type MemberJoinRepose struct {
+	EventTitle  string `json:"title"`
+	EventDate   int64  `json:"date"`
+	MemberCount int    `json:"memberCount"`
+}
+type MemberEventImpl struct {
+	EventId        string          `json:"eventId"`
+	UserId         string          `json:"userId"`
+	JoinTime       int64           `json:"joinTime,omitempty"`
+	Name           string          `json:"name"`
+	LastName       string          `json:"lastName"`
+	Organization   string          `json:"organization"`
+	Position       string          `json:"position"`
+	Course         string          `json:"course"`
+	LineId         string          `json:"lineId"`
+	LineName       string          `json:"lineName"`
+	Tel            string          `json:"tel"`
+	ReferenceName  string          `json:"referenceName"`
+	ReferencePhone string          `json:"referencePhone"`
+	Clinic         string          `json:"clinic"`
+	EventCheckIn   []*EventCheckIn `json:"eventCheckIn,omitempty"`
+	Role           []string        `json:"role,omitempty"`
 }

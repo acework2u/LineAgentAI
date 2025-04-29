@@ -18,6 +18,7 @@ type EventsRepository interface {
 	EventReport(filter *ReportFilter) ([]*Event, error)
 	CountEvent(filter EventFilter) (int, error)
 	CountMemberJoinEvents(filter EventFilter) (int, error)
+	MembersJoinEvent(filter EventFilter) ([]*MemberJoinEvent, error)
 }
 
 type EventFilter struct {
@@ -139,4 +140,10 @@ type ClinicGroup struct {
 	Clinic  string   `bson:"_id" json:"clinic"`
 	Members []Member `bson:"members" json:"members"`
 	Count   int      `bson:"count" json:"count"`
+}
+
+type MemberJoinEvent struct {
+	EventTitle  string `bson:"eventTitle" json:"eventTitle"`
+	EventDate   int64  `bson:"eventDate" json:"eventDate"`
+	MemberCount int    `bson:"memberCount" json:"memberCount"`
 }

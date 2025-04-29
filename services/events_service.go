@@ -298,3 +298,20 @@ func (s *eventsService) CountMemberJoinEvents(fileterEvent FilterEvent) (int, er
 	}
 	return totalEvent, nil
 }
+func (s *eventsService) MembersJoinEvent(fileterEvent FilterEvent) ([]*MemberJoinRepose, error) {
+
+	memberRes, err := s.eventRepo.MembersJoinEvent(repository.EventFilter{})
+
+	if err != nil {
+		return nil, err
+	}
+	memberJoinRepose := []*MemberJoinRepose{}
+	for _, member := range memberRes {
+		memberJoinRepose = append(memberJoinRepose, &MemberJoinRepose{
+			EventTitle:  member.EventTitle,
+			EventDate:   member.EventDate,
+			MemberCount: member.MemberCount,
+		})
+	}
+	return memberJoinRepose, nil
+}
